@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <NoWarn>NETSDK1138</NoWarn>
+    <RootNamespace>TouchGestures</RootNamespace>
+  </PropertyGroup>
+
+  <!--<ItemGroup>
+    <PackageReference Include="OpenTabletDriver.Plugin" Version="0.5.3.1" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode/OTD.EnhancedOutputMode.Lib/OTD.EnhancedOutputMode.Lib.csproj" />
+  </ItemGroup>
+
+</Project>
