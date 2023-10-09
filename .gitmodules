@@ -1,0 +1,6 @@
+[submodule ".modules/OpenTabletDriver.External"]
+	path = .modules/OpenTabletDriver.External
+	url = git@github.com:Mrcubix/OpenTabletDriver.External.git
+[submodule ".modules/OTD.EnhancedOutputMode"]
+	path = .modules/OTD.EnhancedOutputMode
+	url = git@github.com:Mrcubix/OTD.EnhancedOutputMode.git
