@@ -1,10 +1,10 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Touch_Gestures.ViewModels;
-using Touch_Gestures.Views;
+using TouchGestures.UX.ViewModels;
+using TouchGestures.UX.Views;
 
-namespace Touch_Gestures;
+namespace TouchGestures.UX;
 
 public partial class App : Application
 {

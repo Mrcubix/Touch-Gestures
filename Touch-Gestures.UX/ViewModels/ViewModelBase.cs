@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace Touch_Gestures.ViewModels;
+namespace TouchGestures.UX.ViewModels;
 
 public class ViewModelBase : ReactiveObject
 {

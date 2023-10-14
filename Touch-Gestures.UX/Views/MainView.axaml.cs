@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace Touch_Gestures.Views;
+namespace TouchGestures.UX.Views;
 
 public partial class MainView : UserControl
 {

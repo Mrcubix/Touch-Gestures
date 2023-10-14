@@ -2,7 +2,7 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
 
-namespace Touch_Gestures.Desktop;
+namespace TouchGestures.UX.Desktop;
 
 class Program
 {

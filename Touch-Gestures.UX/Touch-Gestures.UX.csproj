@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
+    <NoWarn>NETSDK1138; VSTHRD200</NoWarn>
+    <RootNamespace>TouchGestures.UX</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -20,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../Touch-Gestures.Lib/Touch-Gestures.Lib.csproj" />
     <ProjectReference Include="../.modules/OpenTabletDriver.External/OpenTabletDriver.External.Avalonia/OpenTabletDriver.External.Avalonia.csproj" />
   </ItemGroup>
 
