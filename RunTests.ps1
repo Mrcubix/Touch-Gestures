@@ -1,0 +1,1 @@
+dotnet test -p:nowarn=NETSDK1138 --logger "console;verbosity=detailed"
