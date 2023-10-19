@@ -5,7 +5,6 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
-using DynamicData.Binding;
 using TouchGestures.UX.ViewModels.Controls.Nodes;
 
 namespace TouchGestures.UX.Controls.Nodes;
