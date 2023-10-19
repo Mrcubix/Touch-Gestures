@@ -17,8 +17,5 @@ namespace TouchGestures.Lib.Interfaces
         public float HoldDuration { get; set; }
 
         public bool IsWithinNode(Vector2 position, float timestamp);
-
-        // A node may be dragged
-        // A node may be resized
     }
 }
