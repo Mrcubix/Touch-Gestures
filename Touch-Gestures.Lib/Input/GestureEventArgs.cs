@@ -2,10 +2,8 @@ namespace TouchGestures.Lib
 {
     public class GestureEventArgs
     {
-        public bool HasStarted { get; set; }
-        public bool HasEnded { get; set; }
-        public bool HasCompleted { get; set; }
-
+        #region Constructors
+        
         public GestureEventArgs()
         {
             HasStarted = false;
@@ -19,5 +17,15 @@ namespace TouchGestures.Lib
             HasEnded = hasEnded;
             HasCompleted = hasCompleted;
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool HasStarted { get; set; }
+        public bool HasEnded { get; set; }
+        public bool HasCompleted { get; set; }
+
+        #endregion
     }
 }
