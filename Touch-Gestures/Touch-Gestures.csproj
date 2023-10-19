@@ -6,11 +6,9 @@
     <RootNamespace>TouchGestures</RootNamespace>
   </PropertyGroup>
 
-  <!--<ItemGroup>
-    <PackageReference Include="OpenTabletDriver.Plugin" Version="0.5.3.1" />
-  </ItemGroup>-->
-
   <ItemGroup>
+    <ProjectReference Include="../Touch-Gestures.Lib/Touch-Gestures.Lib.csproj" />
+    <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" />
     <ProjectReference Include="../.modules/OTD.EnhancedOutputMode/OTD.EnhancedOutputMode.Lib/OTD.EnhancedOutputMode.Lib.csproj" />
   </ItemGroup>
 
