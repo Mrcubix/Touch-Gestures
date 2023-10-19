@@ -31,14 +31,14 @@ namespace TouchGestures.Lib.Entities.Gestures
             GestureCompleted += (_, args) => OnGestureComplete(args);
         }
 
-        public SwipeGesture(Vector2 threshold, long deadline, SwipeDirection direction) : this()
+        public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction) : this()
         {
             Threshold = threshold;
             Deadline = deadline;
             Direction = direction;
         }
 
-        public SwipeGesture(Vector2 threshold, long deadline, SwipeDirection direction, IBinding binding) : this(threshold, deadline, direction)
+        public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, IBinding binding) : this(threshold, deadline, direction)
         {
             Binding = binding;
         }
@@ -101,7 +101,7 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasCompleted = value;
 
                 if (value && !previous)
-                    GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasEnded, value));
+                    GestureCompleted?.Invoke(this, new SwipeGestureEventArgs(_hasStarted, _hasEnded, value, Direction));
             }
         }
 
@@ -152,6 +152,9 @@ namespace TouchGestures.Lib.Entities.Gestures
         /// <inheritdoc/>
         protected virtual void OnGestureStart(GestureEventArgs e)
         {
+            HasEnded = false;
+            HasCompleted = false;
+
             TimeStarted = DateTime.Now;
         }
 
@@ -160,75 +163,80 @@ namespace TouchGestures.Lib.Entities.Gestures
         {
             // reset the gesture
             HasStarted = false;
-            HasEnded = false;
         }
 
         /// <inheritdoc/>
         protected virtual void OnGestureComplete(GestureEventArgs e)
         {
-            // reset the gesture
-            HasCompleted = false;
-
+            HasStarted = false;
             StartPosition = Vector2.Zero;
         }
 
         /// <inheritdoc/>
         public virtual void OnInput(TouchPoint[] points)
         {
-            if ((DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
-            {
-                HasEnded = true;
-                HasCompleted = false;
-            }
-
-            if (points.Length > 0 && points[0] != null)
+            if (points.Length > 0)
             {
                 var point = points[0];
 
-                if (!HasStarted)
+                if (point != null)
                 {
-                    StartPosition = point.Position;
-                    HasStarted = true;
+                    if (!HasStarted)
+                    {
+                        StartPosition = point.Position;
+                        HasStarted = true;
+                    }
+                    else
+                    {
+                        if ((DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
+                        {
+                            HasEnded = true;
+                            return;
+                        }
+
+                        var delta = point.Position - StartPosition;
+
+                        switch(Direction)
+                        {
+                            case SwipeDirection.Up:
+                                if (delta.Y <= -Threshold.Y)
+                                    CompleteGesture();
+                                break;
+                            case SwipeDirection.Down:
+                                if (delta.Y >= Threshold.Y)
+                                    CompleteGesture();
+                                break;
+                            case SwipeDirection.Left:
+                                if (delta.X <= -Threshold.X)
+                                    CompleteGesture();
+                                break;
+                            case SwipeDirection.Right:
+                                if (delta.X >= Threshold.X)
+                                    CompleteGesture();
+                                break;
+                            case SwipeDirection.UpLeft:
+                                if (delta.Y <= -Threshold.Y && delta.X <= -Threshold.X)
+                                    CompleteGesture();
+                                break;
+                            case SwipeDirection.UpRight:
+                                if (delta.Y <= -Threshold.Y && delta.X >= Threshold.X)
+                                    CompleteGesture();
+                                break;
+                            case SwipeDirection.DownLeft:
+                                if (delta.Y >= Threshold.Y && delta.X <= -Threshold.X)
+                                    CompleteGesture();
+                                break;
+                            case SwipeDirection.DownRight:
+                                if (delta.Y >= Threshold.Y && delta.X >= Threshold.X)
+                                    CompleteGesture();
+                                break;
+                        }
+                    }
                 }
                 else
                 {
-                    var delta = point.Position - StartPosition;
-
-                    switch(Direction)
-                    {
-                        case SwipeDirection.Up:
-                            if (delta.Y <= -Threshold.Y)
-                                CompleteGesture();
-                            break;
-                        case SwipeDirection.Down:
-                            if (delta.Y >= Threshold.Y)
-                                CompleteGesture();
-                            break;
-                        case SwipeDirection.Left:
-                            if (delta.X <= -Threshold.X)
-                                CompleteGesture();
-                            break;
-                        case SwipeDirection.Right:
-                            if (delta.X >= Threshold.X)
-                                CompleteGesture();
-                            break;
-                        case SwipeDirection.UpLeft:
-                            if (delta.Y <= -Threshold.Y && delta.X <= -Threshold.X)
-                                CompleteGesture();
-                            break;
-                        case SwipeDirection.UpRight:
-                            if (delta.Y <= -Threshold.Y && delta.X >= Threshold.X)
-                                CompleteGesture();
-                            break;
-                        case SwipeDirection.DownLeft:
-                            if (delta.Y >= Threshold.Y && delta.X <= -Threshold.X)
-                                CompleteGesture();
-                            break;
-                        case SwipeDirection.DownRight:
-                            if (delta.Y >= Threshold.Y && delta.X >= Threshold.X)
-                                CompleteGesture();
-                            break;
-                    }
+                    if (HasStarted)
+                        HasEnded = true;
                 }
             }
         }
