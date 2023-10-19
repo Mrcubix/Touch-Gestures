@@ -18,6 +18,13 @@
             "stopAtEntry": false
         },
         {
+            "name": ".NET Core Launch Tests",
+            "type": "coreclr",
+            "request": "attach",
+            "preLaunchTask": "test",
+            "processName": "testhost"
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
