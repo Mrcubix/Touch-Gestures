@@ -1,0 +1,42 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:enhancements="clr-namespace:TouchGestures.UX.Controls.Enhancements">
+    
+    <Design.PreviewWith>
+        <enhancements:EnhancedGridSplitter />
+    </Design.PreviewWith>
+
+    <Style Selector="enhancements|EnhancedGridSplitter">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Grid>
+                        <Grid.Styles>
+                            <Style Selector="Rectangle">
+                                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                <Setter Property="VerticalAlignment" Value="Stretch" />
+                            </Style>
+
+                            <Style Selector="TextBlock">
+                                <Setter Property="FontSize" Value="24" />
+                                <Setter Property="Foreground" Value="White" />
+                                <Setter Property="Margin" Value="-1, 0, 0, 0" />
+                                <Setter Property="HorizontalAlignment" Value="Center" />
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </Style>
+
+                            <Style Selector="GridSplitter">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="ResizeDirection" Value="Columns" />
+                            </Style>
+                        </Grid.Styles>
+
+                        <Rectangle Fill="{TemplateBinding BackgroundFill}" />
+                        <TextBlock Text="{TemplateBinding DragIndicatorGlyph}" />
+                        <GridSplitter />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</Styles>

@@ -11,5 +11,6 @@
 
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="/Controls/Enhancements/EnhancedGridSplitter.axaml"/>
     </Application.Styles>
 </Application>
