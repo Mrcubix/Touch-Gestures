@@ -20,18 +20,10 @@ namespace TouchGestures.Lib.Entities.Gestures
         private bool _hasCompleted = false;
 
         private int _requiredTouchesCount = 1;
+
         private int[] _invokingTouchesIndices = null!;
         private bool[] _releasedTouches = null!;
-        private TouchPoint[] _invokingTouches = null!;
-
         private TouchPoint[] _previousPoints = null!;
-
-        /*private List<int> _currentTouches = null!;
-        private bool[] _previousActiveTouches = null!;
-        private bool[] _activeTouchesOutsideThreshold = null!;
-        private readonly List<int> _invokerTouches = new();*/
-
-
 
         #region Constructors
 
@@ -163,7 +155,6 @@ namespace TouchGestures.Lib.Entities.Gestures
 
                 _requiredTouchesCount = value;
                 _invokingTouchesIndices = new int[value];
-                _invokingTouches = new TouchPoint[value];
                 _releasedTouches = new bool[value];
 
                 Array.Fill(_invokingTouchesIndices, -1);
@@ -208,9 +199,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         /// <inheritdoc/>
         protected virtual void OnGestureComplete(GestureEventArgs e)
         {
-            // Reset the gesture.
             HasStarted = false;
-
             StartPosition = Vector2.Zero;
         }
 
