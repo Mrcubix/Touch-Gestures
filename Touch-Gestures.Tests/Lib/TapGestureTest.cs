@@ -1,11 +1,12 @@
 using System.Numerics;
+using System.Threading;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Entities.Gestures;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Touch_Gestures.Tests.Lib
+namespace TouchGestures.Tests.Lib
 {
     public class TapGestureTest
     {
@@ -216,10 +217,6 @@ namespace Touch_Gestures.Tests.Lib
 
         #region Mid-gesture invalidation test
 
-        /*
-            A case where an invalidating touch point is passed isn't recognized as an invalid state.
-        */
-
         /// <summary>
         ///   A test where the initial and invoking touch points were active, <br/>
         ///   but a touch point other of the invoking touch points is active upon the third report,
@@ -250,8 +247,6 @@ namespace Touch_Gestures.Tests.Lib
         }
 
         #endregion
-
-        #region Shared test parts
 
         #region Invoking touch point goes out of bounds
 
@@ -290,6 +285,37 @@ namespace Touch_Gestures.Tests.Lib
         }
 
         #endregion
+
+        #region Gesture is valid but deadline was passed
+
+        /// <summary>
+        ///   A test where the initial and invoking touch points were active, <br/>
+        ///   but the deadline was passed upon the last report,
+        ///   which should end the gesture.
+        /// </summary>
+        /// <remarks>
+        ///   The gesture should be started at first and should have ended abruptly. <br/>
+        ///   The gesture should not be completed.
+        /// </remarks>
+        [Fact]
+        public void DeadlinePassed()
+        {
+            TapGesture gesture = IntermidiaryTestPart();
+
+            Thread.Sleep((int)DEADLINE + 50);
+
+            // we pass an end state touch point
+            gesture.OnInput(ValidGestureTouchPointsFinalState);
+
+            Assert.True(gesture.HasEnded);
+            Assert.False(gesture.HasCompleted);
+
+            _output.WriteLine("Gesture ended abruptly as expected");
+        }
+
+        #endregion
+
+        #region Shared test parts
 
         private TapGesture IntermidiaryTestPart()
         {
