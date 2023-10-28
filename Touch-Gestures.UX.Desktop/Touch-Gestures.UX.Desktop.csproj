@@ -3,7 +3,11 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <SelfContained>false</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <PublishSingleFile>true</PublishSingleFile>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <TrimUnusedDependencies>true</TrimUnusedDependencies>
   </PropertyGroup>
 
   <PropertyGroup>
