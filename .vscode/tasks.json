@@ -10,7 +10,7 @@
                 "${workspaceFolder}/Touch-Gestures.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
-                "/property:noWarn=NETSDK1138"
+                "/property:noWarn=\"NETSDK1138;VSTHRD200;CS0414\""
             ],
             "problemMatcher": "$msCompile"
         },
@@ -22,7 +22,8 @@
                 "publish",
                 "${workspaceFolder}/Touch-Gestures.sln",
                 "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "/consoleloggerparameters:NoSummary",
+                "/property:noWarn=\"NETSDK1138;VSTHRD200;CS0414\""
             ],
             "problemMatcher": "$msCompile"
         },
@@ -45,7 +46,7 @@
             "isBackground": true,
             "args": [
                 "test",
-                "-p:nowarn=\"NETSDK1138;VSTHRD200\"",
+                "-p:nowarn=\"NETSDK1138;VSTHRD200;CS0414\"",
                 "--logger",
                 "console;verbosity=detailed"
             ],
