@@ -5,15 +5,15 @@ using System.Numerics;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Input;
-using TouchGestures.Lib.Interfaces;
 using System.Threading.Tasks;
+using TouchGestures.Lib.Entities.Gestures.Bases;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
     /// <summary>
     ///   Represent a 1-finger tap gesture.
     /// </summary>
-    public class TapGesture : IMixedBasedGesture
+    public class TapGesture : MixedBasedGesture
     {
         private bool _hasStarted = false;
         private bool _hasEnded = false;
@@ -69,13 +69,13 @@ namespace TouchGestures.Lib.Entities.Gestures
         #region Events
 
         /// <inheritdoc/>
-        public event EventHandler<GestureStartedEventArgs> GestureStarted = null!;
+        public new event EventHandler<GestureStartedEventArgs> GestureStarted = null!;
 
         /// <inheritdoc/>
-        public event EventHandler<GestureEventArgs> GestureEnded = null!;
+        public new event EventHandler<GestureEventArgs> GestureEnded = null!;
 
         /// <inheritdoc/>
-        public event EventHandler<GestureEventArgs> GestureCompleted = null!;
+        public new event EventHandler<GestureEventArgs> GestureCompleted = null!;
 
         #endregion
 

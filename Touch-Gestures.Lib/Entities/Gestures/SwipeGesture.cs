@@ -3,16 +3,16 @@ using System.Numerics;
 using System.Threading.Tasks;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Input;
-using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
     /// <summary>
     ///   Represent a swipe gesture in any of the 8 directions in <see cref="SwipeDirection"/>.
     /// </summary>
-    public class SwipeGesture : IMixedBasedGesture
+    public class SwipeGesture : MixedBasedGesture
     {
         #region Fields
 
@@ -48,13 +48,13 @@ namespace TouchGestures.Lib.Entities.Gestures
         #region Events
 
         /// <inheritdoc/>
-        public event EventHandler<GestureStartedEventArgs> GestureStarted = null!;
+        public new event EventHandler<GestureStartedEventArgs> GestureStarted = null!;
 
         /// <inheritdoc/>
-        public event EventHandler<GestureEventArgs> GestureEnded = null!;
+        public new event EventHandler<GestureEventArgs> GestureEnded = null!;
 
         /// <inheritdoc/>
-        public event EventHandler<GestureEventArgs> GestureCompleted = null!;
+        public new event EventHandler<GestureEventArgs> GestureCompleted = null!;
 
         #endregion
 

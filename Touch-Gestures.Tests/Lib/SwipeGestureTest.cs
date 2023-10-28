@@ -28,7 +28,6 @@ namespace TouchGestures.Tests.Lib
 
         private readonly Vector2 THRESHOLD = new(30, 30);
         private readonly IBinding BINDING = null!;
-        private readonly Action SubscribeAction = null!;
 
         #endregion
 

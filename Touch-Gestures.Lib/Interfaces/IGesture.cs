@@ -1,6 +1,7 @@
 using System;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Input;
 
 
@@ -28,6 +29,8 @@ namespace TouchGestures.Lib.Interfaces
         #endregion
         
         #region Properties
+
+        public GestureType GestureType => throw new NotImplementedException();
 
         /// <summary>
         ///   Whether the gesture has started.
