@@ -1,0 +1,51 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:gn="clr-namespace:TouchGestures.UX.Controls.Nodes"
+        xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels"
+        xmlns:nodes="clr-namespace:TouchGestures.UX.ViewModels.Controls.Nodes"
+        xmlns:containers="clr-namespace:TouchGestures.UX.Controls.Containers">
+
+  <Design.PreviewWith>
+    <containers:NodeCanvas Nodes="{Binding Nodes}" />
+  </Design.PreviewWith>
+
+  <Design.DataContext>
+    <vm:MainViewModel />
+  </Design.DataContext>
+
+  <Style Selector="containers|NodeCanvas">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ItemsControl ItemsSource="{TemplateBinding Nodes}">
+
+            <ItemsControl.ItemContainerTheme>
+              <ControlTheme TargetType="ContentPresenter" x:DataType="nodes:NodeViewModel">
+                <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+              </ControlTheme>
+            </ItemsControl.ItemContainerTheme>
+
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <Canvas/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.DataTemplates>
+              <DataTemplate DataType="nodes:RectangleNodeViewModel">
+                <gn:RectangleNode Fill="Blue" Stroke="Black" StrokeThickness="2"
+                                  Width="{Binding Width}" Height="{Binding Height}" />
+              </DataTemplate>
+              <DataTemplate DataType="nodes:CircleNodeViewModel">
+                <gn:CircleNode Fill="Blue" Stroke="Black" StrokeThickness="2"
+                               Width="{Binding Width}" Height="{Binding Height}" />
+              </DataTemplate>
+            </ItemsControl.DataTemplates>
+
+          </ItemsControl>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</Styles>

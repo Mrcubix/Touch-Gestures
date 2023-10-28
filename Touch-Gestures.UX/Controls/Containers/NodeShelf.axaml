@@ -1,0 +1,51 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels"
+        xmlns:containers="clr-namespace:TouchGestures.UX.Controls.Containers"
+        xmlns:itf="clr-namespace:TouchGestures.UX.Interfaces.Nodes">
+
+  <Design.PreviewWith>
+    <containers:NodeShelf NodeBuilders="{Binding NodeBuilders}" />
+  </Design.PreviewWith>
+
+  <Design.DataContext>
+    <vm:MainViewModel />
+  </Design.DataContext>
+
+  <Style Selector="containers|NodeShelf">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid>
+            <ItemsControl ItemsSource="{TemplateBinding NodeBuilders}" Name="NodeShelfItemsControl">
+
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Grid.IsSharedSizeScope="True" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="itf:INodeBuilder">
+                  <Button Command="{Binding Build}" Background="#2A3531" MaxHeight="48" Margin="4" HorizontalAlignment="Stretch">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Icon" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Name" />
+                      </Grid.ColumnDefinitions>
+
+                      <Image Source="{Binding Icon}" Grid.Column="0" />
+                      <TextBlock Text="{Binding Name}" Grid.Column="2" TextAlignment="Left" VerticalAlignment="Center" />
+                    </Grid>
+                  </Button>
+
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</Styles>

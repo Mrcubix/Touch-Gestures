@@ -4,7 +4,6 @@ using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Entities.Nodes;
 using Avalonia;
 
-
 namespace TouchGestures.UX.ViewModels.Controls.Nodes;
 
 public class RectangleNodeViewModel : NodeViewModel

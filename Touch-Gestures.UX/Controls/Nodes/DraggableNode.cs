@@ -9,6 +9,8 @@ using TouchGestures.UX.ViewModels.Controls.Nodes;
 
 namespace TouchGestures.UX.Controls.Nodes;
 
+#nullable enable
+
 /// <summary>
 ///   A Control that can be dragged around by the user.
 /// </summary>
@@ -63,6 +65,8 @@ public abstract class DraggableNode : Shape
 
     private TranslateTransform _transform = null!;
 
+    #region Events Overrides
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         if (change.Property == ParentProperty)
@@ -74,6 +78,9 @@ public abstract class DraggableNode : Shape
             }
             else if (Parent is Control parent)
                 _realParent = parent;
+
+            if (_realParent != null)
+                _realParent.SizeChanged += OnRealParentSizeChanged;
 
             // we cache the parent to avoid having to typecheck & cast it every time
             _parentControl = Parent as Control;
@@ -117,27 +124,69 @@ public abstract class DraggableNode : Shape
 
         Point currentPos = e.GetPosition(_realParent);
 
-        var parentBounds = _realParent.Bounds;
-
         var offsetX = currentPos.X - _dragStartPoint.X;
         var offsetY = currentPos.Y - _dragStartPoint.Y;
 
         // clamp to parent bounds
-        offsetX = Math.Clamp(offsetX, 0, parentBounds.Width - Width);
-        offsetY = Math.Clamp(offsetY, 0, parentBounds.Height - Height);
+        ClampToParentBounds(ref offsetX, ref offsetY);
 
-        // Canvas.Left & Canvas.Top need to be set somwhere
-        if (_isParentContentPresenter && DataContext is NodeViewModel nodeViewModel)
-        {
-            nodeViewModel.X = offsetX;
-            nodeViewModel.Y = offsetY;
-        }
-        else
-        {
-            _transform = new TranslateTransform(offsetX, offsetY);
-            RenderTransform = _transform;
-        }
+        SetPosition(offsetX, offsetY);
 
         base.OnPointerMoved(e);
     }
+
+    #endregion
+
+    #region Methods
+
+    private void SetPosition(double x, double y)
+    {
+        if (_isParentContentPresenter && DataContext is NodeViewModel nodeViewModel)
+        {
+            nodeViewModel.X = x;
+            nodeViewModel.Y = y;
+        }
+        else
+        {
+            _transform = new TranslateTransform(x, y);
+            RenderTransform = _transform;
+        }
+    }
+
+    private void ClampToParentBounds(ref double x, ref double y)
+    {
+        if (_realParent == null)
+            return;
+
+        var parentBounds = _realParent.Bounds;
+
+        // clamp to parent bounds
+        x = Math.Clamp(x, 0, parentBounds.Width - Width);
+        y = Math.Clamp(y, 0, parentBounds.Height - Height);
+    }
+
+    #endregion
+
+    #region Events Handling
+
+    private void OnRealParentSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        double x, y;
+
+        if (_isParentContentPresenter && DataContext is NodeViewModel nodeViewModel)
+        {
+            x = nodeViewModel.X;
+            y = nodeViewModel.Y;
+        }
+        else
+        {
+            x = _transform?.X ?? 0;
+            y = _transform?.Y ?? 0;
+        }
+
+        ClampToParentBounds(ref x, ref y);
+        SetPosition(x, y);
+    }
+
+    #endregion
 }
