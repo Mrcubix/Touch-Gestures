@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:TouchGestures.UX.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        MinWidth="640" MinHeight="360"
         x:Class="TouchGestures.UX.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="Touch Gestures"
-        Background="#7F000000">
+        Background="{StaticResource BodyColorBrush}">
         <views:MainView />
 </Window>
