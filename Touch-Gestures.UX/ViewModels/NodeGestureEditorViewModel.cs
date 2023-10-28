@@ -1,13 +1,14 @@
 using System.Collections.ObjectModel;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
 using TouchGestures.UX.Entities.Builders.Nodes;
 using TouchGestures.UX.Interfaces.Nodes;
 using TouchGestures.UX.ViewModels.Controls.Nodes;
 
 namespace TouchGestures.UX.ViewModels;
 
-public class NodeGestureEditorViewModel : ViewModelBase
+public partial class NodeGestureEditorViewModel : ViewModelBase
 {
+    [ObservableProperty]
     private ObservableCollection<NodeViewModel> _nodes = new();
 
     public NodeGestureEditorViewModel()
@@ -46,10 +47,4 @@ public class NodeGestureEditorViewModel : ViewModelBase
         new RectangleNodeBuilder(),
         new CircleNodeBuilder()
     };
-
-    public ObservableCollection<NodeViewModel> Nodes
-    {
-        get => _nodes;
-        set => this.RaiseAndSetIfChanged(ref _nodes, value);
-    }
 }

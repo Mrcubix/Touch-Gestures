@@ -1,23 +1,14 @@
-﻿using ReactiveUI;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace TouchGestures.UX.ViewModels;
 
-public class MainViewModel : ViewModelBase
+public partial class MainViewModel : ViewModelBase
 {
+    [ObservableProperty]
     private NodeGestureEditorViewModel _nodeGestureEditorViewModel = new();
+
+    [ObservableProperty]
     private GestureSelectionScreenViewModel _gestureSelectionScreenViewModel = new();
-
-    public NodeGestureEditorViewModel NodeGestureEditorViewModel
-    {
-        get => _nodeGestureEditorViewModel;
-        set => this.RaiseAndSetIfChanged(ref _nodeGestureEditorViewModel, value);
-    }
-
-    public GestureSelectionScreenViewModel GestureSelectionScreenViewModel
-    {
-        get => _gestureSelectionScreenViewModel;
-        set => this.RaiseAndSetIfChanged(ref _gestureSelectionScreenViewModel, value);
-    }
 
     public MainViewModel()
     {

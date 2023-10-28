@@ -1,28 +1,52 @@
 using TouchGestures.Lib.Interfaces;
-using ReactiveUI;
 using TouchGestures.Lib.Enums;
 using Avalonia;
 using TouchGestures.UX.Workarounds.Interfaces;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace TouchGestures.UX.ViewModels.Controls.Nodes;
 
-public abstract class NodeViewModel : ViewModelBase, INodeViewModel
+public abstract partial class NodeViewModel : ViewModelBase, INodeViewModel
 {
+    [ObservableProperty]
     private int _index;
+
     private GestureNodeShape _shape;
+
+    [ObservableProperty]
     private bool _isGestureStart;
+
+    [ObservableProperty]
     private bool _isGestureEnd;
-    /*
-    private Point _position;
-    private Size _size;
-    */
+
+    //[ObservableProperty]
+    //private Point _position;
+
+    //[ObservableProperty]
+    //private Size _size;
+
+    [ObservableProperty]
     private double _x;
+
+    [ObservableProperty]
     private double _y;
+
+    [ObservableProperty]
     private double _width;
+
+    [ObservableProperty]
     private double _height;
+
+    [ObservableProperty]
     private float _timestamp;
+
+    [ObservableProperty]
     private float _timestampTolerance;
+
+    [ObservableProperty]
     private bool _isHold;
+
+    [ObservableProperty]
     private float _holdDuration;
 
     public NodeViewModel()
@@ -54,88 +78,10 @@ public abstract class NodeViewModel : ViewModelBase, INodeViewModel
         HoldDuration = node.HoldDuration;
     }
 
-    public int Index
-    {
-        get => _index;
-        set => this.RaiseAndSetIfChanged(ref _index, value);
-    }
-
     public GestureNodeShape Shape
     {
         get => _shape;
-        init => this.RaiseAndSetIfChanged(ref _shape, value);
-    }
-
-    public bool IsGestureStart
-    {
-        get => _isGestureStart;
-        set => this.RaiseAndSetIfChanged(ref _isGestureStart, value);
-    }
-
-    public bool IsGestureEnd
-    {
-        get => _isGestureEnd;
-        set => this.RaiseAndSetIfChanged(ref _isGestureEnd, value);
-    }
-    /*
-    public Point Position
-    {
-        get => _position;
-        set => this.RaiseAndSetIfChanged(ref _position, value);
-    }
-
-    public Size Size
-    {
-        get => _size;
-        set => this.RaiseAndSetIfChanged(ref _size, value);
-    }
-    */
-    public double X
-    {
-        get => _x;
-        set => this.RaiseAndSetIfChanged(ref _x, value);
-    }
-
-    public double Y
-    {
-        get => _y;
-        set => this.RaiseAndSetIfChanged(ref _y, value);
-    }
-
-    public double Width
-    {
-        get => _width;
-        set => this.RaiseAndSetIfChanged(ref _width, value);
-    }
-
-    public double Height
-    {
-        get => _height;
-        set => this.RaiseAndSetIfChanged(ref _height, value);
-    }
-
-    public float Timestamp
-    {
-        get => _timestamp;
-        set => this.RaiseAndSetIfChanged(ref _timestamp, value);
-    }
-
-    public float TimestampTolerance
-    {
-        get => _timestampTolerance;
-        set => this.RaiseAndSetIfChanged(ref _timestampTolerance, value);
-    }
-
-    public bool IsHold
-    {
-        get => _isHold;
-        set => this.RaiseAndSetIfChanged(ref _isHold, value);
-    }
-
-    public float HoldDuration
-    {
-        get => _holdDuration;
-        set => this.RaiseAndSetIfChanged(ref _holdDuration, value);
+        init => SetProperty(ref _shape, value);
     }
     
     public abstract bool IsWithinNode(Point position, float timestamp);

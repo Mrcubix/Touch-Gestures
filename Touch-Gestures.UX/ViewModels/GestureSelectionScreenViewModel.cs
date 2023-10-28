@@ -1,13 +1,14 @@
 
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
 using DynamicData;
-using ReactiveUI;
 using TouchGestures.UX.Controls.GestureTiles;
 
 namespace TouchGestures.UX.ViewModels;
 
-public class GestureSelectionScreenViewModel : ViewModelBase
+public partial class GestureSelectionScreenViewModel : NavigableViewModel
 {
 
     private string _searchText = string.Empty;
@@ -46,11 +47,15 @@ public class GestureSelectionScreenViewModel : ViewModelBase
         }
     };
 
+    [ObservableProperty]
     private ObservableCollection<GestureTileViewModel> _currentGestureTiles = new();
 
     public GestureSelectionScreenViewModel()
     {
         _currentGestureTiles.AddRange(_gestureTileViewModels);
+
+        CanGoBack = true;
+        NextViewModel = null;
     }
 
     public string SearchText
@@ -58,16 +63,24 @@ public class GestureSelectionScreenViewModel : ViewModelBase
         get => _searchText;
         set
         {
-            this.RaiseAndSetIfChanged(ref _searchText, value);
+            SetProperty(ref _searchText, value);
             OnSearchTextChanged(value);
         }
     }
 
-    public ObservableCollection<GestureTileViewModel> CurrentGestureTiles
-    {
-        get => _currentGestureTiles;
-        set => this.RaiseAndSetIfChanged(ref _currentGestureTiles, value);
-    }
+    #region Events
+
+    public override event EventHandler? BackRequested;
+
+    #endregion
+
+    #region Methods
+
+    protected override void GoBack() => BackRequested?.Invoke(this, EventArgs.Empty);
+
+    #endregion
+
+    #region Event Handlers
 
     private void OnSearchTextChanged(string text)
     {
@@ -79,8 +92,14 @@ public class GestureSelectionScreenViewModel : ViewModelBase
             CurrentGestureTiles.AddRange(_gestureTileViewModels.Where(x => GestureNameStartsWith(x, text)));
     }
 
+    #endregion
+
+    #region Static Methods
+
     private static bool GestureNameStartsWith(GestureTileViewModel gestureTileViewModel, string text)
     {
         return gestureTileViewModel.GestureName.ToLower().StartsWith(text.ToLower());
     }
+
+    #endregion
 }

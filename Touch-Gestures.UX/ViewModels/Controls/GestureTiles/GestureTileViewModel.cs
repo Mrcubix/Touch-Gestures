@@ -1,38 +1,21 @@
 using System.Windows.Input;
 using Avalonia.Media;
-using OpenTabletDriver.External.Avalonia.ViewModels;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
+using TouchGestures.UX.ViewModels;
 
 namespace TouchGestures.UX.Controls.GestureTiles;
 
-public class GestureTileViewModel : ViewModelBase
+public partial class GestureTileViewModel : ViewModelBase
 {
+    [ObservableProperty]
     private string _gestureName = "[Insert Gesture Name Here]";
+
+    [ObservableProperty]
     private string _description = "[Insert Gesture Description Here]";
+
+    [ObservableProperty]
     private IImage? _icon = null;
+
+    [ObservableProperty]
     private ICommand? _command = null;
-
-    public string GestureName
-    {
-        get => _gestureName;
-        set => this.RaiseAndSetIfChanged(ref _gestureName, value);
-    }
-
-    public string Description
-    {
-        get => _description;
-        set => this.RaiseAndSetIfChanged(ref _description, value);
-    }
-
-    public IImage? Icon
-    {
-        get => _icon;
-        set => this.RaiseAndSetIfChanged(ref _icon, value);
-    }
-
-    public ICommand? Command
-    {
-        get => _command;
-        set => this.RaiseAndSetIfChanged(ref _command, value);
-    }
 }

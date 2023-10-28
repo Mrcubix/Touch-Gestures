@@ -1,7 +1,7 @@
-﻿using ReactiveUI;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace TouchGestures.UX.ViewModels;
 
-public class ViewModelBase : ReactiveObject
+public class ViewModelBase : ObservableObject
 {
 }
