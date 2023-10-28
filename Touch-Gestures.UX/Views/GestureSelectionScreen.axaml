@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels"
+             xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:GestureSelectionScreenViewModel"
+             x:Class="TouchGestures.UX.Views.GestureSelectionScreen">
+
+  <Design.DataContext>
+    <vm:GestureSelectionScreenViewModel />
+  </Design.DataContext>
+
+  <UserControl.Styles>
+    <Style Selector="ScrollViewer#VIEW_GestureSelectionScreen">
+      <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+      <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+      <!--<Setter Property="VerticalAlignment" Value="Center" />-->
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="23, 0" />
+    </Style>
+    <Style Selector="Button#VIEW_BackButton">
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Margin" Value="0" />
+      <Setter Property="Padding" Value="9, 8" />
+    </Style>
+    <Style Selector="TextBox#VIEW_SearchBar">
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderColorBrush}" />
+      <Setter Property="Margin" Value="4, 0" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto, *" Grid.Row="0">
+      <Grid Name="VIEW_GestureSelectionMenu" ColumnDefinitions="Auto, *, Auto" Grid.Row="0" Margin="0, 32">
+        <Button Name="VIEW_BackButton" Content="←" Command="" Grid.Column="0" />
+        <TextBox Name="VIEW_SearchBar" Watermark="Search..." Text="{Binding SearchText}" Grid.Column="1" />
+        <TextBlock Text="" Grid.Column="2" Width="35" Height="35" />
+      </Grid>
+
+      <ScrollViewer Name="VIEW_GestureSelectionScreen" Grid.Row="1">
+        <ItemsControl ItemsSource="{Binding CurrentGestureTiles}" Padding="16, 0">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal" ItemWidth="264" ItemHeight="264" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <controls:GestureTile GestureName="{Binding GestureName}" Description="{Binding Description}" Margin="4" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+</UserControl>

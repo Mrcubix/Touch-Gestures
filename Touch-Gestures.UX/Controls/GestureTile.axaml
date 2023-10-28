@@ -1,0 +1,50 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:TouchGestures.UX.Controls">
+
+  <Design.PreviewWith>
+    <Grid>
+      <controls:GestureTile GestureName="Swipe" Description="A gesture completed by swiping in a specific direction" Width="264" Height="264" />
+    </Grid>
+  </Design.PreviewWith>
+
+  <Style Selector="controls|GestureTile /template/ Button">
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+    <Setter Property="BorderBrush" Value="{StaticResource BorderColorBrush}" />
+    <Setter Property="Background" Value="{StaticResource AccentColorBrush}" />
+    <Setter Property="CornerRadius" Value="5" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="Padding" Value="8,32,8,6" />
+  </Style>
+
+  <Style Selector="controls|GestureTile /template/ Button > ContentPresenter">
+    <Setter Property="Padding" Value="0" />
+  </Style>
+
+  <Style Selector="controls|GestureTile /template/ Image">
+    <Setter Property="Margin" Value="4, 4, 4, 8" />
+  </Style>
+
+  <Style Selector="controls|GestureTile /template/ TextBlock">
+    <Setter Property="FontSize" Value="24" />
+    <Setter Property="Foreground" Value="{StaticResource TextColorBrush}" />
+    <Setter Property="TextAlignment" Value="Center" />
+  </Style>
+    
+  <Style Selector="controls|GestureTile">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Button Command="{TemplateBinding Command}" ToolTip.Tip="{TemplateBinding Description}">
+            <Grid RowDefinitions="*, Auto">
+              <Image Source="{TemplateBinding Icon}" Grid.Row="0" />
+              <TextBlock Text="{TemplateBinding GestureName}" Grid.Row="1" />
+            </Grid>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</Styles>

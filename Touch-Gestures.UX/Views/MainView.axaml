@@ -2,46 +2,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:gn="clr-namespace:TouchGestures.UX.Controls.Nodes"
              xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels"
-             xmlns:nodes="clr-namespace:TouchGestures.UX.ViewModels.Controls.Nodes"
+             xmlns:views="clr-namespace:TouchGestures.UX.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="TouchGestures.UX.Views.MainView"
-             x:DataType="vm:MainViewModel">
+             x:DataType="vm:MainViewModel"
+             x:Class="TouchGestures.UX.Views.MainView">
 
   <Design.DataContext>
     <vm:MainViewModel />
   </Design.DataContext>
 
   <Grid>
+    <views:GestureSelectionScreen DataContext="{Binding GestureSelectionScreenViewModel}" />
     
-    <ItemsControl ItemsSource="{Binding Nodes}">
-
-      <ItemsControl.ItemsPanel>
-        <ItemsPanelTemplate>
-          <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-        </ItemsPanelTemplate>
-      </ItemsControl.ItemsPanel>
-
-      <ItemsControl.DataTemplates>
-        <DataTemplate DataType="nodes:RectangleNodeViewModel">
-          <gn:RectangleNode Fill="Blue" Stroke="Black" StrokeThickness="2"
-                            Width="{Binding Width}" Height="{Binding Height}" />
-        </DataTemplate>
-        <DataTemplate DataType="nodes:CircleNodeViewModel">
-          <gn:CircleNode Fill="Blue" Stroke="Black" StrokeThickness="2"
-                         Width="{Binding Width}" Height="{Binding Height}" />
-        </DataTemplate>
-      </ItemsControl.DataTemplates>
-
-      <ItemsControl.ItemContainerTheme>
-        <ControlTheme TargetType="ContentPresenter" x:DataType="nodes:NodeViewModel">
-          <Setter Property="Canvas.Left" Value="{Binding X}"/>
-          <Setter Property="Canvas.Top" Value="{Binding Y}"/>
-        </ControlTheme>
-      </ItemsControl.ItemContainerTheme>
-
-    </ItemsControl>
-
+    <views:NodeGestureEditor DataContext="{Binding NodeGestureEditorViewModel}" IsVisible="false" IsEnabled="false" />
   </Grid>
 </UserControl>

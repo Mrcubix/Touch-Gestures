@@ -1,16 +1,34 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:TouchGestures.UX"
+             xmlns:controls="using:TouchGestures.UX.Controls"
              x:Class="TouchGestures.UX.App"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Dark">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
 
+    <Application.Resources>
+        <SolidColorBrush x:Key="SideBarColorBrush" Color="#2F2F2F" />
+        <SolidColorBrush x:Key="AccentColorBrush" Color="#272727" />
+        <SolidColorBrush x:Key="BorderColorBrush" Color="#1C1C1C" />
+        <SolidColorBrush x:Key="InputBorderColorBrush" Color="#292929" />
+        <SolidColorBrush x:Key="BodyColorBrush" Color="#343434" />
+        <SolidColorBrush x:Key="TextColorBrush" Color="#9F9F9F" />
+    </Application.Resources>
+        
     <Application.Styles>
+        <!-- Theme -->
         <FluentTheme />
+
+        <!-- Styles -->
+        <StyleInclude Source="/Controls/GestureTile.axaml"/>
+
+        <StyleInclude Source="/Controls/Containers/NodeCanvas.axaml"/>
+        <StyleInclude Source="/Controls/Containers/NodeShelf.axaml"/>
+
         <StyleInclude Source="/Controls/Enhancements/EnhancedGridSplitter.axaml"/>
     </Application.Styles>
 </Application>
