@@ -6,15 +6,23 @@ using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Input;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using TouchGestures.Lib.Enums;
+using TouchGestures.Lib;
 using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Interfaces;
+using OpenTabletDriver.Desktop.Reflection;
 
-namespace TouchGestures.Lib.Entities.Gestures
+namespace TouchGestures.Entities.Gestures
 {
     /// <summary>
     ///   Represent a 1-finger tap gesture.
     /// </summary>
+    [JsonObject(MemberSerialization.OptIn)]
     public class TapGesture : MixedBasedGesture
     {
+        #region Fields
+
         private bool _hasStarted = false;
         private bool _hasEnded = false;
         private bool _hasCompleted = false;
@@ -25,13 +33,17 @@ namespace TouchGestures.Lib.Entities.Gestures
         private bool[] _releasedTouches = null!;
         private TouchPoint[] _previousPoints = null!;
 
+        #endregion
+
         #region Constructors
 
-        public TapGesture()
+        public TapGesture() : base(1000)
         {
             GestureStarted += (_, args) => OnGestureStart(args);
             GestureEnded += (_, args) => OnGestureEnd(args);
             GestureCompleted += (_, args) => OnGestureComplete(args);
+
+            RequiredTouchesCount = 1;
         }
 
         public TapGesture(Vector2 threshold) : this()
@@ -39,27 +51,17 @@ namespace TouchGestures.Lib.Entities.Gestures
             Threshold = threshold;
         }
 
+        public TapGesture(double deadline) : this()
+        {
+            Deadline = deadline;
+        }
+
         public TapGesture(Vector2 threshold, double deadline) : this(threshold)
         {
             Deadline = deadline;
         }
 
-        public TapGesture(Vector2 threshold, double deadline, IBinding binding) : this(threshold, deadline)
-        {
-            Binding = binding;
-        }
-
-        public TapGesture(Vector2 threshold, IBinding binding) : this(threshold)
-        {
-            Binding = binding;
-        }
-
-        public TapGesture(Vector2 threshold, IBinding binding, int requiredTouchesCount) : this(threshold, binding)
-        {
-            RequiredTouchesCount = requiredTouchesCount;
-        }
-
-        public TapGesture(Vector2 threshold, double deadline, IBinding binding, int requiredTouchesCount) : this(threshold, deadline, binding)
+        public TapGesture(Vector2 threshold, double deadline, int requiredTouchesCount) : this(threshold, deadline)
         {
             RequiredTouchesCount = requiredTouchesCount;
         }
@@ -69,20 +71,20 @@ namespace TouchGestures.Lib.Entities.Gestures
         #region Events
 
         /// <inheritdoc/>
-        public new event EventHandler<GestureStartedEventArgs> GestureStarted = null!;
+        public override event EventHandler<GestureStartedEventArgs>? GestureStarted;
 
         /// <inheritdoc/>
-        public new event EventHandler<GestureEventArgs> GestureEnded = null!;
+        public override event EventHandler<GestureEventArgs>? GestureEnded;
 
         /// <inheritdoc/>
-        public new event EventHandler<GestureEventArgs> GestureCompleted = null!;
+        public override event EventHandler<GestureEventArgs>? GestureCompleted;
 
         #endregion
 
         #region Properties
 
         /// <inheritdoc/>
-        public virtual bool HasStarted
+        public override bool HasStarted
         {
             get => _hasStarted;
             protected set
@@ -97,7 +99,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         }
 
         /// <inheritdoc/>
-        public virtual bool HasEnded
+        public override bool HasEnded
         {
             get => _hasEnded;
             protected set
@@ -112,7 +114,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         }
 
         /// <inheritdoc/>
-        public virtual bool HasCompleted
+        public override bool HasCompleted
         {
             get => _hasCompleted;
             protected set
@@ -127,19 +129,8 @@ namespace TouchGestures.Lib.Entities.Gestures
         }
 
         /// <inheritdoc/>
-        public virtual Vector2 StartPosition { get; protected set; }
-
-        /// <inheritdoc/>
-        public virtual Vector2 Threshold { get; protected set; }
-
-        /// <inheritdoc/>
-        public virtual DateTime TimeStarted { get; protected set; }
-
-        /// <inheritdoc/>
-        public virtual double Deadline { get; protected set; } = 200;
-
-        /// <inheritdoc/>
-        public virtual IBinding? Binding { get; set; }
+        [JsonProperty]
+        public override GestureKind GestureKind => GestureKind.Swipe;
 
         /// <summary>
         ///   The number of touches required to trigger the gesture. <br/>
@@ -165,46 +156,40 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #endregion
 
-        protected void CompleteGesture()
+        #region Methods
+
+        protected virtual void CompleteGesture()
         {
             HasCompleted = true;
             HasEnded = true;
-
-            if (Binding != null)
-            {
-                _ = Task.Run(async () =>
-                {
-                    Binding.Press();
-                    await Task.Delay(15);
-                    Binding.Release();
-                });
-            }
         }
+
+        #endregion
 
         #region Event Handlers
 
         /// <inheritdoc/>
-        protected virtual void OnGestureStart(GestureStartedEventArgs e)
+        protected override void OnGestureStart(GestureStartedEventArgs e)
         {
             HasEnded = false;
             HasCompleted = false;
         }
 
         /// <inheritdoc/>
-        protected virtual void OnGestureEnd(GestureEventArgs e)
+        protected override void OnGestureEnd(GestureEventArgs e)
         {
             HasStarted = false;
         }
 
         /// <inheritdoc/>
-        protected virtual void OnGestureComplete(GestureEventArgs e)
+        protected override void OnGestureComplete(GestureEventArgs e)
         {
             HasStarted = false;
             StartPosition = Vector2.Zero;
         }
 
         /// <inheritdoc/>
-        public virtual void OnInput(TouchPoint[] points)
+        public override void OnInput(TouchPoint[] points)
         {
             // a tap is only triggered on release
             if (points.Length > 0)

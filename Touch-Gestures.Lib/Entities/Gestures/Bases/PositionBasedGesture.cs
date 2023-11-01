@@ -1,15 +1,20 @@
 using System;
-using TouchGestures.Lib.Enums;
-using TouchGestures.Lib.Input;
+using System.Numerics;
+using Newtonsoft.Json;
+using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Entities.Gestures.Bases
 {
-    public abstract class PositionBasedGesture : ITimeBasedGesture
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public abstract class PositionBasedGesture : Gesture, IPositionBasedGesture
     {
-        public virtual GestureType GestureType => GestureType.PositionBased;
-        public event EventHandler<GestureStartedEventArgs> GestureStarted = null!;
-        public event EventHandler<GestureEventArgs> GestureEnded = null!;
-        public event EventHandler<GestureEventArgs> GestureCompleted = null!;
+        /// <inheritdoc />
+        public abstract Vector2 StartPosition { get; protected set; }
+
+        /// <inheritdoc />
+        [JsonProperty]
+        public abstract Vector2 Threshold { get; protected set; }
     }
 }

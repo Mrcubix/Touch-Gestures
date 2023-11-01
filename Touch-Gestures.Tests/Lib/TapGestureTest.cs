@@ -1,8 +1,7 @@
 using System.Numerics;
 using System.Threading;
-using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
-using TouchGestures.Lib.Entities.Gestures;
+using TouchGestures.Entities.Gestures;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,7 +16,6 @@ namespace TouchGestures.Tests.Lib
         private const int TESTED_TOUCHES = 2;
 
         private readonly Vector2 THRESHOLD = new(30, 30);
-        private readonly IBinding BINDING = null!;
 
         #endregion
 
@@ -143,7 +141,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void NonGestureTest()
         {
-            TapGesture gesture = new(THRESHOLD, DEADLINE, BINDING, TESTED_TOUCHES);
+            TapGesture gesture = new(THRESHOLD, DEADLINE, TESTED_TOUCHES);
 
             // we pass a non-gesture touch point
             gesture.OnInput(NonGestureTouchPoints);
@@ -262,7 +260,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void InvokingTouchPointOutOfBounds()
         {
-            TapGesture gesture = new(THRESHOLD, DEADLINE, null!, TESTED_TOUCHES);
+            TapGesture gesture = new(THRESHOLD, DEADLINE, TESTED_TOUCHES);
 
             // we pass a valid gesture touch point
             gesture.OnInput(ValidGestureTouchPoints);
@@ -319,7 +317,7 @@ namespace TouchGestures.Tests.Lib
 
         private TapGesture IntermidiaryTestPart()
         {
-            TapGesture gesture = new(THRESHOLD, DEADLINE, null!, TESTED_TOUCHES);
+            TapGesture gesture = new(THRESHOLD, DEADLINE, TESTED_TOUCHES);
 
             // we pass a valid gesture touch point
             gesture.OnInput(ValidGestureTouchPoints);

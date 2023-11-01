@@ -1,15 +1,47 @@
 using System;
-using TouchGestures.Lib.Enums;
-using TouchGestures.Lib.Input;
+using System.Numerics;
+using Newtonsoft.Json;
+using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Entities.Gestures.Bases
 {
-    public abstract class MixedBasedGesture : ITimeBasedGesture
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public abstract class MixedBasedGesture : Gesture, IMixedBasedGesture
     {
-        public virtual GestureType GestureType => GestureType.MixedBased;
-        public event EventHandler<GestureStartedEventArgs> GestureStarted = null!;
-        public event EventHandler<GestureEventArgs> GestureEnded = null!;
-        public event EventHandler<GestureEventArgs> GestureCompleted = null!;
+        public MixedBasedGesture()
+        {
+        }
+
+        public MixedBasedGesture(Vector2 threshold)
+        {
+            Threshold = threshold;
+        }
+
+        public MixedBasedGesture(double deadline)
+        {
+            Deadline = deadline;
+        }
+
+        public MixedBasedGesture(Vector2 threshold, double deadline)
+        {
+            Threshold = threshold;
+            Deadline = deadline;
+        }
+
+        #region Properties
+
+        public Vector2 StartPosition { get; protected set; }
+
+        public DateTime TimeStarted { get; protected set; }
+
+        [JsonProperty]
+        public Vector2 Threshold { get; protected set; }
+
+        [JsonProperty]
+        public double Deadline { get; protected set; }
+
+        #endregion
     }
 }

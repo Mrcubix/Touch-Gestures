@@ -1,17 +1,19 @@
 using System;
 using System.Numerics;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Input;
 
-namespace TouchGestures.Lib.Entities.Gestures
+namespace TouchGestures.Entities.Gestures
 {
     /// <summary>
     ///   Represent a swipe gesture in any of the 8 directions in <see cref="SwipeDirection"/>.
     /// </summary>
+    [JsonObject(MemberSerialization.OptIn)]
     public class SwipeGesture : MixedBasedGesture
     {
         #region Fields
@@ -24,23 +26,37 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #region Constructors
 
-        public SwipeGesture()
+        public SwipeGesture() : base(1000)
         {
             GestureStarted += (_, args) => OnGestureStart(args);
             GestureEnded += (_, args) => OnGestureEnd(args);
             GestureCompleted += (_, args) => OnGestureComplete(args);
         }
 
-        public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction) : this()
+        public SwipeGesture(Vector2 threshold) : this()
+        {
+            Threshold = threshold;
+        }
+
+        public SwipeGesture(double deadline) : this()
+        {
+            Deadline = deadline;
+        }
+
+        public SwipeGesture(Vector2 threshold, double deadline) : this()
         {
             Threshold = threshold;
             Deadline = deadline;
+        }
+
+        public SwipeGesture(SwipeDirection direction) : this()
+        {
             Direction = direction;
         }
 
-        public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, IBinding binding) : this(threshold, deadline, direction)
+        public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction) : this(threshold, deadline)
         {
-            Binding = binding;
+            Direction = direction;
         }
 
         #endregion
@@ -48,20 +64,20 @@ namespace TouchGestures.Lib.Entities.Gestures
         #region Events
 
         /// <inheritdoc/>
-        public new event EventHandler<GestureStartedEventArgs> GestureStarted = null!;
+        public override event EventHandler<GestureStartedEventArgs>? GestureStarted;
 
         /// <inheritdoc/>
-        public new event EventHandler<GestureEventArgs> GestureEnded = null!;
+        public override event EventHandler<GestureEventArgs>? GestureEnded;
 
         /// <inheritdoc/>
-        public new event EventHandler<GestureEventArgs> GestureCompleted = null!;
+        public override event EventHandler<GestureEventArgs>? GestureCompleted;
 
         #endregion
 
         #region Properties
 
         /// <inheritdoc/>
-        public virtual bool HasStarted
+        public override bool HasStarted
         {
             get => _hasStarted;
             protected set
@@ -76,7 +92,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         }
 
         /// <inheritdoc/>
-        public virtual bool HasEnded
+        public override bool HasEnded
         {
             get => _hasEnded;
             protected set
@@ -91,7 +107,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         }
 
         /// <inheritdoc/>
-        public virtual bool HasCompleted
+        public override bool HasCompleted
         {
             get => _hasCompleted;
             protected set
@@ -106,43 +122,23 @@ namespace TouchGestures.Lib.Entities.Gestures
         }
 
         /// <inheritdoc/>
-        public virtual IBinding? Binding { get; set; }
-
-        /// <inheritdoc/>
-        public Vector2 StartPosition { get; protected set; }
-
-        /// <inheritdoc/>
-        public Vector2 Threshold { get; protected set; }
-
-        /// <inheritdoc/>
-        public DateTime TimeStarted { get; protected set; }
-
-        /// <inheritdoc/>
-        public double Deadline { get; protected set; } = 1000;
+        [JsonProperty]
+        public override GestureKind GestureKind => GestureKind.Swipe;
 
         /// <summary>
         ///   The direction of the swipe.
         /// </summary>
+        [JsonProperty]
         public SwipeDirection Direction { get; set; }
 
         #endregion
 
         #region Methods
 
-        protected void CompleteGesture()
+        protected virtual void CompleteGesture()
         {
             HasCompleted = true;
             HasEnded = true;
-            
-            if (Binding != null)
-            {
-                _ = Task.Run(async () =>
-                {
-                    Binding.Press();
-                    await Task.Delay(15);
-                    Binding.Release();
-                });
-            }
         }
 
         #endregion
@@ -150,7 +146,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         #region Events handlers
 
         /// <inheritdoc/>
-        protected virtual void OnGestureStart(GestureEventArgs e)
+        protected override void OnGestureStart(GestureStartedEventArgs e)
         {
             HasEnded = false;
             HasCompleted = false;
@@ -159,21 +155,21 @@ namespace TouchGestures.Lib.Entities.Gestures
         }
 
         /// <inheritdoc/>
-        protected virtual void OnGestureEnd(GestureEventArgs e)
+        protected override void OnGestureEnd(GestureEventArgs e)
         {
             // reset the gesture
             HasStarted = false;
         }
 
         /// <inheritdoc/>
-        protected virtual void OnGestureComplete(GestureEventArgs e)
+        protected override void OnGestureComplete(GestureEventArgs e)
         {
             HasStarted = false;
             StartPosition = Vector2.Zero;
         }
 
         /// <inheritdoc/>
-        public virtual void OnInput(TouchPoint[] points)
+        public override void OnInput(TouchPoint[] points)
         {
             if (points.Length > 0)
             {

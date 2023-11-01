@@ -1,15 +1,19 @@
 using System;
-using TouchGestures.Lib.Enums;
-using TouchGestures.Lib.Input;
+using Newtonsoft.Json;
+using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Entities.Gestures.Bases
 {
-    public abstract class TimeBasedGesture : ITimeBasedGesture
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public abstract class TimeBasedGesture : Gesture, ITimeBasedGesture
     {
-        public virtual GestureType GestureType => GestureType.TimeBased;
-        public event EventHandler<GestureStartedEventArgs> GestureStarted = null!;
-        public event EventHandler<GestureEventArgs> GestureEnded = null!;
-        public event EventHandler<GestureEventArgs> GestureCompleted = null!;
+        /// <inheritdoc />
+        public abstract DateTime TimeStarted { get; protected set; }
+
+        /// <inheritdoc />
+        [JsonProperty]
+        public abstract double Deadline { get; protected set; }
     }
 }
