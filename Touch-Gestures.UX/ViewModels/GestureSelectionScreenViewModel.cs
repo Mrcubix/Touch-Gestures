@@ -3,48 +3,24 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
-using DynamicData;
-using TouchGestures.UX.Controls.GestureTiles;
+using TouchGestures.UX.ViewModels.Controls.Tiles;
+using static TouchGestures.UX.Extentions.ObservableCollectionExtensions;
 
 namespace TouchGestures.UX.ViewModels;
 
 public partial class GestureSelectionScreenViewModel : NavigableViewModel
 {
-
     private string _searchText = string.Empty;
 
-    private GestureTileViewModel[] _gestureTileViewModels = new[]
+    private GestureTileViewModel[] _gestureTileViewModels = new GestureTileViewModel[]
     {
-        new GestureTileViewModel
-        {
-            GestureName = "Tap",
-            Description = "A gesture completed by tapping with any specified number of fingers"
-        },
-        new GestureTileViewModel
-        {
-            GestureName = "Hold",
-            Description = "A gesture completed by holding for a certain amount of time"
-        },
-        new GestureTileViewModel
-        {
-            GestureName = "Pinch",
-            Description = "A gesture completed by pinching, simillar to how you would zoom in, in various applications"
-        },
-        new GestureTileViewModel
-        {
-            GestureName = "Pan",
-            Description = "A gesture that progresses by panning until the final touch is released"
-        },
-        new GestureTileViewModel
-        {
-            GestureName = "Rotate",
-            Description = "A gesture completed by rotating 2 fingers, similar to a pinch"
-        },
-        new GestureTileViewModel
-        {
-            GestureName = "Swipe",
-            Description = "A gesture completed by swiping in a specific direction"
-        }
+        new TapTileViewModel(),
+        new HoldTileViewModel(),
+        new PinchTileViewModel(),
+        new PanTileViewModel(),
+        new RotateTileViewModel(),
+        new SwipeTileViewModel(),
+        new NodeTileViewModel(),
     };
 
     [ObservableProperty]
@@ -52,11 +28,16 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
 
     public GestureSelectionScreenViewModel()
     {
-        _currentGestureTiles.AddRange(_gestureTileViewModels);
+        CurrentGestureTiles.AddRange(_gestureTileViewModels);
+
+        foreach (var gestureTileViewModel in CurrentGestureTiles)
+            gestureTileViewModel.Selected += OnGestureSelected;
 
         CanGoBack = true;
         NextViewModel = null;
     }
+
+    public event EventHandler<GestureTileViewModel>? GestureSelected;
 
     public string SearchText
     {
@@ -90,6 +71,12 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
             CurrentGestureTiles.AddRange(_gestureTileViewModels);
         else
             CurrentGestureTiles.AddRange(_gestureTileViewModels.Where(x => GestureNameStartsWith(x, text)));
+    }
+
+    private void OnGestureSelected(object? sender, EventArgs e)
+    {
+        if (sender is GestureTileViewModel gestureTileViewModel)
+            GestureSelected?.Invoke(this, gestureTileViewModel);
     }
 
     #endregion

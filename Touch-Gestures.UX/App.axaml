@@ -25,6 +25,7 @@
 
         <!-- Styles -->
         <StyleInclude Source="/Controls/GestureTile.axaml"/>
+        <StyleInclude Source="/Controls/SetupNavigationBar.axaml"/>
 
         <StyleInclude Source="/Controls/Containers/NodeCanvas.axaml"/>
         <StyleInclude Source="/Controls/Containers/NodeShelf.axaml"/>

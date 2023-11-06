@@ -1,7 +1,11 @@
 using System;
+using System.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace TouchGestures.UX.ViewModels;
+
+#nullable enable
 
 public abstract partial class NavigableViewModel : ViewModelBase
 {
@@ -9,7 +13,8 @@ public abstract partial class NavigableViewModel : ViewModelBase
 
     public bool CanGoBack { get; init; }
 
-    public NavigableViewModel? NextViewModel { get; set; } = null!;
+    [ObservableProperty]
+    protected NavigableViewModel? _nextViewModel = null;
 
     [RelayCommand(CanExecute = nameof(CanGoBack))]
     protected abstract void GoBack();

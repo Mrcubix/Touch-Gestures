@@ -5,31 +5,26 @@
              xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels"
              xmlns:views="clr-namespace:TouchGestures.UX.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="vm:MainViewModel"
-             x:Class="TouchGestures.UX.Views.MainView">
+             x:DataType="vm:GestureSetupWizardViewModel"
+             x:Class="TouchGestures.UX.Views.GestureSetupWizard">
 
   <Design.DataContext>
-    <vm:MainViewModel />
+    <vm:GestureSetupWizardViewModel />
   </Design.DataContext>
 
   <Grid>
     <ContentControl Content="{Binding NextViewModel}">
       <ContentControl.DataTemplates>
-        <!-- Home Menu -->
-        <DataTemplate DataType="vm:MainViewModel">
-          <views:HomeView />
+        <!-- Step 1 : Select a Gesture -->
+        <DataTemplate DataType="vm:GestureSelectionScreenViewModel">
+          <views:GestureSelectionScreen />
         </DataTemplate>
-        <!-- Bindings Overview -->
-            <!-- + Button to Move to the GestureSetupWizard -->
-        <!-- Gesture Setup Wizard -->
-        <DataTemplate DataType="vm:GestureSetupWizardViewModel">
-          <views:GestureSetupWizard />
-        </DataTemplate>
-        <!-- Node Gesture Editor -->
-        <DataTemplate DataType="vm:NodeGestureEditorViewModel">
-          <views:NodeGestureEditor />
+        <!-- Step 2 : Gesture Setup -->
+        <DataTemplate DataType="vm:GestureSetupScreenViewModel">
+          <views:GestureSetupScreen />
         </DataTemplate>
       </ContentControl.DataTemplates>
     </ContentControl>
   </Grid>
+
 </UserControl>

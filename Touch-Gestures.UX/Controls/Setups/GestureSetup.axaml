@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels.Controls.Setups"
+             xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:GestureSetupViewModel"
+             x:Class="TouchGestures.UX.Controls.Setups.GestureSetup">
+
+  <Design.DataContext>
+    <vm:GestureSetupViewModel />
+  </Design.DataContext>
+
+  <Grid ColumnDefinitions="*, Auto, *" RowDefinitions="*, Auto, Auto, Auto, *" Grid.IsSharedSizeScope="True">
+
+    <TextBlock Text="This gesture setup is not implemented yet." Grid.Column="1" Grid.Row="1" />
+    <Separator Background="Transparent" Grid.Row="2" Margin="16" />
+    <controls:SetupNavigationBar  BackCommand="{Binding GoBackCommand}" NextCommand="{Binding GoNextCommand}"
+                                  Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center" />
+                                  
+  </Grid>
+
+</UserControl>

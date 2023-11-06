@@ -1,0 +1,40 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:TouchGestures.UX.Controls">
+
+  <Design.PreviewWith>
+    <Grid ColumnDefinitions="*, Auto, *" Grid.IsSharedSizeScope="True">
+      <controls:SetupNavigationBar NextButtonText="Next" Grid.Column="1" />
+    </Grid>
+  </Design.PreviewWith>
+
+  <Style Selector="controls|SetupNavigationBar /template/ Button#NextButton">
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+  </Style>
+
+  <Style Selector="controls|SetupNavigationBar /template/ Button#BackButton">
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+  </Style>
+    
+  <Style Selector="controls|SetupNavigationBar">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Buttons" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition SharedSizeGroup="Buttons" />
+            </Grid.ColumnDefinitions>
+
+            <Button Name="BackButton" Content="Back" Command="{TemplateBinding BackCommand}" Grid.Column="0" />
+            <Separator Background="Transparent" Grid.Column="1" />
+            <Button Name="NextButton" Command="{TemplateBinding NextCommand}" Content="{TemplateBinding NextButtonText}" Grid.Column="2" />
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</Styles>

@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:TouchGestures.UX.Converters"
+             xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels.Controls.Setups"
+             xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:GestureSetupViewModel"
+             x:Class="TouchGestures.UX.Controls.GestureDisplay">
+
+  <Design.DataContext>
+    <vm:GestureSetupViewModel />
+  </Design.DataContext>
+
+  <UserControl.Styles>
+    <Style Selector="Grid#Display">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border">
+      <Setter Property="BorderBrush" Value="{StaticResource BorderColorBrush}" />
+      <Setter Property="Background" Value="{StaticResource AccentColorBrush}" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="CornerRadius" Value="5" />
+    </Style>
+    <Style Selector="ComboBox">
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid Name="Display" Margin="16" Grid.IsSharedSizeScope="True">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" SharedSizeGroup="Borders" />
+    </Grid.ColumnDefinitions>
+
+    <Border Grid.Row="0" Grid.Column="0">
+      <Image Source="{Binding SelectedSetupPickPreview}" Margin="8" />
+    </Border>
+
+    <Border Margin="0, 12" Grid.Row="1" Grid.Column="0">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="8">
+        <TextBlock Text="{Binding GestureSetupPickText}" Margin="4,4,4,8" VerticalAlignment="Center" />
+        <ComboBox ItemsSource="{Binding GestureSetupPickItems}" SelectedIndex="{Binding SelectedGestureSetupPickIndex}" />
+      </StackPanel>
+    </Border>
+
+    <controls:SetupNavigationBar  BackCommand="{Binding GoBackCommand}" NextCommand="{Binding GoNextCommand}"
+                                  Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" />
+  </Grid>
+
+</UserControl>
