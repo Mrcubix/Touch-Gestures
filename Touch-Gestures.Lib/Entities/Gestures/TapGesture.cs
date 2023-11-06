@@ -5,13 +5,10 @@ using System.Numerics;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Input;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib;
 using TouchGestures.Lib.Entities.Gestures.Bases;
-using TouchGestures.Lib.Interfaces;
-using OpenTabletDriver.Desktop.Reflection;
 
 namespace TouchGestures.Entities.Gestures
 {
