@@ -9,27 +9,21 @@
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
-
-    <Application.Resources>
-        <SolidColorBrush x:Key="SideBarColorBrush" Color="#2F2F2F" />
-        <SolidColorBrush x:Key="AccentColorBrush" Color="#272727" />
-        <SolidColorBrush x:Key="BorderColorBrush" Color="#1C1C1C" />
-        <SolidColorBrush x:Key="InputBorderColorBrush" Color="#292929" />
-        <SolidColorBrush x:Key="BodyColorBrush" Color="#343434" />
-        <SolidColorBrush x:Key="TextColorBrush" Color="#9F9F9F" />
-    </Application.Resources>
         
     <Application.Styles>
         <!-- Theme -->
         <FluentTheme />
 
+        <StyleInclude Source="avares://OpenTabletDriver.External.Avalonia/Themes/Default/Default.axaml" />
+        <StyleInclude Source="Themes/GreynmeDark/GreynmeDark.axaml" />
+
         <!-- Styles -->
-        <StyleInclude Source="/Controls/GestureTile.axaml"/>
-        <StyleInclude Source="/Controls/SetupNavigationBar.axaml"/>
+        <StyleInclude Source="/Controls/GestureTile.axaml" />
+        <StyleInclude Source="/Controls/SetupNavigationBar.axaml" />
 
-        <StyleInclude Source="/Controls/Containers/NodeCanvas.axaml"/>
-        <StyleInclude Source="/Controls/Containers/NodeShelf.axaml"/>
+        <StyleInclude Source="/Controls/Containers/NodeCanvas.axaml" />
+        <StyleInclude Source="/Controls/Containers/NodeShelf.axaml" />
 
-        <StyleInclude Source="/Controls/Enhancements/EnhancedGridSplitter.axaml"/>
+        <StyleInclude Source="/Controls/Enhancements/EnhancedGridSplitter.axaml" />
     </Application.Styles>
 </Application>
