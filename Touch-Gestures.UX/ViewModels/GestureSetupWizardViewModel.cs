@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using TouchGestures.UX.ViewModels.Controls.Setups;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
 
 namespace TouchGestures.UX.ViewModels;
@@ -9,6 +10,8 @@ namespace TouchGestures.UX.ViewModels;
 
 public partial class GestureSetupWizardViewModel : NavigableViewModel
 {
+    private GestureTileViewModel? _previouslySelectedTile;
+
     // Step 1 : Select Gesture
     [ObservableProperty]
     private GestureSelectionScreenViewModel _gestureSelectionScreenViewModel = new();
@@ -66,13 +69,18 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
             NextViewModel.BackRequested += OnBackRequestedAhead;
     }
 
-    private void OnGestureSelected(object? sender, GestureTileViewModel e)
+    private void OnGestureSelected(object? sender, GestureTileViewModel selectedTile)
     {
-        if (e != null)
+        if (selectedTile == null)
+            throw new ArgumentNullException(nameof(selectedTile), "A selected tile cannot be null.");
+
+        if (_previouslySelectedTile != selectedTile)
         {
-            GestureSetupScreenViewModel.StartSetup(e.BuildSetup());
-            NextViewModel = GestureSetupScreenViewModel;
+            _previouslySelectedTile = selectedTile;
+            GestureSetupScreenViewModel.StartSetup(selectedTile.BuildSetup());
         }
+
+        NextViewModel = GestureSetupScreenViewModel;
     }
 
     private void OnBackRequestedAhead(object? sender, EventArgs e) => GoBack();

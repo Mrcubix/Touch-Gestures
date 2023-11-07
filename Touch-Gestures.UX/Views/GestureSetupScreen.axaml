@@ -14,8 +14,7 @@
     <vm:GestureSetupScreenViewModel />
   </Design.DataContext>
 
-  <ContentControl Content="{Binding NextViewModel}" 
-                  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+  <ContentControl Content="{Binding NextViewModel}">
     <ContentControl.DataTemplates>
       <DataTemplate x:DataType="setupsvm:TapSetupViewModel">
         <setups:TapSetup />

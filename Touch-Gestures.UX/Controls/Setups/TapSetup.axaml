@@ -12,6 +12,9 @@
     <vm:GestureSetupViewModel />
   </Design.DataContext>
 
-  <controls:GestureDisplay />
+  <Grid>
+    <controls:GestureDisplay IsVisible="{Binding !IsBindingSelectionStepActive}" />
+    <controls:GestureBindingDisplay IsVisible="{Binding IsBindingSelectionStepActive}" />
+  </Grid>
 
 </UserControl>
