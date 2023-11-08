@@ -16,7 +16,7 @@ namespace TouchGestures
     {
         public const string PLUGIN_NAME = "Touch Gestures";
 
-        private RpcServer<GesturesDaemon> rpcServer;
+        private readonly RpcServer<GesturesDaemon> rpcServer;
 
         public GesturesHandler()
         {
@@ -36,33 +36,10 @@ namespace TouchGestures
             {
                 if (rpcServer.Instance.IsReady)
                 {
-                    // this part has nothing to do with the RPC server
                     foreach (var gesture in Gestures)
                     {
                         gesture.OnInput(touchReport.Touches);
-
-                        /*if (gesture.HasStarted && !gesture.HasEnded)
-                        {
-                            if (gesture is IMixedBasedGesture mixedGesture)
-                            {
-                                if (mixedGesture.CurrentNodeIndex == mixedGesture.Nodes.Count - 1)
-                                    mixedGesture.HasEnded = true;
-                                else
-                                    mixedGesture.CurrentNodeIndex++;
-                            }
-                            else
-                            {
-                                gesture.HasEnded = true;
-                            }
-                        }
-
-                        if (!gesture.HasStarted)
-                        {
-                            gesture.HasStarted = true;
-                        }*/
                     }
-
-                    
                 }
             }
 
@@ -84,6 +61,7 @@ namespace TouchGestures
                  "Has a numerical value.")
         ]
         public int ExampleNumericalProperty { get; set; }
+
         [Property("String Type Input Box Property"),
          DefaultPropertyValue("727"),
          ToolTip("Filter template:\n\n" +
@@ -91,6 +69,7 @@ namespace TouchGestures
                  "Has a string value.")
         ]
         public int ExampleStringProperty { get; set; }
+
         [BooleanProperty("Boolean Property", ""),
          DefaultPropertyValue(true),
          ToolTip("Area Randomizer:\n\n" +
