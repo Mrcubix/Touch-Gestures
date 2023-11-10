@@ -18,6 +18,15 @@
             "stopAtEntry": false
         },
         {
+            "name": "OpenTabletDriver C# Plugin Debugging",
+            "type": "coreclr",
+            "request": "attach",
+            "processName": "OpenTabletDriver.Daemon.exe",
+            "logging": {
+                "moduleLoad": false
+            },
+        },
+        {
             "name": ".NET Core Launch Tests",
             "type": "coreclr",
             "request": "attach",
