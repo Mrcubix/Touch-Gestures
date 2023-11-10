@@ -222,7 +222,8 @@ namespace TouchGestures.Tests.Lib
         /// </summary>
         /// <remarks>
         ///   The gesture should be started at first and should have ended abruptly. <br/>
-        ///   The gesture should not be completed.
+        ///   The gesture should not be completed. <br/>
+        ///   The gesture will only end when all touch points are released.
         /// </remarks>
         [Fact]
         public void MidGestureInvalidation()
@@ -232,16 +233,43 @@ namespace TouchGestures.Tests.Lib
             // we pass an invalidation touch point
             gesture.OnInput(InvalidationGestureTouchPoints);
 
-            // the gesture should not be started
-            Assert.False(gesture.HasStarted);
+            // the gesture should have started
+            Assert.True(gesture.HasStarted);
 
-            // the gesture should have ended abruptly
+            // the gesture should be in an invalid state
+            Assert.True(gesture.IsInvalidState);
+
+            // the gesture should not have ended yet
+            Assert.False(gesture.HasEnded);
+
+            // the gesture should not be completed
+            Assert.False(gesture.HasCompleted);
+
+            _output.WriteLine("Gesture has not ended abruptly as expected");
+
+            // we pass an intermediary state touch point
+            gesture.OnInput(ValidGestureTouchPointsIntermediaryState);
+
+            // the gesture should not have ended
+            Assert.False(gesture.HasEnded);
+
+            // the gesture should not be completed
+            Assert.False(gesture.HasCompleted);
+
+            _output.WriteLine("Gesture has not ended abruptly");
+
+            // we finally release all touch points
+
+            // we pass an end state touch point
+            gesture.OnInput(ValidGestureTouchPointsFinalState);
+
+            // the gesture should have ended
             Assert.True(gesture.HasEnded);
 
             // the gesture should not be completed
             Assert.False(gesture.HasCompleted);
 
-            _output.WriteLine("Gesture ended abruptly as expected");
+            _output.WriteLine("Gesture finally ended in a failure when all touch points were released");
         }
 
         #endregion
@@ -254,8 +282,9 @@ namespace TouchGestures.Tests.Lib
         ///   which should invalidate the gesture.
         /// </summary>
         /// <remarks>
-        ///   The gesture should be started at first and should have ended abruptly. <br/>
-        ///   The gesture should not be completed.
+        ///   The gesture should be started at first and should not have had ended abruptly. <br/>
+        ///   The gesture should not be completed. <br/>
+        ///   The gesture will only end when all touch points are released.
         /// </remarks>
         [Fact]
         public void InvokingTouchPointOutOfBounds()
@@ -273,13 +302,32 @@ namespace TouchGestures.Tests.Lib
             // we pass an out of bounds touch point
             gesture.OnInput(OutOfBoundsTouchPoints);
 
-            // the gesture should have ended due to the out of bounds touch point
+            // the gesture should have started
+            Assert.True(gesture.HasStarted);
+
+            // the gesture should be in an invalid state
+            Assert.True(gesture.IsInvalidState);
+
+            // the gesture should not have ended yet
+            Assert.False(gesture.HasEnded);
+
+            // the gesture should not be completed
+            Assert.False(gesture.HasCompleted);
+
+            _output.WriteLine("Gesture has not ended abruptly as expected");
+
+            // we finally release all touch points
+
+            // we pass an end state touch point
+            gesture.OnInput(ValidGestureTouchPointsFinalState);
+
+            // the gesture should have ended
             Assert.True(gesture.HasEnded);
 
             // the gesture should not be completed
             Assert.False(gesture.HasCompleted);
 
-            _output.WriteLine("Gesture ended abruptly as expected");
+            _output.WriteLine("Gesture finally ended in a failure when all touch points were released");
         }
 
         #endregion
