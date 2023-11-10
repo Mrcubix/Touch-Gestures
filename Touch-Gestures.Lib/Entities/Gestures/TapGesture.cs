@@ -125,6 +125,11 @@ namespace TouchGestures.Entities.Gestures
             }
         }
 
+        /// <summary>
+        ///   Indicates whether the gesture was invalidated after any checks. <br/>
+        /// </summary>
+        public bool IsInvalidState { get; private set; }
+
         /// <inheritdoc/>
         [JsonProperty]
         public override GestureKind GestureKind => GestureKind.Swipe;
@@ -133,6 +138,7 @@ namespace TouchGestures.Entities.Gestures
         ///   The number of touches required to trigger the gesture. <br/>
         ///   Defaults to 1.
         /// </summary>
+        [JsonProperty]
         public virtual int RequiredTouchesCount
         {
             get => _requiredTouchesCount;
@@ -213,8 +219,13 @@ namespace TouchGestures.Entities.Gestures
                     if (currentPointsCount == RequiredTouchesCount)
                     {
                         HasStarted = true;
-                        StartPosition = points[0].Position;
+
+                        // get the position of the first non-null point
+                        StartPosition = points[currentPointsIndices[0]].Position;
+
                         TimeStarted = DateTime.Now;
+
+                        IsInvalidState = false;
 
                         // no index or ids are stored within the points
                         _invokingTouchesIndices = currentPointsIndices.ToArray();
@@ -223,8 +234,6 @@ namespace TouchGestures.Entities.Gestures
                 else
                 {
                     // check if the current points are the same as the invoking points
-                    bool IsInvalidState = false;
-
                     if (currentPointsCount == 0)
                         Array.Fill(_releasedTouches, true);
 
@@ -273,20 +282,23 @@ namespace TouchGestures.Entities.Gestures
                         if (!_invokingTouchesIndices.Contains(index))
                             IsInvalidState = true;*/
 
-                    if (IsInvalidState)
-                    {
+
+                    // check if the deadline has been reached
+                    if ((DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
                         HasEnded = true;
-                    }
                     else
                     {
-                        // check if the deadline has been reached
-                        if ((DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
-                            HasEnded = true;
-                        else
+                        // check if all touches have been released
+                        if (_releasedTouches.All(released => released))
                         {
-                            // check if all touches have been released
-                            if (_releasedTouches.All(released => released))
+                            if (!IsInvalidState)
                                 CompleteGesture();
+                            else
+                            {
+                                // Wait for all touches to be released
+                                if (currentPointsCount == 0)
+                                    HasEnded = true;
+                            }
                         }
                     }
                 }
