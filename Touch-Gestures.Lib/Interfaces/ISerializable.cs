@@ -1,5 +1,4 @@
 using OpenTabletDriver.External.Common.Serializables;
-using OpenTabletDriver.Plugin;
 
 namespace TouchGestures.Lib.Interfaces
 {

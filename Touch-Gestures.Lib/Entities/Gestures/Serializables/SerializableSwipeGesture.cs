@@ -1,4 +1,5 @@
 using System.Numerics;
+using Newtonsoft.Json;
 using OpenTabletDriver.External.Common.Serializables;
 using TouchGestures.Entities.Gestures;
 using TouchGestures.Lib.Enums;
@@ -6,6 +7,7 @@ using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Serializables.Gestures
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class SerializableSwipeGesture : SwipeGesture, ISerializable
     {
         #region Constructors
@@ -41,6 +43,7 @@ namespace TouchGestures.Lib.Serializables.Gestures
         /// <summary>
         ///   The Serializable representation of the plugin property.
         /// </summary>
+        [JsonProperty]
         public SerializablePluginSettings? PluginProperty { get; set; }
 
         #endregion
