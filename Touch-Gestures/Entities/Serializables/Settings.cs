@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin;
 using WheelAddon.Converters;
 using System.Reflection;
+using TouchGestures.Lib.Entities;
+using TouchGestures.Entities.Gestures;
 
 namespace TouchGestures.Entities.Serializables
 {
@@ -42,7 +43,11 @@ namespace TouchGestures.Entities.Serializables
 
         #region Properties
 
-        
+        [JsonProperty]
+        public List<BindableTapGesture> TapGestures { get; set; } = new();
+
+        [JsonProperty]
+        public List<BindableSwipeGesture> SwipeGestures { get; set; } = new();
 
         #endregion
 
@@ -88,6 +93,41 @@ namespace TouchGestures.Entities.Serializables
         #region Static Properties
 
         public static Settings Default => new();
+
+        #endregion
+
+        #region Static Methods
+
+        public static Settings FromSerializable(SerializableSettings settings, Dictionary<int, TypeInfo> identifierToPlugin)
+        {
+            var result = new Settings();
+
+            foreach (var gesture in settings.TapGestures)
+            {
+                if (gesture.PluginProperty == null)
+                    continue;
+
+                var tapGesture = BindableTapGesture.FromSerializable(gesture, identifierToPlugin);
+
+                if (tapGesture != null)
+                    result.TapGestures.Add(tapGesture);
+            }
+
+            foreach (var gesture in settings.SwipeGestures)
+            {
+                if (gesture.PluginProperty == null)
+                    continue;
+
+                var swipeGesture = BindableSwipeGesture.FromSerializable(gesture, identifierToPlugin);
+
+                if (swipeGesture != null)
+                    result.SwipeGestures.Add(swipeGesture);
+            }
+
+            // TODO: Implement the rest of the gestures conversions
+
+            return result;
+        }
 
         #endregion
     }

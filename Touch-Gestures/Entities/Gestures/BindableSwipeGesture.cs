@@ -1,10 +1,14 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Interfaces;
+using TouchGestures.Lib.Serializables.Gestures;
 
 namespace TouchGestures.Entities.Gestures
 {
@@ -17,6 +21,10 @@ namespace TouchGestures.Entities.Gestures
         #region Constructors
 
         public BindableSwipeGesture() : base()
+        {
+        }
+
+        public BindableSwipeGesture(SerializableSwipeGesture swipeGesture) : base(swipeGesture.Threshold, swipeGesture.Deadline, swipeGesture.Direction)
         {
         }
 
@@ -78,6 +86,33 @@ namespace TouchGestures.Entities.Gestures
                     Binding.Release();
                 });
             }
+        }
+
+        #endregion
+
+        #region static Methods
+
+        public static BindableSwipeGesture? FromSerializable(SerializableSwipeGesture? tapGesture, Dictionary<int, TypeInfo> identifierToPlugin)
+        {
+            if (tapGesture == null)
+                return null;
+
+            if (tapGesture.PluginProperty == null)
+                return null;
+
+            if (!identifierToPlugin.TryGetValue(tapGesture.PluginProperty.Identifier, out var plugin))
+                return null;
+
+            var Store = new PluginSettingStore(plugin);
+
+            // Set the values of the plugin property
+            Store.Settings.Single(s => s.Property == "Property").SetValue(tapGesture.PluginProperty.Value!);
+
+            return new BindableSwipeGesture(tapGesture.Threshold, tapGesture.Deadline, tapGesture.Direction)
+            {
+                PluginProperty = Store,
+                Binding = Store?.Construct<IBinding>()
+            };
         }
 
         #endregion

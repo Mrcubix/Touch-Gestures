@@ -1,17 +1,13 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Numerics;
 using OpenTabletDriver.Plugin;
-using OpenTabletDriver.Plugin.Tablet.Touch;
-using TouchGestures.Lib.Input;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using TouchGestures.Lib.Enums;
-using TouchGestures.Lib;
-using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Interfaces;
 using OpenTabletDriver.Desktop.Reflection;
+using TouchGestures.Lib.Serializables.Gestures;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
 
 namespace TouchGestures.Entities.Gestures
 {
@@ -24,6 +20,10 @@ namespace TouchGestures.Entities.Gestures
         #region Constructors
 
         public BindableTapGesture() : base()
+        {
+        }
+
+        public BindableTapGesture(SerializableTapGesture tapGesture) : base(tapGesture.Threshold, tapGesture.Deadline, tapGesture.RequiredTouchesCount)
         {
         }
 
@@ -85,6 +85,33 @@ namespace TouchGestures.Entities.Gestures
                     Binding.Release();
                 });
             }
+        }
+
+        #endregion
+
+        #region static Methods
+
+        public static BindableTapGesture? FromSerializable(SerializableTapGesture? tapGesture, Dictionary<int, TypeInfo> identifierToPlugin)
+        {
+            if (tapGesture == null)
+                return null;
+
+            if (tapGesture.PluginProperty == null)
+                return null;
+
+            if (!identifierToPlugin.TryGetValue(tapGesture.PluginProperty.Identifier, out var plugin))
+                return null;
+
+            var Store = new PluginSettingStore(plugin);
+
+            // Set the values of the plugin property
+            Store.Settings.Single(s => s.Property == "Property").SetValue(tapGesture.PluginProperty.Value!);
+
+            return new BindableTapGesture(tapGesture.Threshold, tapGesture.Deadline, tapGesture.RequiredTouchesCount)
+            {
+                PluginProperty = Store,
+                Binding = Store?.Construct<IBinding>()
+            };
         }
 
         #endregion
