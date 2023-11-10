@@ -10,6 +10,7 @@ using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
 using TouchGestures.Entities.Serializables;
 using TouchGestures.Lib.Contracts;
+using TouchGestures.Lib.Entities;
 using WheelAddon.Converters;
 
 namespace TouchGestures
@@ -101,8 +102,11 @@ namespace TouchGestures
             {
                 var identifierHash = 0;
 
-                for (var i = 0; i < plugin.Name.Length; i++)
-                    identifierHash += (plugin.Name[i] * i) + 1;
+                if (plugin.FullName == null)
+                    continue;
+
+                for (var i = 0; i < plugin.FullName.Length; i++)
+                    identifierHash += plugin.FullName[i];
 
                 IdentifierToPluginConversion.Add(identifierHash, plugin);
             }
@@ -165,6 +169,19 @@ namespace TouchGestures
             }
 
             return Task.FromResult(plugins);
+        }
+
+        public Task<bool> UpdateSettings(SerializableSettings settings)
+        {
+            Log.Write("Gestures Daemon", "Updating settings...");
+
+            if (settings == null)
+                return Task.FromResult(false);
+
+            TouchGestureSettings = Settings.FromSerializable(settings, IdentifierToPluginConversion);
+            OnSettingsChanged?.Invoke(this, TouchGestureSettings);
+
+            return Task.FromResult(true);
         }
 
         public Task<bool> StartRecording()
