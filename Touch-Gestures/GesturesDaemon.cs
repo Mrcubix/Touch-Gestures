@@ -8,7 +8,7 @@ using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
-using TouchGestures.Entities.Serializables;
+using TouchGestures.Entities;
 using TouchGestures.Lib.Contracts;
 using TouchGestures.Lib.Entities;
 using WheelAddon.Converters;
@@ -169,6 +169,18 @@ namespace TouchGestures
             }
 
             return Task.FromResult(plugins);
+        }
+
+        public Task<SerializableSettings> GetSettings()
+        {
+            Log.Write("Gestures Daemon", "Converting Settings into a serializable form...");
+
+            if (TouchGestureSettings == null)
+                return Task.FromResult<SerializableSettings>(null!);
+
+            var serializedSettings = Settings.ToSerializable(TouchGestureSettings, IdentifierToPluginConversion);
+
+            return Task.FromResult(serializedSettings);
         }
 
         public Task<bool> UpdateSettings(SerializableSettings settings)

@@ -37,10 +37,10 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
         public DateTime TimeStarted { get; protected set; }
 
         [JsonProperty]
-        public Vector2 Threshold { get; protected set; }
+        public Vector2 Threshold { get; set; }
 
         [JsonProperty]
-        public double Deadline { get; protected set; }
+        public double Deadline { get; set; }
 
         #endregion
     }

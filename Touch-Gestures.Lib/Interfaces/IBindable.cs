@@ -8,8 +8,8 @@ namespace TouchGestures.Lib.Interfaces
     public interface IBindable
     {
         /// <inheritdoc />  
-        [JsonProperty("Store")]
-        PluginSettingStore? PluginProperty { get; set; }
+        [JsonProperty]
+        PluginSettingStore? Store { get; set; }
 
         /// <summary>
         ///   The binding associated with the gesture.

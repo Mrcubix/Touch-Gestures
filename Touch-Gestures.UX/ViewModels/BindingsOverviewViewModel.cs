@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.UX.Events;
@@ -40,11 +41,12 @@ namespace TouchGestures.UX.ViewModels
             BackRequested = null!;
         }
 
-        public BindingsOverviewViewModel(MainViewModel mainViewModel, ObservableCollection<Gesture> gestures) : this(mainViewModel)
+        public BindingsOverviewViewModel(MainViewModel mainViewModel, SerializableSettings settings) : this(mainViewModel)
         {
-            foreach (var gesture in gestures)
+            foreach (var gesture in settings)
             {
                 var bindingDisplay = new GestureBindingDisplayViewModel(gesture);
+
                 bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
 
                 bindingDisplay.IsConnected = _parentViewModel.IsConnected;
@@ -54,15 +56,15 @@ namespace TouchGestures.UX.ViewModels
                 GestureBindings.Add(bindingDisplay);
             }
 
+            IsConnected = _parentViewModel.IsConnected;
+
             SubscribeToEvents();
         }
 
         public void SubscribeToEvents()
         {
             foreach (var binding in GestureBindings)
-            {
                 binding.BindingChanged += OnGestureBindingsChanged;
-            }
         }
 
         #endregion
@@ -95,6 +97,10 @@ namespace TouchGestures.UX.ViewModels
 
         #region Event Handlers
 
+        //
+        // Navigation
+        //
+
         private void OnBackRequestedAhead(object? sender, EventArgs e)
         {
             if (NextViewModel is not GestureSetupWizardViewModel)
@@ -103,6 +109,10 @@ namespace TouchGestures.UX.ViewModels
             NextViewModel.BackRequested -= OnBackRequestedAhead;
             NextViewModel = this;
         }
+
+        //
+        // Additions
+        //
 
         private void OnSetupCompleted(object? sender, GestureAddedEventArgs e)
         {
@@ -125,6 +135,10 @@ namespace TouchGestures.UX.ViewModels
             GesturesChanged?.Invoke(this, new GestureChangedEventArgs(null, e.Gesture!));
         }
 
+        //
+        // Changes
+        //
+
         private void OnEditRequested(object? sender, EventArgs e)
         {
             if (sender is not GestureBindingDisplayViewModel bindingDisplay)
@@ -133,11 +147,53 @@ namespace TouchGestures.UX.ViewModels
             var setupWizard = new GestureSetupWizardViewModel();
             setupWizard.Edit(bindingDisplay);
 
+            // We need to check whenever the edit is completed & when te user goes back
             setupWizard.EditCompleted += (s, args) => OnEditCompleted(s, bindingDisplay, args);
             setupWizard.BackRequested += OnBackRequestedAhead;
 
             NextViewModel = setupWizard;
         }
+
+        private void OnEditCompleted(object? sender, GestureBindingDisplayViewModel bindingDisplay, GestureChangedEventArgs args)
+        {
+            if (NextViewModel is not GestureSetupWizardViewModel setupWizard)
+                throw new InvalidOperationException();
+
+            if (args.NewValue is not ISerializable serialized)
+                throw new ArgumentException("The edited gesture must be serializable.");
+
+            if (args.NewValue is not INamed named)
+                throw new ArgumentException("The edited gesture must be named.");
+
+            bindingDisplay.AssociatedGesture = args.NewValue;
+            bindingDisplay.PluginProperty = serialized.PluginProperty;
+            bindingDisplay.Description = named.Name;
+            bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(serialized.PluginProperty);
+
+            // We need to unsubscribe from the events
+            setupWizard.EditCompleted -= (s, args) => OnEditCompleted(s, bindingDisplay, args);
+            setupWizard.BackRequested -= OnBackRequestedAhead;
+
+            NextViewModel = this;
+
+            GesturesChanged?.Invoke(this, args);
+        }
+
+        // TODO: Ideally it should OnEditCompleted & OnGestureBindingsChanged should be merged into one event handler
+        private void OnGestureBindingsChanged(object? sender, GestureBindingsChangedArgs e)
+        {
+            if (sender is not GestureBindingDisplayViewModel bindingDisplay)
+                throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
+
+            var args = new GestureChangedEventArgs(bindingDisplay.AssociatedGesture, bindingDisplay.AssociatedGesture);
+            bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
+
+            GesturesChanged?.Invoke(this, args);
+        }
+
+        //
+        // Deletion
+        //
 
         private void OnDeletionRequested(object? sender, EventArgs e)
         {
@@ -149,30 +205,9 @@ namespace TouchGestures.UX.ViewModels
             GesturesChanged?.Invoke(this, new GestureChangedEventArgs(bindingDisplay.AssociatedGesture, null));
         }
 
-        private void OnEditCompleted(object? sender, GestureBindingDisplayViewModel bindingDisplay, GestureChangedEventArgs args)
-        {
-            if (NextViewModel is not GestureSetupWizardViewModel setupWizard)
-                throw new InvalidOperationException();
-
-            if (args.NewValue is not ISerializable serialized)
-                throw new ArgumentException("The edited gesture must be serializable.");
-
-            bindingDisplay.AssociatedGesture = args.NewValue;
-            bindingDisplay.PluginProperty = serialized.PluginProperty;
-            bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(serialized.PluginProperty);
-
-            setupWizard.EditCompleted -= (s, args) => OnEditCompleted(s, bindingDisplay, args);
-            NextViewModel = this;
-        }
-
-        // TODO: Ideally it should OnEditCompleted & OnGestureBindingsChanged should be merged into one event handler
-        private void OnGestureBindingsChanged(object? sender, EventArgs e)
-        {
-            if (sender is not GestureBindingDisplayViewModel bindingDisplay)
-                throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
-
-            GesturesChanged?.Invoke(this, new GestureChangedEventArgs(bindingDisplay.AssociatedGesture, bindingDisplay.AssociatedGesture));
-        }
+        //
+        // Some Actions need to be disabled / enabled depending on the connection state
+        //
 
         private void OnConnected(object? sender, EventArgs e)
         {

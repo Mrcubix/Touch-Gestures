@@ -8,7 +8,7 @@ using System.Reflection;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Entities.Gestures;
 
-namespace TouchGestures.Entities.Serializables
+namespace TouchGestures.Entities
 {
     public class Settings
     {
@@ -125,6 +125,29 @@ namespace TouchGestures.Entities.Serializables
             }
 
             // TODO: Implement the rest of the gestures conversions
+
+            return result;
+        }
+
+        public static SerializableSettings ToSerializable(Settings settings, Dictionary<int, TypeInfo> identifierToPlugin)
+        {
+            var result = new SerializableSettings();
+
+            foreach (var gesture in settings.TapGestures)
+            {
+                var tapGesture = BindableTapGesture.ToSerializable(gesture, identifierToPlugin);
+
+                if (tapGesture != null)
+                    result.TapGestures.Add(tapGesture);
+            }
+
+            foreach (var gesture in settings.SwipeGestures)
+            {
+                var swipeGesture = BindableSwipeGesture.ToSerializable(gesture, identifierToPlugin);
+
+                if (swipeGesture != null)
+                    result.SwipeGestures.Add(swipeGesture);
+            }
 
             return result;
         }

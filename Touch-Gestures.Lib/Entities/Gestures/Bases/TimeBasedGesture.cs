@@ -14,6 +14,6 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
 
         /// <inheritdoc />
         [JsonProperty]
-        public abstract double Deadline { get; protected set; }
+        public abstract double Deadline { get; set; }
     }
 }

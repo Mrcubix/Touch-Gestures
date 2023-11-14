@@ -15,6 +15,7 @@ using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Serializables.Gestures;
 using System.Threading;
 using TouchGestures.UX.Events;
+using Avalonia.Threading;
 
 namespace TouchGestures.UX.ViewModels;
 
@@ -57,9 +58,6 @@ public partial class MainViewModel : NavigableViewModel
     [ObservableProperty]
     private NodeGestureEditorViewModel _nodeGestureEditorViewModel = new();
 
-    [ObservableProperty]
-    private GestureSetupWizardViewModel _gestureSetupWizardViewModel = new();
-
     #endregion
 
     #endregion
@@ -79,11 +77,11 @@ public partial class MainViewModel : NavigableViewModel
         //NextViewModel = _gestureSetupWizardViewModel;
         NextViewModel = _bindingsOverviewViewModel;
 
-        NextViewModel!.PropertyChanged += OnCurrentGestureSetupChanged;
-        NextViewModel!.PropertyChanging += OnCurrentGestureSetupChanging;
+        NextViewModel!.PropertyChanged += OnCurrentViewChanged;
+        NextViewModel!.PropertyChanging += OnCurrentViewChanging;
         NextViewModel!.BackRequested += OnBackRequestedAhead;
 
-        BindingsOverviewViewModel.GesturesChanged += OnGesturesChanged;
+        BindingsOverviewViewModel.GesturesChanged += OnGestureChanged;
 
         _client = new("GesturesDaemon");
 
@@ -104,7 +102,9 @@ public partial class MainViewModel : NavigableViewModel
 
     #region Events
 
-    public event EventHandler<ObservableCollection<SerializablePlugin>>? OnPluginChanged;
+    public event EventHandler<ObservableCollection<SerializablePlugin>>? PluginChanged;
+
+    public event EventHandler<SerializableSettings>? SettingsChanged;
 
     public override event EventHandler? BackRequested;
 
@@ -176,6 +176,23 @@ public partial class MainViewModel : NavigableViewModel
         return null;
     }
 
+    private async Task<SerializableSettings?> FetchSettingsAsync()
+    {
+        if (!_client.IsConnected)
+            return null;
+
+        try
+        {
+            return await _client.Instance.GetSettings();
+        }
+        catch (Exception e)
+        {
+            HandleException(e);
+        }
+
+        return null;
+    }
+
     private async Task UploadSettingsAsync()
     {
         if (!_client.IsConnected)
@@ -228,8 +245,6 @@ public partial class MainViewModel : NavigableViewModel
             default:
                 throw new NotImplementedException();
         }
-
-        _ = UploadSettingsAsync();
     }
 
     private void ChangeGesture(GestureChangedEventArgs args)
@@ -250,8 +265,6 @@ public partial class MainViewModel : NavigableViewModel
             default:
                 throw new NotImplementedException();
         }
-
-        _ = UploadSettingsAsync();
     }
 
     private void RemoveGesture(Gesture gesture)
@@ -267,8 +280,6 @@ public partial class MainViewModel : NavigableViewModel
             default:
                 throw new NotImplementedException();
         }
-
-        _ = UploadSettingsAsync();
     }
 
     #endregion
@@ -306,14 +317,15 @@ public partial class MainViewModel : NavigableViewModel
         if (tempPlugins != null)
         {
             Plugins = new ObservableCollection<SerializablePlugin>(tempPlugins);
-            OnPluginChanged?.Invoke(this, Plugins);
+            PluginChanged?.Invoke(this, Plugins);
         }
 
-        SerializableSettings? tempSettings = null;
+        SerializableSettings? tempSettings = await FetchSettingsAsync();
 
         if (tempSettings != null)
         {
             _settings = tempSettings;
+            Dispatcher.UIThread.Post(() => OnSettingsChanged(_settings));
         }
 
         IsConnected = true;
@@ -323,16 +335,22 @@ public partial class MainViewModel : NavigableViewModel
     // UX Event Handlers
     //
 
-    private void OnCurrentGestureSetupChanging(object? sender, PropertyChangingEventArgs e)
+    private void OnCurrentViewChanging(object? sender, PropertyChangingEventArgs e)
     {
-        if (NextViewModel != null)
-            NextViewModel.BackRequested -= OnBackRequestedAhead;
-    }
+        if (e.PropertyName != nameof(NextViewModel))
+            return;
 
-    private void OnCurrentGestureSetupChanged(object? sender, PropertyChangedEventArgs e)
-    {
         if (NextViewModel != null)
             NextViewModel.BackRequested += OnBackRequestedAhead;
+    }
+
+    private void OnCurrentViewChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(NextViewModel))
+            return;
+
+        if (NextViewModel != null)
+            NextViewModel.BackRequested -= OnBackRequestedAhead;
     }
 
     private void OnBackRequestedAhead(object? sender, EventArgs e)
@@ -340,18 +358,32 @@ public partial class MainViewModel : NavigableViewModel
         NextViewModel = this;
     }
 
+    private void OnSettingsChanged(SerializableSettings e)
+    {
+        bool isOverviewNextViewModel = NextViewModel is BindingsOverviewViewModel;
+
+        BindingsOverviewViewModel = new(this, e);
+
+        BindingsOverviewViewModel.GesturesChanged += OnGestureChanged;
+
+        if (isOverviewNextViewModel)
+            NextViewModel = BindingsOverviewViewModel;
+
+        SettingsChanged?.Invoke(this, e);
+    }
+
     //
     // Handling whenever gestures are added / changed / deleted
     //
 
-    private void OnGesturesChanged(object? sender, GestureChangedEventArgs e)
+    private void OnGestureChanged(object? sender, GestureChangedEventArgs e)
     {
         if (e.OldValue == null && e.NewValue != null)
             AddGesture(e.NewValue);
         else if (e.OldValue != null && e.NewValue == null)
             RemoveGesture(e.OldValue);
-        else
-            ChangeGesture(e);
+
+        _ = UploadSettingsAsync();
     }
 
     #endregion

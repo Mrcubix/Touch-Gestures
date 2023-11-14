@@ -6,6 +6,7 @@ namespace TouchGestures.Lib.Contracts
 {
     public interface IGesturesDaemon : IPluginDaemon
     {
+        public Task<SerializableSettings> GetSettings();
         public Task<bool> UpdateSettings(SerializableSettings settings);
         public Task<bool> StartRecording();
         public Task<bool> StopRecording();

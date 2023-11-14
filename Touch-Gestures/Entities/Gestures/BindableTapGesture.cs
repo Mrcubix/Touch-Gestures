@@ -8,6 +8,7 @@ using TouchGestures.Lib.Serializables.Gestures;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using OpenTabletDriver.External.Common.Serializables;
 
 namespace TouchGestures.Entities.Gestures
 {
@@ -62,8 +63,8 @@ namespace TouchGestures.Entities.Gestures
         #region Properties
 
         /// <inheritdoc/>
-        [JsonProperty("Store")]
-        public PluginSettingStore? PluginProperty { get; set; }
+        [JsonProperty]
+        public PluginSettingStore? Store { get; set; }
 
         /// <inheritdoc/>
         public IBinding? Binding { get; set; }
@@ -102,15 +103,35 @@ namespace TouchGestures.Entities.Gestures
             if (!identifierToPlugin.TryGetValue(tapGesture.PluginProperty.Identifier, out var plugin))
                 return null;
 
-            var Store = new PluginSettingStore(plugin);
+            var store = new PluginSettingStore(plugin);
 
             // Set the values of the plugin property
-            Store.Settings.Single(s => s.Property == "Property").SetValue(tapGesture.PluginProperty.Value!);
+            store.Settings.Single(s => s.Property == "Property").SetValue(tapGesture.PluginProperty.Value!);
 
-            return new BindableTapGesture(tapGesture.Threshold, tapGesture.Deadline, tapGesture.RequiredTouchesCount)
+            return new BindableTapGesture(tapGesture)
             {
-                PluginProperty = Store,
-                Binding = Store?.Construct<IBinding>()
+                Store = store,
+                Binding = store?.Construct<IBinding>()
+            };
+        }
+
+        public static SerializableTapGesture? ToSerializable(BindableTapGesture? tapGesture, Dictionary<int, TypeInfo> identifierToPlugin)
+        {
+            if (tapGesture == null)
+                return null;
+
+            var store = tapGesture.Store;
+
+            var identifier = identifierToPlugin.FirstOrDefault(x => x.Value.FullName == store?.Path);
+            var value = store?.Settings.FirstOrDefault(x => x.Property == "Property");
+
+            return new SerializableTapGesture(tapGesture)
+            {
+                PluginProperty = new SerializablePluginSettings()
+                {
+                    Identifier = identifier.Key,
+                    Value = value?.GetValue<string?>()
+                }
             };
         }
 

@@ -83,7 +83,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
             _ => throw new InvalidOperationException("The gesture type is not supported.")
         };
 
-        setupViewModel.BindingDisplay = bindingDisplay;
+        setupViewModel.BindingDisplay = new(bindingDisplay.Description!, bindingDisplay.Content!, bindingDisplay.PluginProperty);
 
         setupViewModel.EditCompleted += OnEditCompleted;
 

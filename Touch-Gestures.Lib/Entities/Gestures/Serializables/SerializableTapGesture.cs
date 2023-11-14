@@ -7,7 +7,7 @@ using TouchGestures.Lib.Interfaces;
 namespace TouchGestures.Lib.Serializables.Gestures
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class SerializableTapGesture : TapGesture, ISerializable
+    public class SerializableTapGesture : TapGesture, ISerializable, INamed
     {
         #region Constructors
 
@@ -27,6 +27,10 @@ namespace TouchGestures.Lib.Serializables.Gestures
         {
         }
 
+        public SerializableTapGesture(TapGesture gesture) : base(gesture.Threshold, gesture.Deadline, gesture.RequiredTouchesCount)
+        {
+        }
+
         #endregion
 
         /// <summary>
@@ -34,5 +38,7 @@ namespace TouchGestures.Lib.Serializables.Gestures
         /// </summary>
         [JsonProperty]
         public SerializablePluginSettings? PluginProperty { get; set; }
+
+        public string Name => $"{RequiredTouchesCount}-Touch Tap";
     }
 }

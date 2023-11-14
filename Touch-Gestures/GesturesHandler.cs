@@ -11,7 +11,7 @@ using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using OTD.EnhancedOutputMode.Lib.Interface;
 using OTD.EnhancedOutputMode.Tool;
-using TouchGestures.Entities.Serializables;
+using TouchGestures.Entities;
 using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures 

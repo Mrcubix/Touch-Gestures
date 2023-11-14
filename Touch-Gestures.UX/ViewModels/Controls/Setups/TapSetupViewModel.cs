@@ -15,6 +15,8 @@ using static AssetLoaderExtensions;
 
 public partial class TapSetupViewModel : GestureSetupViewModel
 {
+    private readonly SerializableTapGesture _gesture;
+
     #region Observable Fields
 
     [ObservableProperty]
@@ -55,12 +57,15 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         SelectedGestureSetupPickIndex = 0;
 
         BindingDisplay = new BindingDisplayViewModel();
+        _gesture = new SerializableTapGesture();
     }
 
     public TapSetupViewModel(Gesture gesture) : this(true)
     {
         if (gesture is not SerializableTapGesture serializedTapGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
+
+        _gesture = serializedTapGesture;
 
         Threshold = (int)serializedTapGesture.Threshold.X;
         Deadline = serializedTapGesture.Deadline;
@@ -124,10 +129,12 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not int option)
             return null;
 
-        return new SerializableTapGesture(new Vector2(Threshold), Deadline, option)
-        {
-            PluginProperty = BindingDisplay.PluginProperty
-        };
+        _gesture.Threshold = new Vector2(Threshold, Threshold);
+        _gesture.Deadline = Deadline;
+        _gesture.RequiredTouchesCount = option;
+        _gesture.PluginProperty = BindingDisplay.PluginProperty;
+
+        return _gesture;
     }
 
     #endregion

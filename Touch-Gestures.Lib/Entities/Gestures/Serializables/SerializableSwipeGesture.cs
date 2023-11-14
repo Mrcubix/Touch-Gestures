@@ -2,13 +2,14 @@ using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.External.Common.Serializables;
 using TouchGestures.Entities.Gestures;
+using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Serializables.Gestures
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class SerializableSwipeGesture : SwipeGesture, ISerializable
+    public class SerializableSwipeGesture : SwipeGesture, ISerializable, INamed
     {
         #region Constructors
 
@@ -36,6 +37,10 @@ namespace TouchGestures.Lib.Serializables.Gestures
         {
         }
 
+        public SerializableSwipeGesture(SwipeGesture gesture) : base(gesture.Threshold, gesture.Deadline, gesture.Direction)
+        {
+        }
+
         #endregion
 
         #region Properties
@@ -45,6 +50,8 @@ namespace TouchGestures.Lib.Serializables.Gestures
         /// </summary>
         [JsonProperty]
         public SerializablePluginSettings? PluginProperty { get; set; }
+
+        public string Name => $"{Direction} Swipe";
 
         #endregion
     }

@@ -3,7 +3,6 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenTabletDriver.External.Avalonia.ViewModels;
-using TouchGestures.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.UX.Events;
@@ -33,7 +32,8 @@ namespace TouchGestures.UX.ViewModels
 
             PluginProperty = serialized.PluginProperty;
 
-            InitializeDescription();
+            if (gesture is INamed named)
+                Description = named.Name;
 
             Initialize();
         }
@@ -68,7 +68,7 @@ namespace TouchGestures.UX.ViewModels
 
         public event EventHandler? DeletionRequested;
 
-        public event EventHandler? BindingChanged;
+        public event EventHandler<GestureBindingsChangedArgs>? BindingChanged;
 
         #endregion
 
@@ -82,19 +82,6 @@ namespace TouchGestures.UX.ViewModels
 
         #endregion
 
-        #region Methods
-
-        private void InitializeDescription() =>
-            // TODO: Implement other gestures
-            Description = AssociatedGesture switch
-            {
-                TapGesture => "Tap",
-                SwipeGesture => "Swipe",
-                _ => "Unknown Gesture"
-            };
-
-        #endregion
-
         #region Event Handlers
 
         private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -104,9 +91,11 @@ namespace TouchGestures.UX.ViewModels
                 if (AssociatedGesture is not ISerializable serialized)
                     return;
 
+                var args = new GestureBindingsChangedArgs(serialized.PluginProperty, PluginProperty);
+
                 serialized.PluginProperty = PluginProperty;
 
-                BindingChanged?.Invoke(this, EventArgs.Empty);
+                BindingChanged?.Invoke(this, args);
             }
                 
         }

@@ -1,11 +1,9 @@
 using System;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
-using TouchGestures.Entities.Gestures;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Input;
 using TouchGestures.Lib.Interfaces;
-using TouchGestures.Lib.Serializables.Gestures;
 
 namespace TouchGestures.Lib.Entities.Gestures.Bases
 {

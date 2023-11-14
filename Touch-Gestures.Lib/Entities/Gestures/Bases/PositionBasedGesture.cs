@@ -15,6 +15,6 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
 
         /// <inheritdoc />
         [JsonProperty]
-        public abstract Vector2 Threshold { get; protected set; }
+        public abstract Vector2 Threshold { get; set; }
     }
 }
