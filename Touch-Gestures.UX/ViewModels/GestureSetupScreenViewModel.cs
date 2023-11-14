@@ -8,13 +8,21 @@ namespace TouchGestures.UX.ViewModels;
 
 public partial class GestureSetupScreenViewModel : NavigableViewModel
 {
+    #region Constructors
+
     public GestureSetupScreenViewModel()
     {
         BackRequested = null!;
         CanGoBack = true;
     }
 
+    #endregion
+
+    #region Events
+
     public override event EventHandler? BackRequested;
+
+    #endregion
 
     #region Methods
 
@@ -22,6 +30,8 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
     {
         NextViewModel = gestureSetupViewModel;
         NextViewModel.BackRequested += OnBackRequestedAhead;
+
+        gestureSetupViewModel.IsOptionsSelectionStepActive = true;
     }
 
     protected override void GoBack() => BackRequested?.Invoke(this, EventArgs.Empty);

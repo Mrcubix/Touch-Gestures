@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels"
              xmlns:views="clr-namespace:TouchGestures.UX.Views"
+             xmlns:gestures-views="clr-namespace:TouchGestures.UX.Views.Gestures"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:MainViewModel"
              x:Class="TouchGestures.UX.Views.MainView">
@@ -20,11 +21,10 @@
           <views:HomeView />
         </DataTemplate>
         <!-- Bindings Overview -->
-            <!-- + Button to Move to the GestureSetupWizard -->
-        <!-- Gesture Setup Wizard -->
-        <DataTemplate DataType="vm:GestureSetupWizardViewModel">
-          <views:GestureSetupWizard />
+        <DataTemplate DataType="vm:BindingsOverviewViewModel">
+          <views:BindingsOverview />
         </DataTemplate>
+            <!-- + Button to Move to the GestureSetupWizard -->
         <!-- Node Gesture Editor -->
         <DataTemplate DataType="vm:NodeGestureEditorViewModel">
           <views:NodeGestureEditor />

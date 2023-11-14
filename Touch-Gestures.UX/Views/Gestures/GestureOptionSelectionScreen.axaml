@@ -5,19 +5,18 @@
              xmlns:converters="clr-namespace:TouchGestures.UX.Converters"
              xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels.Controls.Setups"
              xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
-             xmlns:otdextcontrols="clr-namespace:OpenTabletDriver.External.Avalonia.Controls;assembly=OpenTabletDriver.External.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:GestureSetupViewModel"
-             x:Class="TouchGestures.UX.Controls.GestureBindingDisplay">
+             x:Class="TouchGestures.UX.Views.Gestures.GestureOptionSelectionScreen">
 
   <Design.DataContext>
     <vm:GestureSetupViewModel />
   </Design.DataContext>
 
   <UserControl.Styles>
-    <Style Selector="Grid#VIEW_Display">
-      <Setter Property="HorizontalAlignment" Value="Center" />
+    <Style Selector="Grid#Display">
       <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
     </Style>
     <Style Selector="Border">
       <Setter Property="BorderBrush" Value="{StaticResource BorderColorBrush}" />
@@ -32,18 +31,31 @@
     </Style>
   </UserControl.Styles>
 
-  <Grid Name="VIEW_Display" Margin="16" Grid.IsSharedSizeScope="True">
+  <Grid Name="Display" Margin="16" Grid.IsSharedSizeScope="True">
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
       <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
-    <Border Name="VIEW_Content" Grid.Row="0" Margin="0, 12">
-      <otdextcontrols:BindingDisplay DataContext="{Binding BindingDisplay}" Margin="16" Width="650" />
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" SharedSizeGroup="Borders" />
+    </Grid.ColumnDefinitions>
+
+    <Border Grid.Row="0" Grid.Column="0">
+      <Image Source="{Binding SelectedSetupPickPreview}" Margin="8" MaxWidth="1280" MaxHeight="720"
+             HorizontalAlignment="Center" VerticalAlignment="Center" />
     </Border>
 
-    <controls:SetupNavigationBar  BackCommand="{Binding GoBackCommand}" NextCommand="{Binding DoCompleteCommand}"
-                                  Grid.Row="1" HorizontalAlignment="Center" />
+    <Border Margin="0, 12" Grid.Row="1" Grid.Column="0">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="8">
+        <TextBlock Text="{Binding GestureSetupPickText}" Margin="4,4,4,8" VerticalAlignment="Center" />
+        <ComboBox ItemsSource="{Binding GestureSetupPickItems}" SelectedIndex="{Binding SelectedGestureSetupPickIndex}" />
+      </StackPanel>
+    </Border>
+
+    <controls:SetupNavigationBar  BackCommand="{Binding GoBackCommand}" NextCommand="{Binding GoNextCommand}"
+                                  Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" />
   </Grid>
 
 </UserControl>

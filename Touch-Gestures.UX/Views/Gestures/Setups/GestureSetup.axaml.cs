@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace TouchGestures.UX.Controls.Setups;
+namespace TouchGestures.UX.Views.Gestures.Setups;
 
 public partial class GestureSetup : UserControl
 {

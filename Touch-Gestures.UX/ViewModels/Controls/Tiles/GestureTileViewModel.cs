@@ -18,11 +18,12 @@ public partial class GestureTileViewModel : ViewModelBase
 
     [ObservableProperty]
     private IImage? _icon = null;
+    
+    [ObservableProperty]
+    private GestureSetupViewModel _associatedSetup = new();
 
     public event EventHandler? Selected;
 
     [RelayCommand]
     protected virtual void SelectGesture() => Selected?.Invoke(this, EventArgs.Empty);
-
-    public virtual GestureSetupViewModel BuildSetup() => new();
 }

@@ -1,0 +1,66 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels"
+             xmlns:gestures-views="clr-namespace:TouchGestures.UX.Views.Gestures"
+             xmlns:containers="clr-namespace:TouchGestures.UX.Controls.Containers"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:BindingsOverviewViewModel"
+             x:Class="TouchGestures.UX.Views.BindingsOverview">
+
+  <Design.DataContext>
+    <vm:BindingsOverviewViewModel />
+  </Design.DataContext>
+
+  <UserControl.Styles>
+    <Style Selector="Button#VIEW_Adder">
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Margin" Value="0" />
+      <Setter Property="Padding" Value="9,11,12,12" />
+      <Setter Property="IsEnabled" Value="{Binding IsConnected}" />
+    </Style>
+    <Style Selector="Button#VIEW_Adder:disabled > ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="TextBox#VIEW_SearchBar">
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderColorBrush}" />
+      <Setter Property="Margin" Value="4, 0" />
+    </Style>
+  </UserControl.Styles>
+
+  <ContentControl Content="{Binding NextViewModel}">
+    <ContentControl.DataTemplates>
+      <DataTemplate DataType="vm:BindingsOverviewViewModel">
+        <Grid RowDefinitions="Auto, *">
+          <Grid Name="VIEW_Header" ColumnDefinitions="Auto, *, Auto" Grid.Row="0" Margin="0, 32">
+            <Button Name="VIEW_Adder" Command="{Binding StartSetupWizardCommand}" Grid.Column="0">
+              <Grid>
+                <Image Source="/Assets/Icons/Add.png" Margin="1, 1, 0, 0" IsVisible="{Binding IsConnected}" />
+                <Image Source="/Assets/Icons/Add_disabled.png" Margin="1, 1, 0, 0" IsVisible="{Binding !IsConnected}" />
+              </Grid>
+            </Button>
+            <TextBox Name="VIEW_SearchBar" Watermark="Search..." Text="{Binding SearchText}" Grid.Column="1" />
+            <TextBlock Text="" Width="35" Height="36" Grid.Column="2"/>
+          </Grid>
+          <ScrollViewer Grid.Row="1" Margin="23, 0">
+            <ItemsControl ItemsSource="{Binding GestureBindings}" Padding="32, 0">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="vm:GestureBindingDisplayViewModel">
+                  <containers:GestureBindingDisplay />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+      </DataTemplate>
+      <DataTemplate DataType="vm:GestureSetupWizardViewModel">
+        <gestures-views:GestureSetupWizard />
+      </DataTemplate>
+    </ContentControl.DataTemplates>
+  </ContentControl>
+
+</UserControl>

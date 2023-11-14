@@ -216,6 +216,7 @@ namespace TouchGestures.Entities.Gestures
 
                 if (!HasStarted)
                 {
+                    // We start the gesture when the required touches are present, no more, no less
                     if (currentPointsCount == RequiredTouchesCount)
                     {
                         HasStarted = true;
@@ -254,7 +255,7 @@ namespace TouchGestures.Entities.Gestures
                             // check if the touch is outside the threshold
                             var point = currentPoints[indexOf];
 
-                            // check if point is active
+                            // check if point is active & within the set threshold
                             if (point != null)
                                 if (Math.Abs(point.Position.X - StartPosition.X) > Threshold.X || Math.Abs(point.Position.Y - StartPosition.Y) > Threshold.Y)
                                     IsInvalidState = true;
@@ -295,7 +296,7 @@ namespace TouchGestures.Entities.Gestures
                                 CompleteGesture();
                             else
                             {
-                                // Wait for all touches to be released
+                                // Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release
                                 if (currentPointsCount == 0)
                                     HasEnded = true;
                             }

@@ -3,18 +3,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels.Controls.Setups"
-             xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="vm:TapSetupViewModel"
-             x:Class="TouchGestures.UX.Controls.Setups.TapSetup">
+             x:DataType="vm:GestureSetupViewModel"
+             x:Class="TouchGestures.UX.Views.Gestures.Setups.SwipeSetup">
 
   <Design.DataContext>
     <vm:GestureSetupViewModel />
   </Design.DataContext>
 
-  <Grid>
-    <controls:GestureDisplay IsVisible="{Binding !IsBindingSelectionStepActive}" />
-    <controls:GestureBindingDisplay IsVisible="{Binding IsBindingSelectionStepActive}" />
-  </Grid>
+  
 
 </UserControl>

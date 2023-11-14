@@ -6,7 +6,7 @@
              xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:GestureSelectionScreenViewModel"
-             x:Class="TouchGestures.UX.Views.GestureSelectionScreen">
+             x:Class="TouchGestures.UX.Views.Gestures.GestureSelectionScreen">
 
   <Design.DataContext>
     <vm:GestureSelectionScreenViewModel />

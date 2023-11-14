@@ -11,11 +11,6 @@ public partial class RotateTileViewModel : GestureTileViewModel
         GestureName = "Rotate";
         Description = "A gesture completed by rotating 2 fingers, similar to a pinch";
         // Icon
-    }
-
-    public override GestureSetupViewModel BuildSetup()
-    {
-        return new GestureSetupViewModel();
-        // should return a RotateSetupViewModel later
+        // Gesture Setup
     }
 }

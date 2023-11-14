@@ -11,11 +11,6 @@ public partial class PanTileViewModel : GestureTileViewModel
         GestureName = "Pan";
         Description = "A gesture that progresses by panning until the final touch is released";
         // Icon
-    }
-
-    public override GestureSetupViewModel BuildSetup()
-    {
-        return new GestureSetupViewModel();
-        // should return a PanSetupViewModel later
+        // Gesture Setup
     }
 }

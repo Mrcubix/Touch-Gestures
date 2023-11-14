@@ -15,6 +15,7 @@ public partial class MainWindow : AppMainWindow
 {
     private static readonly BindingEditorDialogViewModel _bindingEditorDialogViewModel = new();
     private static readonly AdvancedBindingEditorDialogViewModel _advancedBindingEditorDialogViewModel = new();
+    private static bool _isEditorDialogOpen = false;
 
     public MainWindow()
     {
@@ -23,8 +24,10 @@ public partial class MainWindow : AppMainWindow
 
     private async Task ShowBindingEditorDialogCore(BindingDisplayViewModel e)
     {
-        if (DataContext is MainViewModel vm)
+        if (DataContext is MainViewModel vm && !_isEditorDialogOpen)
         {
+            _isEditorDialogOpen = true;
+
             // Now we setup the dialog
 
             var dialog = new BindingEditorDialog()
@@ -33,11 +36,17 @@ public partial class MainWindow : AppMainWindow
                 DataContext = _bindingEditorDialogViewModel
             };
 
+            #if DEBUG
+
             dialog.AttachDevTools();
+
+            #endif
 
             // Now we show the dialog
 
             var res = await dialog.ShowDialog<SerializablePluginSettings>(this);
+
+            _isEditorDialogOpen = false;
 
             // We handle the result
 
@@ -61,8 +70,10 @@ public partial class MainWindow : AppMainWindow
 
     private async Task ShowAdvancedBindingEditorDialogCore(BindingDisplayViewModel e)
     {
-        if (DataContext is MainViewModel vm)
+        if (DataContext is MainViewModel vm && !_isEditorDialogOpen)
         {
+            _isEditorDialogOpen = true;
+
             // Fetch some data from the plugins
 
             var types = vm.Plugins.Select(p => p.PluginName ?? p.FullName ?? "Unknown").ToList();
@@ -91,6 +102,8 @@ public partial class MainWindow : AppMainWindow
             // Now we show the dialog
 
             var res = await dialog.ShowDialog<SerializablePluginSettings>(this);
+
+            _isEditorDialogOpen = false;
 
             // We handle the result
 

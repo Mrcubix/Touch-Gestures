@@ -8,8 +8,12 @@ using static TouchGestures.UX.Extentions.ObservableCollectionExtensions;
 
 namespace TouchGestures.UX.ViewModels;
 
+#nullable enable
+
 public partial class GestureSelectionScreenViewModel : NavigableViewModel
 {
+    #region Fields
+
     private string _searchText = string.Empty;
 
     private GestureTileViewModel[] _gestureTileViewModels = new GestureTileViewModel[]
@@ -26,6 +30,10 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
     [ObservableProperty]
     private ObservableCollection<GestureTileViewModel> _currentGestureTiles = new();
 
+    #endregion
+
+    #region Constructors
+
     public GestureSelectionScreenViewModel()
     {
         CurrentGestureTiles.AddRange(_gestureTileViewModels);
@@ -37,7 +45,15 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
         NextViewModel = null;
     }
 
+    #endregion
+
+    #region Events
+
     public event EventHandler<GestureTileViewModel>? GestureSelected;
+
+    #endregion
+
+    #region Properties
 
     public string SearchText
     {
@@ -48,6 +64,8 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
             OnSearchTextChanged(value);
         }
     }
+
+    #endregion
 
     #region Events
 

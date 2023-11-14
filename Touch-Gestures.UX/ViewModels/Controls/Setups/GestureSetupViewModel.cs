@@ -5,6 +5,7 @@ using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenTabletDriver.External.Avalonia.ViewModels;
+using TouchGestures.Lib.Entities.Gestures.Bases;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
@@ -27,7 +28,16 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     private int _selectedGestureSetupPickIndex = 0;
 
     [ObservableProperty]
+    private bool _isOptionsSelectionStepActive = false;
+
+    [ObservableProperty]
     private bool _isBindingSelectionStepActive = false;
+
+    [ObservableProperty]
+    private bool _isSettingsTweakingStepActive = false;
+
+    [ObservableProperty]
+    private bool _isEditing;
 
     [ObservableProperty]
     private Bitmap? _selectedSetupPickPreview = _placeholderImage;
@@ -39,7 +49,7 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     private ObservableCollection<Bitmap?>? _gestureSetupPickPreviews;
 
     [ObservableProperty]
-    private BindingDisplayViewModel? _bindingDisplay;
+    private BindingDisplayViewModel _bindingDisplay;
 
     #endregion
 
@@ -54,6 +64,8 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
         GestureSetupPickText = "Gesture:";
         GestureSetupPickItems = null;
+
+        BindingDisplay = new BindingDisplayViewModel();
     }
 
     #endregion
@@ -61,6 +73,10 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     #region Events
 
     public override event EventHandler? BackRequested;
+
+    public event EventHandler? SetupCompleted;
+
+    public event EventHandler? EditCompleted;
 
     #endregion
 
@@ -93,6 +109,20 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     [RelayCommand]
     protected virtual void DoComplete() => throw new NotImplementedException("DoComplete has not been overriden.");
+
+    public virtual Gesture? BuildGesture() => throw new NotImplementedException("BuildGesture has not been overriden.");
+
+    #endregion
+
+    #region Event Handlers
+
+    protected virtual void OnSetupCompleted(GestureSetupViewModel sender)
+    {
+        if (!IsEditing)
+            SetupCompleted?.Invoke(sender, EventArgs.Empty);
+        else
+            EditCompleted?.Invoke(sender, EventArgs.Empty);
+    }
 
     #endregion
 

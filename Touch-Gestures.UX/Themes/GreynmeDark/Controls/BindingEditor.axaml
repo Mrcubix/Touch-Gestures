@@ -2,6 +2,6 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
   <SolidColorBrush x:Key="BindingEditorDialogBorderBackgroundBrush" Color="{StaticResource AccentColor}" />
-  <SolidColorBrush x:Key="BindingEditorDialogBodyColorBrush" Color="{StaticResource BodyColor}" />
+  <SolidColorBrush x:Key="BindingEditorDialogBodyBrush" Color="{StaticResource BodyColor}" />
 
 </ResourceDictionary>

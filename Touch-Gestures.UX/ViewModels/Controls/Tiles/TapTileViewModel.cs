@@ -11,10 +11,6 @@ public partial class TapTileViewModel : GestureTileViewModel
         GestureName = "Tap";
         Description = "A gesture completed by tapping with any specified number of fingers";
         // Icon
-    }
-
-    public override GestureSetupViewModel BuildSetup()
-    {
-        return new TapSetupViewModel();
+        AssociatedSetup = new TapSetupViewModel();
     }
 }

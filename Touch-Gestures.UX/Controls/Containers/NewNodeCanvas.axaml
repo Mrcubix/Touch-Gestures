@@ -2,15 +2,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels.Controls.Setups"
+             xmlns:gn="clr-namespace:TouchGestures.UX.Controls.Nodes"
+             xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="vm:GestureSetupViewModel"
-             x:Class="TouchGestures.UX.Controls.Setups.SwipeSetup">
+             x:DataType="vm:MainViewModel"
+             x:Class="TouchGestures.UX.Controls.Containers.NewNodeCanvas">
 
   <Design.DataContext>
-    <vm:GestureSetupViewModel />
+    <vm:MainViewModel />
   </Design.DataContext>
-
-  
 
 </UserControl>

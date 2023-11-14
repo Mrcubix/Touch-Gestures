@@ -11,11 +11,6 @@ public partial class NodeTileViewModel : GestureTileViewModel
         GestureName = "Node";
         Description = "A Node-Based gesture, built manually by the user using shapes";
         // Icon
-    }
-
-    public override GestureSetupViewModel BuildSetup()
-    {
-        return new GestureSetupViewModel();
-        // should return a NodeSetupViewModel later
+        // Gesture Setup
     }
 }

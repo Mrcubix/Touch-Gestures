@@ -10,6 +10,11 @@ using StreamJsonRpc;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Entities;
+using TouchGestures.Lib.Serializables.Gestures;
+using System.Threading;
+using TouchGestures.UX.Events;
 
 namespace TouchGestures.UX.ViewModels;
 
@@ -20,7 +25,8 @@ public partial class MainViewModel : NavigableViewModel
     #region Fields
 
     private RpcClient<IGesturesDaemon> _client;
-    private object? _settings;
+    private SerializableSettings _settings;
+    private CancellationTokenSource _reconnectionTokenSource = new();
 
     // Home Menu
 
@@ -44,6 +50,11 @@ public partial class MainViewModel : NavigableViewModel
     private ObservableCollection<SerializablePlugin> _plugins = new();
 
     [ObservableProperty]
+    private BindingsOverviewViewModel _bindingsOverviewViewModel;
+
+    #region Testing VMs
+
+    [ObservableProperty]
     private NodeGestureEditorViewModel _nodeGestureEditorViewModel = new();
 
     [ObservableProperty]
@@ -51,9 +62,15 @@ public partial class MainViewModel : NavigableViewModel
 
     #endregion
 
+    #endregion
+
     #region Events
 
     public event EventHandler<ObservableCollection<SerializablePlugin>>? OnPluginChanged;
+
+    public event EventHandler? Connected;
+
+    public event EventHandler? Disconnected;
 
     #endregion
 
@@ -62,16 +79,24 @@ public partial class MainViewModel : NavigableViewModel
     // TODO: Implement settings for plugin
     public MainViewModel()
     {
+        _settings = new();
+        _bindingsOverviewViewModel = new(this);
+
         BackRequested = null!;
 
         CanGoBack = false;
-        NextViewModel = _gestureSetupWizardViewModel;
+        // TODO: Change in production to the home view
+        //NextViewModel = _gestureSetupWizardViewModel;
+        NextViewModel = _bindingsOverviewViewModel;
 
         NextViewModel!.PropertyChanged += OnCurrentGestureSetupChanged;
         NextViewModel!.PropertyChanging += OnCurrentGestureSetupChanging;
         NextViewModel!.BackRequested += OnBackRequestedAhead;
 
-        _client = new("TouchGestures");
+        BindingsOverviewViewModel.GestureAdded += OnGestureAdded;
+        BindingsOverviewViewModel.GesturesChanged += OnGesturesChanged;
+
+        _client = new("GesturesDaemon");
 
         InitializeClient();
     }
@@ -102,24 +127,40 @@ public partial class MainViewModel : NavigableViewModel
 
     protected override void GoBack()
     {
+        throw new InvalidOperationException();
     }
 
     //
     // RPC Methods
     //
 
+    private async Task AttemptReconnectionIndefinitelyAsync()
+    {
+        if (_client.IsConnected)
+            return;
+
+        _reconnectionTokenSource = new();
+        var token = _reconnectionTokenSource.Token;
+
+        while(!_client.IsConnected && !token.IsCancellationRequested)
+        {
+            await Task.Delay(500, token);
+            await ConnectRpcAsync();
+        }
+    }
+
     private async Task ConnectRpcAsync()
     {
-        if (!_client.IsConnected)
+        if (_client.IsConnected)
+            return;
+
+        try
         {
-            try
-            {
-                await _client.ConnectAsync();
-            }
-            catch (Exception e)
-            {
-                HandleException(e);
-            }
+            await _client.ConnectAsync();
+        }
+        catch (Exception e)
+        {
+            HandleException(e);
         }
     }
 
@@ -139,6 +180,23 @@ public partial class MainViewModel : NavigableViewModel
 
         return null;
     }
+
+    private async Task UploadSettingsAsync()
+    {
+        if (!_client.IsConnected)
+            return;
+
+        try
+        {
+            await _client.Instance.UpdateSettings(_settings);
+        }
+        catch (Exception e)
+        {
+            HandleException(e);
+        }
+    }
+
+    // Get Settings
 
     public string GetFriendlyContentFromProperty(SerializablePluginSettings? property)
     {
@@ -169,6 +227,7 @@ public partial class MainViewModel : NavigableViewModel
     private void OnClientConnected(object? sender, EventArgs e)
     {
         ConnectionStateText = "Connected";
+        Connected?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnClientConnecting(object? sender, EventArgs e)
@@ -180,6 +239,9 @@ public partial class MainViewModel : NavigableViewModel
     {
         ConnectionStateText = "Disconnected";
         IsConnected = false;
+        Disconnected?.Invoke(this, EventArgs.Empty);
+
+        _ = Task.Run(() => AttemptReconnectionIndefinitelyAsync());
     }
 
     private async Task OnClientAttached(object? sender, EventArgs e)
@@ -192,9 +254,9 @@ public partial class MainViewModel : NavigableViewModel
             OnPluginChanged?.Invoke(this, Plugins);
         }
 
-        object? tempSettings = null;
+        SerializableSettings? tempSettings = null;
 
-        if (tempPlugins != null)
+        if (tempSettings != null)
         {
             _settings = tempSettings;
         }
@@ -221,6 +283,45 @@ public partial class MainViewModel : NavigableViewModel
     private void OnBackRequestedAhead(object? sender, EventArgs e)
     {
         NextViewModel = this;
+    }
+
+    private void OnGestureAdded(object? sender, Gesture e)
+    {
+        switch (e)
+        {
+            case SerializableTapGesture tapGesture:
+                _settings.TapGestures.Add(tapGesture);
+                break;
+            case SerializableSwipeGesture swipeGesture:
+                _settings.SwipeGestures.Add(swipeGesture);
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+
+        _ = UploadSettingsAsync();
+    }
+
+    private void OnGesturesChanged(object? sender, GestureChangedEventArgs e)
+    {
+        int index;
+
+        // TODO: Rewrite this garbage somehow
+        switch(e.OldValue)
+        {
+            case SerializableTapGesture tapGesture:
+                index = _settings.TapGestures.IndexOf(tapGesture);
+                _settings.TapGestures[index] = (SerializableTapGesture)e.NewValue;
+                break;
+            case SerializableSwipeGesture swipeGesture:
+                index = _settings.SwipeGestures.IndexOf(swipeGesture);
+                _settings.SwipeGestures[index] = (SerializableSwipeGesture)e.NewValue;
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+
+        _ = UploadSettingsAsync();
     }
 
     #endregion

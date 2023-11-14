@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:otdextcontrols="clr-namespace:OpenTabletDriver.External.Avalonia.Controls;assembly=OpenTabletDriver.External.Avalonia"
+             xmlns:gn="clr-namespace:TouchGestures.UX.Controls.Nodes"
+             xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:GestureBindingDisplayViewModel"
+             x:Class="TouchGestures.UX.Controls.Containers.GestureBindingDisplay">
+
+  <Design.DataContext>
+    <vm:GestureBindingDisplayViewModel />
+  </Design.DataContext>
+
+  <UserControl.Styles>
+    <Style Selector="Button">
+      <Setter Property="Height" Value="33" />
+    </Style>
+    <Style Selector="Button#VIEW_EditButton">
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Margin" Value="8, 0, 4, 0" />
+    </Style>
+    <Style Selector="Button#VIEW_DeleteButton">
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="Red" />
+      <Setter Property="Padding" Value="12,5,12,6" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid ColumnDefinitions="Auto, *, Auto, Auto">
+    <!-- Gesture Icon -->
+    <Image Name="VIEW_Icon" Source="" Grid.Column="0" />
+    <otdextcontrols:BindingDisplay Name="VIEW_Binding" Grid.Column="1" />
+    <Button Name="VIEW_EditButton" Content="Edit" Command="{Binding EditGestureCommand}" IsEnabled="{Binding IsConnected}" Grid.Column="2" />
+    <Button Name="VIEW_DeleteButton" Content="-" Command="{Binding DeleteGestureCommand}" Grid.Column="3" />
+  </Grid>
+
+</UserControl>

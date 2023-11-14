@@ -11,11 +11,6 @@ public partial class SwipeTileViewModel : GestureTileViewModel
         GestureName = "Swipe";
         Description = "A gesture completed by swiping in a specific direction";
         // Icon
-    }
-
-    public override GestureSetupViewModel BuildSetup()
-    {
-        return new GestureSetupViewModel();
-        // should return a SwipeSetupViewModel later
+        // Gesture Setup
     }
 }

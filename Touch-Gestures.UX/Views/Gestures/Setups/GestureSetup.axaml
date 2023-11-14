@@ -6,7 +6,7 @@
              xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:GestureSetupViewModel"
-             x:Class="TouchGestures.UX.Controls.Setups.GestureSetup">
+             x:Class="TouchGestures.UX.Views.Gestures.Setups.GestureSetup">
 
   <Design.DataContext>
     <vm:GestureSetupViewModel />

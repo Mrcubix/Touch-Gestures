@@ -5,10 +5,10 @@
              xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels"
              xmlns:views="clr-namespace:TouchGestures.UX.Views"
              xmlns:setupsvm="clr-namespace:TouchGestures.UX.ViewModels.Controls.Setups"
-             xmlns:setups="clr-namespace:TouchGestures.UX.Controls.Setups"
+             xmlns:setups="clr-namespace:TouchGestures.UX.Views.Gestures.Setups"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:GestureSetupScreenViewModel"
-             x:Class="TouchGestures.UX.Views.GestureSetupScreen">
+             x:Class="TouchGestures.UX.Views.Gestures.GestureSetupScreen">
 
   <Design.DataContext>
     <vm:GestureSetupScreenViewModel />

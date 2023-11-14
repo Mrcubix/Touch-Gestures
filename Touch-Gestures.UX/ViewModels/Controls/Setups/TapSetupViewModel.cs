@@ -1,7 +1,12 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Numerics;
 using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
 using OpenTabletDriver.External.Avalonia.ViewModels;
+using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Extentions;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
@@ -10,10 +15,22 @@ using static AssetLoaderExtensions;
 
 public partial class TapSetupViewModel : GestureSetupViewModel
 {
+    #region Observable Fields
+
+    [ObservableProperty]
+    private int _threshold;
+
+    [ObservableProperty]
+    private double _deadline;
+
+    #endregion
+
     #region Constructors
 
-    public TapSetupViewModel()
+    public TapSetupViewModel(bool isEditing = false)
     {
+        IsEditing = isEditing;
+
         CanGoBack = true;
         CanGoNext = true;
 
@@ -40,30 +57,80 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         BindingDisplay = new BindingDisplayViewModel();
     }
 
+    public TapSetupViewModel(Gesture gesture) : this(true)
+    {
+        if (gesture is not SerializableTapGesture serializedTapGesture)
+            throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
+
+        Threshold = (int)serializedTapGesture.Threshold.X;
+        Deadline = serializedTapGesture.Deadline;
+
+        if (serializedTapGesture.RequiredTouchesCount > GestureSetupPickItems!.Count)
+            throw new IndexOutOfRangeException("Gesture required touches count is greater than the number of available options");
+
+        SelectedGestureSetupPickIndex = serializedTapGesture.RequiredTouchesCount - 1;
+
+        BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
+    }
+
     #endregion
+
+    #region Methods
 
     protected override void GoBack()
     {
-        if (IsBindingSelectionStepActive)
+        if (IsBindingSelectionStepActive) // Step 2
+        {
             IsBindingSelectionStepActive = false;
-        else
+            IsOptionsSelectionStepActive = true;
+        }
+        else if (IsSettingsTweakingStepActive) // Step 3
+        {
+            IsSettingsTweakingStepActive = false;
+            IsBindingSelectionStepActive = true;
+        }
+        else // Step 1
             base.GoBack();
     }
 
     protected override void GoNext()
     {
-        if (!IsBindingSelectionStepActive)
+        if (IsOptionsSelectionStepActive)
         {
+            IsOptionsSelectionStepActive = false;
             IsBindingSelectionStepActive = true;
 
-            if (BindingDisplay != null)
-            {
-                var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
+            var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
 
-                BindingDisplay.Description = $"Tap with {value} Touches";
-            }
+            BindingDisplay.Description = $"{value}-Touch Tap";
+        }
+        else if (IsBindingSelectionStepActive)
+        {
+            IsBindingSelectionStepActive = false;
+            IsSettingsTweakingStepActive = true;
         }
     }
+
+    protected override void DoComplete()
+    {
+        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not int option)
+            return;
+
+        OnSetupCompleted(this);
+    }
+
+    public override Gesture? BuildGesture()
+    {
+        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not int option)
+            return null;
+
+        return new SerializableTapGesture(new Vector2(Threshold), Deadline, option)
+        {
+            PluginProperty = BindingDisplay.PluginProperty
+        };
+    }
+
+    #endregion
 
     #region Interface Implementations
 
