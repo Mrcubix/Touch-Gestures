@@ -1,6 +1,5 @@
 using System;
 using System.Collections.ObjectModel;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TouchGestures.Lib.Entities.Gestures.Bases;
@@ -41,12 +40,36 @@ namespace TouchGestures.UX.ViewModels
             BackRequested = null!;
         }
 
+        public BindingsOverviewViewModel(MainViewModel mainViewModel, ObservableCollection<Gesture> gestures) : this(mainViewModel)
+        {
+            foreach (var gesture in gestures)
+            {
+                var bindingDisplay = new GestureBindingDisplayViewModel(gesture);
+                bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
+
+                bindingDisplay.IsConnected = _parentViewModel.IsConnected;
+                bindingDisplay.EditRequested += OnEditRequested;
+                bindingDisplay.DeletionRequested += OnDeletionRequested;
+
+                GestureBindings.Add(bindingDisplay);
+            }
+
+            SubscribeToEvents();
+        }
+
+        public void SubscribeToEvents()
+        {
+            foreach (var binding in GestureBindings)
+            {
+                binding.BindingChanged += OnGestureBindingsChanged;
+            }
+        }
+
         #endregion
 
         #region Events
 
         public override event EventHandler? BackRequested;
-        public event EventHandler<Gesture>? GestureAdded;
         public event EventHandler<GestureChangedEventArgs>? GesturesChanged;
 
         #endregion
@@ -95,10 +118,11 @@ namespace TouchGestures.UX.ViewModels
             bindingDisplay.IsConnected = _parentViewModel.IsConnected;
             bindingDisplay.EditRequested += OnEditRequested;
             bindingDisplay.DeletionRequested += OnDeletionRequested;
+            bindingDisplay.BindingChanged += OnGestureBindingsChanged;
 
             GestureBindings.Add(bindingDisplay);
 
-            GestureAdded?.Invoke(this, e.Gesture!);
+            GesturesChanged?.Invoke(this, new GestureChangedEventArgs(null, e.Gesture!));
         }
 
         private void OnEditRequested(object? sender, EventArgs e)
@@ -121,6 +145,8 @@ namespace TouchGestures.UX.ViewModels
                 throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
 
             GestureBindings.Remove(bindingDisplay);
+
+            GesturesChanged?.Invoke(this, new GestureChangedEventArgs(bindingDisplay.AssociatedGesture, null));
         }
 
         private void OnEditCompleted(object? sender, GestureBindingDisplayViewModel bindingDisplay, GestureChangedEventArgs args)
@@ -137,6 +163,15 @@ namespace TouchGestures.UX.ViewModels
 
             setupWizard.EditCompleted -= (s, args) => OnEditCompleted(s, bindingDisplay, args);
             NextViewModel = this;
+        }
+
+        // TODO: Ideally it should OnEditCompleted & OnGestureBindingsChanged should be merged into one event handler
+        private void OnGestureBindingsChanged(object? sender, EventArgs e)
+        {
+            if (sender is not GestureBindingDisplayViewModel bindingDisplay)
+                throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
+
+            GesturesChanged?.Invoke(this, new GestureChangedEventArgs(bindingDisplay.AssociatedGesture, bindingDisplay.AssociatedGesture));
         }
 
         private void OnConnected(object? sender, EventArgs e)

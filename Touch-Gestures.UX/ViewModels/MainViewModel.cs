@@ -64,16 +64,6 @@ public partial class MainViewModel : NavigableViewModel
 
     #endregion
 
-    #region Events
-
-    public event EventHandler<ObservableCollection<SerializablePlugin>>? OnPluginChanged;
-
-    public event EventHandler? Connected;
-
-    public event EventHandler? Disconnected;
-
-    #endregion
-
     #region Constructors
 
     // TODO: Implement settings for plugin
@@ -93,7 +83,6 @@ public partial class MainViewModel : NavigableViewModel
         NextViewModel!.PropertyChanging += OnCurrentGestureSetupChanging;
         NextViewModel!.BackRequested += OnBackRequestedAhead;
 
-        BindingsOverviewViewModel.GestureAdded += OnGestureAdded;
         BindingsOverviewViewModel.GesturesChanged += OnGesturesChanged;
 
         _client = new("GesturesDaemon");
@@ -115,7 +104,13 @@ public partial class MainViewModel : NavigableViewModel
 
     #region Events
 
+    public event EventHandler<ObservableCollection<SerializablePlugin>>? OnPluginChanged;
+
     public override event EventHandler? BackRequested;
+
+    public event EventHandler? Connected;
+
+    public event EventHandler? Disconnected;
 
     #endregion
 
@@ -216,6 +211,66 @@ public partial class MainViewModel : NavigableViewModel
         return Plugins.FirstOrDefault(x => x.Identifier == identifier)?.PluginName ?? "Unknown";
     }
 
+    //
+    // Adding / Changing / Removing Gestures
+    //
+
+    private void AddGesture(Gesture gesture)
+    {
+        switch (gesture)
+        {
+            case SerializableTapGesture tapGesture:
+                _settings.TapGestures.Add(tapGesture);
+                break;
+            case SerializableSwipeGesture swipeGesture:
+                _settings.SwipeGestures.Add(swipeGesture);
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+
+        _ = UploadSettingsAsync();
+    }
+
+    private void ChangeGesture(GestureChangedEventArgs args)
+    {
+        int index;
+
+        // TODO: Rewrite this garbage somehow
+        switch(args.OldValue)
+        {
+            case SerializableTapGesture tapGesture:
+                index = _settings.TapGestures.IndexOf(tapGesture);
+                _settings.TapGestures[index] = (SerializableTapGesture)args.NewValue!;
+                break;
+            case SerializableSwipeGesture swipeGesture:
+                index = _settings.SwipeGestures.IndexOf(swipeGesture);
+                _settings.SwipeGestures[index] = (SerializableSwipeGesture)args.NewValue!;
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+
+        _ = UploadSettingsAsync();
+    }
+
+    private void RemoveGesture(Gesture gesture)
+    {
+        switch (gesture)
+        {
+            case SerializableTapGesture tapGesture:
+                _settings.TapGestures.Remove(tapGesture);
+                break;
+            case SerializableSwipeGesture swipeGesture:
+                _settings.SwipeGestures.Remove(swipeGesture);
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+
+        _ = UploadSettingsAsync();
+    }
+
     #endregion
 
     #region Event Handlers
@@ -285,43 +340,18 @@ public partial class MainViewModel : NavigableViewModel
         NextViewModel = this;
     }
 
-    private void OnGestureAdded(object? sender, Gesture e)
-    {
-        switch (e)
-        {
-            case SerializableTapGesture tapGesture:
-                _settings.TapGestures.Add(tapGesture);
-                break;
-            case SerializableSwipeGesture swipeGesture:
-                _settings.SwipeGestures.Add(swipeGesture);
-                break;
-            default:
-                throw new NotImplementedException();
-        }
-
-        _ = UploadSettingsAsync();
-    }
+    //
+    // Handling whenever gestures are added / changed / deleted
+    //
 
     private void OnGesturesChanged(object? sender, GestureChangedEventArgs e)
     {
-        int index;
-
-        // TODO: Rewrite this garbage somehow
-        switch(e.OldValue)
-        {
-            case SerializableTapGesture tapGesture:
-                index = _settings.TapGestures.IndexOf(tapGesture);
-                _settings.TapGestures[index] = (SerializableTapGesture)e.NewValue;
-                break;
-            case SerializableSwipeGesture swipeGesture:
-                index = _settings.SwipeGestures.IndexOf(swipeGesture);
-                _settings.SwipeGestures[index] = (SerializableSwipeGesture)e.NewValue;
-                break;
-            default:
-                throw new NotImplementedException();
-        }
-
-        _ = UploadSettingsAsync();
+        if (e.OldValue == null && e.NewValue != null)
+            AddGesture(e.NewValue);
+        else if (e.OldValue != null && e.NewValue == null)
+            RemoveGesture(e.OldValue);
+        else
+            ChangeGesture(e);
     }
 
     #endregion

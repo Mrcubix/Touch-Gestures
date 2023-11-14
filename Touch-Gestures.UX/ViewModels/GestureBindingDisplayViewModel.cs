@@ -1,5 +1,5 @@
 using System;
-using Avalonia.Media;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenTabletDriver.External.Avalonia.ViewModels;
@@ -34,6 +34,8 @@ namespace TouchGestures.UX.ViewModels
             PluginProperty = serialized.PluginProperty;
 
             InitializeDescription();
+
+            Initialize();
         }
 
         public GestureBindingDisplayViewModel(GestureAddedEventArgs e)
@@ -49,6 +51,13 @@ namespace TouchGestures.UX.ViewModels
             PluginProperty = e.BindingDisplay.PluginProperty;
 
             AssociatedGesture = e.Gesture;
+
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            PropertyChanged += OnPropertyChanged;
         }
 
         #endregion
@@ -58,6 +67,8 @@ namespace TouchGestures.UX.ViewModels
         public event EventHandler? EditRequested;
 
         public event EventHandler? DeletionRequested;
+
+        public event EventHandler? BindingChanged;
 
         #endregion
 
@@ -81,6 +92,24 @@ namespace TouchGestures.UX.ViewModels
                 SwipeGesture => "Swipe",
                 _ => "Unknown Gesture"
             };
+
+        #endregion
+
+        #region Event Handlers
+
+        private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(PluginProperty))
+            {
+                if (AssociatedGesture is not ISerializable serialized)
+                    return;
+
+                serialized.PluginProperty = PluginProperty;
+
+                BindingChanged?.Invoke(this, EventArgs.Empty);
+            }
+                
+        }
 
         #endregion
     }
