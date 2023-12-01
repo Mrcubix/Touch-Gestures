@@ -62,7 +62,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
     protected override void GoBack()
     {
-        if (NextViewModel is GestureSelectionScreenViewModel || NextViewModel is GestureSetupScreenViewModel)
+        if (NextViewModel is GestureSelectionScreenViewModel || (NextViewModel is GestureSetupScreenViewModel && _editedGesture != null))
             BackRequested?.Invoke(this, EventArgs.Empty);
         else
             NextViewModel = GestureSelectionScreenViewModel;
