@@ -38,7 +38,7 @@
         <ControlTemplate>
           <Button Command="{TemplateBinding Command}" ToolTip.Tip="{TemplateBinding Description}">
             <Grid RowDefinitions="*, Auto">
-              <Image Source="{TemplateBinding Icon}" Grid.Row="0" />
+              <Image Source="{TemplateBinding Icon}" Grid.Row="0" RenderOptions.BitmapInterpolationMode="MediumQuality" />
               <TextBlock Text="{TemplateBinding GestureName}" Grid.Row="1" />
             </Grid>
           </Button>

@@ -2,6 +2,8 @@ using TouchGestures.UX.ViewModels.Controls.Setups;
 
 namespace TouchGestures.UX.ViewModels.Controls.Tiles;
 
+using static TouchGestures.UX.Extentions.AssetLoaderExtensions;
+
 #nullable enable
 
 public partial class SwipeTileViewModel : GestureTileViewModel
@@ -10,7 +12,7 @@ public partial class SwipeTileViewModel : GestureTileViewModel
     {
         GestureName = "Swipe";
         Description = "A gesture completed by swiping in a specific direction";
-        // Icon
+        Icon = LoadBitmap("Assets/Setups/Swipe/swipe_up.png");
         // Gesture Setup
     }
 }

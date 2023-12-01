@@ -8,6 +8,19 @@ public static class AssetLoaderExtensions
 {
     private static Uri _baseUri = new("avares://Touch-Gestures.UX");
 
+    public static Bitmap? LoadBitmap(Uri uri)
+    {
+        if (AssetLoader.Exists(uri))
+            return new Bitmap(AssetLoader.Open(uri));
+
+        return null;
+    }
+
+    public static Bitmap? LoadBitmap(string path)
+    {
+        return LoadBitmap(new Uri(_baseUri, path));
+    }
+
     public static Bitmap?[] LoadBitmaps(params Uri[] uris)
     {
         var bitmaps = new Bitmap?[uris.Length];
