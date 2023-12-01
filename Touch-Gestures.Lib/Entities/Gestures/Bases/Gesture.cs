@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Enums;

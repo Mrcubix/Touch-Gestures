@@ -1,12 +1,13 @@
 using System;
+using System.Drawing;
 using System.Numerics;
 using Newtonsoft.Json;
-using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Input;
+using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Entities.Gestures
 {
@@ -14,7 +15,7 @@ namespace TouchGestures.Entities.Gestures
     ///   Represent a swipe gesture in any of the 8 directions in <see cref="SwipeDirection"/>.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public class SwipeGesture : MixedBasedGesture
+    public class SwipeGesture : MixedBasedGesture, IAbsolutePositionable
     {
         #region Fields
 
@@ -123,6 +124,14 @@ namespace TouchGestures.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
+        public bool IsAbsolute { get; protected set; }
+
+        /// <inheritdoc/>
+        [JsonProperty]
+        public Rectangle AbsoluteBounds { get; protected set; }
+
+        /// <inheritdoc/>
+        [JsonProperty]
         public override GestureKind GestureKind => GestureKind.Swipe;
 
         /// <summary>
@@ -184,7 +193,7 @@ namespace TouchGestures.Entities.Gestures
                     }
                     else
                     {
-                        if ((DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
+                        if (Deadline != 0 && (DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
                         {
                             HasEnded = true;
                             return;

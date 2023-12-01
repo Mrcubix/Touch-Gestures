@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib;
 using TouchGestures.Lib.Entities.Gestures.Bases;
+using System.Drawing;
 
 namespace TouchGestures.Entities.Gestures
 {
@@ -132,7 +133,7 @@ namespace TouchGestures.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
-        public override GestureKind GestureKind => GestureKind.Swipe;
+        public override GestureKind GestureKind => GestureKind.Tap;
 
         /// <summary>
         ///   The number of touches required to trigger the gesture. <br/>

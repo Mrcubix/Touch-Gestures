@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -58,6 +59,12 @@ namespace TouchGestures
                 return;
             }
 
+            if (Info.Driver.Tablet != null)
+            {
+                TabletSize = new Vector2(Info.Driver.Tablet.Digitizer.Width, Info.Driver.Tablet.Digitizer.Height);
+                LinesPerMM = Info.Driver.Tablet.Digitizer.MaxX / Info.Driver.Tablet.Digitizer.Width;
+            }
+
             // identify plugins
             IdentifyPlugins();
 
@@ -81,13 +88,17 @@ namespace TouchGestures
 
         #region Properties
 
-        public bool IsReady { get; private set; }
-
-        public bool HasErrored { get; private set; }
+        public Dictionary<int, TypeInfo> IdentifierToPluginConversion = new();
 
         public Settings TouchGestureSettings { get; private set; } = Settings.Default;
 
-        public Dictionary<int, TypeInfo> IdentifierToPluginConversion = new();
+        public Vector2 TabletSize { get; private set; } = new(-1, -1);
+
+        public float LinesPerMM = -1;
+
+        public bool IsReady { get; private set; }
+
+        public bool HasErrored { get; private set; }
 
         #endregion
 
@@ -169,6 +180,27 @@ namespace TouchGestures
             }
 
             return Task.FromResult(plugins);
+        }
+
+        public Task<bool> IsTabletConnected()
+        {
+            Log.Write("Gestures Daemon", "Checking if tablet is connected...");
+
+            return Task.FromResult(Info.Driver.Tablet != null);
+        }
+
+        public Task<Vector2> GetTabletSize()
+        {
+            Log.Write("Gestures Daemon", "Acquiring Tablet...");
+
+            return Task.FromResult(TabletSize);
+        }
+
+        public Task<float> GetTabletLinesPerMM()
+        {
+            Log.Write("Gestures Daemon", "Acquiring Tablet...");
+
+            return Task.FromResult(LinesPerMM);
         }
 
         public Task<SerializableSettings> GetSettings()

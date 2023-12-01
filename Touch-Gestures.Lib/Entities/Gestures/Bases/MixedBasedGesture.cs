@@ -1,7 +1,6 @@
 using System;
 using System.Numerics;
 using Newtonsoft.Json;
-using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Entities.Gestures.Bases
@@ -10,6 +9,8 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
     [JsonObject(MemberSerialization.OptIn)]
     public abstract class MixedBasedGesture : Gesture, IMixedBasedGesture
     {
+        #region Constructors
+
         public MixedBasedGesture()
         {
         }
@@ -30,17 +31,19 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
             Deadline = deadline;
         }
 
+        #endregion
+
         #region Properties
 
-        public Vector2 StartPosition { get; protected set; }
+        public virtual Vector2 StartPosition { get; protected set; }
 
-        public DateTime TimeStarted { get; protected set; }
-
-        [JsonProperty]
-        public Vector2 Threshold { get; set; }
+        public virtual DateTime TimeStarted { get; protected set; }
 
         [JsonProperty]
-        public double Deadline { get; set; }
+        public virtual Vector2 Threshold { get; set; }
+
+        [JsonProperty]
+        public virtual double Deadline { get; set; }
 
         #endregion
     }
