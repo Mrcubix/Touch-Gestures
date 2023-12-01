@@ -42,7 +42,7 @@
       <ColumnDefinition Width="*" SharedSizeGroup="Borders" />
     </Grid.ColumnDefinitions>
 
-    <Border Grid.Row="0" Grid.Column="0">
+    <Border Grid.Row="0" Grid.Column="0" ToolTip.Tip="A Gesture start at the circle &amp; end at at the opposite side of a pattern if there is one.">
       <Image Source="{Binding SelectedSetupPickPreview}" Margin="8" MaxWidth="1280" MaxHeight="720"
              HorizontalAlignment="Center" VerticalAlignment="Center" />
     </Border>

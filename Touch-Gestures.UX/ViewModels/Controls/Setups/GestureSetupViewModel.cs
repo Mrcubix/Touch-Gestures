@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -27,6 +28,16 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     private int _selectedGestureSetupPickIndex = 0;
 
+    // Setting tweaking checks
+
+    [ObservableProperty]
+    private bool _isGestureBindingSet = false;
+
+    [ObservableProperty]
+    private bool _areGestureSettingTweaked = false;
+
+    // Steps
+
     [ObservableProperty]
     private bool _isOptionsSelectionStepActive = false;
 
@@ -36,8 +47,12 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     [ObservableProperty]
     private bool _isSettingsTweakingStepActive = false;
 
+    // Editing
+
     [ObservableProperty]
     private bool _isEditing;
+
+    // Visual Parts
 
     [ObservableProperty]
     private Bitmap? _selectedSetupPickPreview = _placeholderImage;
@@ -66,6 +81,11 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
         GestureSetupPickItems = null;
 
         BindingDisplay = new BindingDisplayViewModel();
+    }
+
+    protected virtual void SubscribeToSettingsChanges()
+    {
+        BindingDisplay.PropertyChanged += OnBindingDisplayPropertyChanged;
     }
 
     #endregion
@@ -122,6 +142,19 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
             SetupCompleted?.Invoke(sender, EventArgs.Empty);
         else
             EditCompleted?.Invoke(sender, EventArgs.Empty);
+    }
+
+    protected virtual void OnBindingDisplayPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(BindingDisplayViewModel.PluginProperty))
+        {
+            IsGestureBindingSet = BindingDisplay.PluginProperty != null;
+        }
+    }
+
+    protected virtual void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        throw new NotImplementedException("OnSettingsTweakingCompleted has not been overriden.");
     }
 
     #endregion

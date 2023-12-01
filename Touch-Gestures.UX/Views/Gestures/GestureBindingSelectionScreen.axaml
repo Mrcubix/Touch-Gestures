@@ -43,7 +43,7 @@
     </Border>
 
     <controls:SetupNavigationBar  BackCommand="{Binding GoBackCommand}" NextCommand="{Binding GoNextCommand}"
-                                  Grid.Row="1" HorizontalAlignment="Center" />
+                                  Grid.Row="1" HorizontalAlignment="Center" CanGoNext="{Binding IsGestureBindingSet}" />
   </Grid>
 
 </UserControl>

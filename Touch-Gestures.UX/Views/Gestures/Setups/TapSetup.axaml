@@ -60,7 +60,7 @@
       </Border>
     
       <controls:SetupNavigationBar  BackCommand="{Binding GoBackCommand}" NextCommand="{Binding DoCompleteCommand}" NextButtonText="Complete"
-                                    Grid.Row="1" HorizontalAlignment="Center" />
+                                    Grid.Row="1" HorizontalAlignment="Center" CanGoNext="{Binding AreGestureSettingTweaked}" />
     </Grid>
   </Grid>
 

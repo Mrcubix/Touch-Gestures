@@ -30,6 +30,12 @@
       <Setter Property="BorderBrush" Value="{StaticResource InputBorderColorBrush}" />
       <Setter Property="Margin" Value="4, 0" />
     </Style>
+    <Style Selector="#VIEW_GestureBindings > ContentPresenter">
+      <Setter Property="Margin" Value="0, 0, 0, 16" />
+    </Style>
+    <Style Selector="#VIEW_GestureBindings > ContentPresenter:nth-last-child(1)">
+      <Setter Property="Margin" Value="0, 0, 0, 0" />
+    </Style>
   </UserControl.Styles>
 
   <ContentControl Content="{Binding NextViewModel}">
@@ -47,7 +53,7 @@
             <TextBlock Text="" Width="35" Height="36" Grid.Column="2"/>
           </Grid>
           <ScrollViewer Grid.Row="1" Margin="23, 0">
-            <ItemsControl ItemsSource="{Binding GestureBindings}" Padding="32, 0">
+            <ItemsControl Name="VIEW_GestureBindings" ItemsSource="{Binding GestureBindings}" Padding="32, 0">
               <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="vm:GestureBindingDisplayViewModel">
                   <containers:GestureBindingDisplay />

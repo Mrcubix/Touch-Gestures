@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
 using Avalonia.Media.Imaging;
@@ -58,6 +59,8 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
         BindingDisplay = new BindingDisplayViewModel();
         _gesture = new SerializableTapGesture();
+
+        SubscribeToSettingsChanges();
     }
 
     public TapSetupViewModel(Gesture gesture) : this(true)
@@ -76,6 +79,13 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         SelectedGestureSetupPickIndex = serializedTapGesture.RequiredTouchesCount - 1;
 
         BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
+    }
+
+    protected override void SubscribeToSettingsChanges()
+    {
+        PropertyChanged += OnSettingsTweaksChanged;
+
+        base.SubscribeToSettingsChanges();
     }
 
     #endregion
@@ -135,6 +145,19 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         _gesture.PluginProperty = BindingDisplay.PluginProperty;
 
         return _gesture;
+    }
+
+    #endregion
+
+    #region Events Handlers
+
+    protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Threshold) ||
+            e.PropertyName == nameof(Deadline))
+        {
+            AreGestureSettingTweaked = Threshold > 0 && Deadline > 0;
+        }
     }
 
     #endregion
