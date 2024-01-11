@@ -12,7 +12,11 @@ public partial class SetupNavigationBar : TemplatedControl
 
     public static readonly StyledProperty<ICommand?> BackCommandProperty = AvaloniaProperty.Register<SetupNavigationBar, ICommand?>(nameof(BackCommand), null);
 
+    public static readonly StyledProperty<bool> CanGoBackProperty = AvaloniaProperty.Register<SetupNavigationBar, bool>(nameof(CanGoBack), true);
+
     public static readonly StyledProperty<ICommand?> NextCommandProperty = AvaloniaProperty.Register<SetupNavigationBar, ICommand?>(nameof(NextCommand), null);
+
+    public static readonly StyledProperty<bool> CanGoNextProperty = AvaloniaProperty.Register<SetupNavigationBar, bool>(nameof(CanGoNext), true);
 
     public string NextButtonText
     {
@@ -26,9 +30,21 @@ public partial class SetupNavigationBar : TemplatedControl
         set => SetValue(BackCommandProperty, value);
     }
 
+    public bool CanGoBack
+    {
+        get => GetValue(CanGoBackProperty);
+        set => SetValue(CanGoBackProperty, value);
+    }
+
     public ICommand? NextCommand
     {
         get => GetValue(NextCommandProperty);
         set => SetValue(NextCommandProperty, value);
+    }
+
+    public bool CanGoNext
+    {
+        get => GetValue(CanGoNextProperty);
+        set => SetValue(CanGoNextProperty, value);
     }
 }
