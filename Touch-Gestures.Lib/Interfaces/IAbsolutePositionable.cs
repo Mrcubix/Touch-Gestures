@@ -14,7 +14,7 @@ namespace TouchGestures.Lib.Interfaces
         /// <summary>
         ///   The absolute bounds of the situation.
         /// </summary>
-        Rectangle AbsoluteBounds { get; }
+        Rectangle Bounds { get; }
 
         #endregion
     }

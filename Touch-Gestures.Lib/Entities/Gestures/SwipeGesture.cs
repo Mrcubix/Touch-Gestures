@@ -6,6 +6,7 @@ using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
+using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Input;
 using TouchGestures.Lib.Interfaces;
 
@@ -59,6 +60,12 @@ namespace TouchGestures.Entities.Gestures
         {
             Direction = direction;
         }
+
+        public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, Rectangle bounds) : this(threshold, deadline, direction)
+        {
+            IsAbsolute = true;
+            Bounds = bounds;
+        }   
 
         #endregion
 
@@ -128,11 +135,7 @@ namespace TouchGestures.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
-        public Rectangle AbsoluteBounds { get; protected set; }
-
-        /// <inheritdoc/>
-        [JsonProperty]
-        public override GestureKind GestureKind => GestureKind.Swipe;
+        public Rectangle Bounds { get; protected set; }
 
         /// <summary>
         ///   The direction of the swipe.
@@ -188,6 +191,9 @@ namespace TouchGestures.Entities.Gestures
                 {
                     if (!HasStarted)
                     {
+                        if (IsAbsolute && !point.IsInside(Bounds))
+                            return;
+
                         StartPosition = point.Position;
                         HasStarted = true;
                     }

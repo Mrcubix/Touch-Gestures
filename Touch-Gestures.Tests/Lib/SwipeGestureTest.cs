@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Numerics;
 using System.Threading;
 using OpenTabletDriver.Plugin.Tablet.Touch;
@@ -16,7 +17,7 @@ namespace TouchGestures.Tests.Lib
             - All 8 directions swipes using 2 reports each,
             - The gesture should not trigger is the threshold is not reached & the invoking touch point is released,
             - The gesture should not trigger if the threshold is reached but the invoking touch point is released after the deadline passed
-            - ?
+            - Absolute positionable gestures should only trigger if the starting touch point is within the bounds
         */
 
         #region Constants & readonly fields
@@ -25,6 +26,8 @@ namespace TouchGestures.Tests.Lib
         private const double DEADLINE = 50;
 
         private readonly Vector2 THRESHOLD = new(30, 30);
+
+        private readonly Rectangle EXAMPLE_BOUNDS = new(0, 0, 400, 400);
 
         #endregion
 
@@ -47,6 +50,15 @@ namespace TouchGestures.Tests.Lib
             {
                 TouchID = 0,
                 Position = new Vector2(0, 0),
+            },
+        };
+
+        public TouchPoint[] OriginAbsoluteFaultyData = new TouchPoint[MAX_TOUCHES]
+        {
+            new()
+            {
+                TouchID = 0,
+                Position = new Vector2(-20, -20),
             },
         };
 
@@ -129,8 +141,13 @@ namespace TouchGestures.Tests.Lib
 
         #endregion
 
-        #region 
+        #region Tests
 
+        #region Directional Swipes
+
+        /// <summary>
+        ///   This test aims to check if the gesture is completed after performing a swipe in the left direction properly.
+        /// </summary>
         [Fact]
         public void LeftSwipeGesture()
         {
@@ -153,6 +170,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Left Swipe Gesture Completed");
         }
 
+        /// <summary>
+        ///   This test aims to check if the gesture is completed after performing a swipe in the up direction properly.
+        /// </summary>
         [Fact]
         public void UpSwipeGesture()
         {
@@ -175,6 +195,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Up Swipe Gesture Completed");
         }
 
+        /// <summary>
+        ///   This test aims to check if the gesture is completed after performing a swipe in the right direction properly.
+        /// </summary>
         [Fact]
         public void RightSwipeGesture()
         {
@@ -197,6 +220,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Right Swipe Gesture Completed");
         }
 
+        /// <summary>
+        ///   This test aims to check if the gesture is completed after performing a swipe in the down direction properly.
+        /// </summary>
         [Fact]
         public void DownSwipeGesture()
         {
@@ -219,6 +245,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Down Swipe Gesture Completed");
         }
 
+        /// <summary>
+        ///   This test aims to check if the gesture is completed after performing a swipe in the up-left direction properly.
+        /// </summary>
         [Fact]
         public void LeftUpSwipeGesture()
         {
@@ -241,6 +270,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Left Up Swipe Gesture Completed");
         }
 
+        /// <summary>
+        ///   This test aims to check if the gesture is completed after performing a swipe in the up-right direction properly.
+        /// </summary>
         [Fact]
         public void RightUpSwipeGesture()
         {
@@ -263,6 +295,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Right Up Swipe Gesture Completed");
         }
 
+        /// <summary>
+        ///   This test aims to check if the gesture is completed after performing a swipe in the down-left direction properly.
+        /// </summary>
         [Fact]
         public void LeftDownSwipeGesture()
         {
@@ -285,6 +320,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Left Down Swipe Gesture Completed");
         }
 
+        /// <summary>
+        ///   This test aims to check if the gesture is completed after performing a swipe in the down-right direction properly.
+        /// </summary>
         [Fact]
         public void RightDownSwipeGesture()
         {
@@ -307,6 +345,52 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Right Down Swipe Gesture Completed");
         }
 
+        #endregion
+
+        #region Absolute
+
+        // It does not matter if the gesture is completed outside the bounnds, the boundaries are only used to start the gesture.
+
+        /// <summary>
+        ///   This test aims to check if the gesture is started after performing a specified swipe within the provided bounds.
+        /// </summary>
+        [Fact]
+        public void AbsoluteGestureStartedWithinBounds()
+        {
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS);
+
+            TestOriginSampleData(gesture);
+
+            _output.WriteLine($"Origin Sample Data passed to OnInput, Assertion seems to have succeeded as expected");
+        }
+
+        /// <summary>
+        ///   This test aims to check if the gesture is not started after performing a specified swipe outside the provided bounds.
+        /// </summary>
+        [Fact]
+        public void AbsoluteGestureNotStartedOutsideBounds()
+        {
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS);
+
+            //TestOriginSampleData(gesture);
+            gesture.OnInput(OriginAbsoluteFaultyData);
+
+            _output.WriteLine($"Faulty Origin Sample Data passed to OnInput");
+
+            Assert.False(gesture.HasStarted);
+            Assert.False(gesture.HasEnded);
+            Assert.False(gesture.HasCompleted);
+
+            _output.WriteLine($"Gesture did not start as expected");
+        }
+
+        #endregion
+
+        #region Intended Failures Cases
+
+        /// <summary>
+        ///   This test aims to check if the gesture is not completed after performing a swipe in the left direction but not reaching the threshold.
+        /// </summary>
         [Fact]
         public void ReleasedSwipeGesture()
         {
@@ -329,6 +413,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Releasing the active touch point ended the gesture as expected");
         }
 
+        /// <summary>
+        ///   This test aims to check if the gesture is not completed after performing a swipe in the left direction but is out of time.
+        /// </summary>
         [Fact]
         public void CompletedAfterDeadline()
         {
@@ -352,6 +439,8 @@ namespace TouchGestures.Tests.Lib
 
             _output.WriteLine($"Late Completion resulted in the gesture being ended as expected");
         }
+
+        #endregion
 
         #endregion
 

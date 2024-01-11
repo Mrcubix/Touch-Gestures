@@ -10,12 +10,6 @@ namespace TouchGestures.Lib.Interfaces
         #region Properties
 
         /// <summary>
-        ///   The gesture kind, used to identify the gesture during serialization &amp; deserialization.
-        /// </summary>
-        [JsonProperty]
-        GestureKind GestureKind { get; }
-
-        /// <summary>
         ///   Whether the gesture has started.
         /// </summary>
         bool HasStarted { get; }

@@ -34,10 +34,6 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
         #region Properties
 
         /// <inheritdoc />
-        [JsonProperty]
-        public abstract GestureKind GestureKind { get; }
-
-        /// <inheritdoc />
         public abstract bool HasStarted { get; protected set; }
 
         /// <inheritdoc />

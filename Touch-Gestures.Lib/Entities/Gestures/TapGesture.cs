@@ -131,10 +131,6 @@ namespace TouchGestures.Entities.Gestures
         /// </summary>
         public bool IsInvalidState { get; private set; }
 
-        /// <inheritdoc/>
-        [JsonProperty]
-        public override GestureKind GestureKind => GestureKind.Tap;
-
         /// <summary>
         ///   The number of touches required to trigger the gesture. <br/>
         ///   Defaults to 1.
