@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <NoWarn>NETSDK1138; VSTHRD200; CS0414</NoWarn>
     <RootNamespace>TouchGestures.UX</RootNamespace>
     <Nullable>enable</Nullable>
