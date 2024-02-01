@@ -30,10 +30,10 @@
       <Setter Property="BorderBrush" Value="{StaticResource InputBorderColorBrush}" />
       <Setter Property="Margin" Value="4, 0" />
     </Style>
-    <Style Selector="#VIEW_GestureBindings > ContentPresenter">
+    <Style Selector="#VIEW_Body > ContentPresenter">
       <Setter Property="Margin" Value="0, 0, 0, 16" />
     </Style>
-    <Style Selector="#VIEW_GestureBindings > ContentPresenter:nth-last-child(1)">
+    <Style Selector="#VIEW_Body > ContentPresenter:nth-last-child(1)">
       <Setter Property="Margin" Value="0, 0, 0, 0" />
     </Style>
   </UserControl.Styles>
@@ -41,9 +41,9 @@
   <ContentControl Content="{Binding NextViewModel}">
     <ContentControl.DataTemplates>
       <DataTemplate DataType="vm:BindingsOverviewViewModel">
-        <Grid RowDefinitions="Auto, *">
+        <Grid RowDefinitions="Auto, *, Auto">
           <Grid Name="VIEW_Header" ColumnDefinitions="Auto, *, Auto" Grid.Row="0" Margin="0, 32">
-            <Button Name="VIEW_Adder" Command="{Binding StartSetupWizardCommand}" Grid.Column="0">
+            <Button Name="VIEW_Adder" Command="{Binding StartSetupWizardCommand}" Grid.Column="0" ToolTip.Tip="Setup a new gesture">
               <Grid>
                 <Image Source="/Assets/Icons/Add.png" Margin="1, 1, 0, 0" IsVisible="{Binding IsConnected}" />
                 <Image Source="/Assets/Icons/Add_disabled.png" Margin="1, 1, 0, 0" IsVisible="{Binding !IsConnected}" />
@@ -52,8 +52,8 @@
             <TextBox Name="VIEW_SearchBar" Watermark="Search..." Text="{Binding SearchText}" Grid.Column="1" />
             <TextBlock Text="" Width="35" Height="36" Grid.Column="2"/>
           </Grid>
-          <ScrollViewer Grid.Row="1" Margin="23, 0">
-            <ItemsControl Name="VIEW_GestureBindings" ItemsSource="{Binding GestureBindings}" Padding="32, 0">
+          <ScrollViewer Grid.Row="1" Margin="23, 0" Grid.IsSharedSizeScope="True">
+            <ItemsControl Name="VIEW_Body" ItemsSource="{Binding GestureBindings}" Padding="32, 0">
               <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="vm:GestureBindingDisplayViewModel">
                   <containers:GestureBindingDisplay />
@@ -61,6 +61,9 @@
               </ItemsControl.ItemTemplate>
             </ItemsControl>
           </ScrollViewer>
+          <Border Background="{StaticResource AccentColorBrush}" BorderThickness="0,2,0,0" Grid.Row="2" Padding="4">
+            <Button Command="{Binding RequestSave}" Content="Save" IsEnabled="{Binding IsConnected}" HorizontalAlignment="Right" />
+          </Border>
         </Grid>
       </DataTemplate>
       <DataTemplate DataType="vm:GestureSetupWizardViewModel">
