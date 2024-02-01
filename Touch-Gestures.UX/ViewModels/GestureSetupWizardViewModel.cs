@@ -36,9 +36,9 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     public GestureSetupWizardViewModel()
     {
         NextViewModel = _gestureSelectionScreenViewModel;
-
-        NextViewModel!.PropertyChanging += OnCurrentGestureSetupChanging;
-        NextViewModel!.PropertyChanged += OnCurrentGestureSetupChanged;
+        
+        PropertyChanging += OnPropertyChanging;
+        PropertyChanged += OnGestureChanged;
 
         GestureSelectionScreenViewModel.BackRequested += OnBackRequestedAhead;
         GestureSelectionScreenViewModel.GestureSelected += OnGestureSelected;
@@ -79,12 +79,13 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         GestureSetupViewModel setupViewModel = _editedGesture switch
         {
             SerializableTapGesture => new TapSetupViewModel(_editedGesture),
-            SerializableSwipeGesture => new GestureSetupViewModel(),
-            _ => throw new InvalidOperationException("The gesture type is not supported.")
+            SerializableSwipeGesture => new SwipeSetupViewModel(_editedGesture),
+            _ => new GestureSetupViewModel()
         };
 
         setupViewModel.BindingDisplay = new(bindingDisplay.Description!, bindingDisplay.Content!, bindingDisplay.PluginProperty);
 
+        // Subscribe to the events
         setupViewModel.EditCompleted += OnEditCompleted;
 
         GestureSetupScreenViewModel.StartSetup(setupViewModel);
@@ -94,18 +95,6 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     #endregion
 
     #region Event Handlers
-
-    private void OnCurrentGestureSetupChanging(object? sender, PropertyChangingEventArgs e)
-    {
-        if (NextViewModel != null)
-            NextViewModel.BackRequested -= OnBackRequestedAhead;
-    }
-
-    private void OnCurrentGestureSetupChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (NextViewModel != null)
-            NextViewModel.BackRequested += OnBackRequestedAhead;
-    }
 
     private void OnGestureSelected(object? sender, GestureTileViewModel selectedTile)
     {
@@ -126,6 +115,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         if (sender is not GestureSetupViewModel setup)
             throw new InvalidOperationException("The sender must be a GestureSetupViewModel.");
 
+        // Unsubscribe from the events
         setup.SetupCompleted -= OnSetupCompleted;
         setup.EditCompleted -= OnEditCompleted;
 
@@ -136,20 +126,33 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
     private void OnEditCompleted(object? sender, EventArgs e)
     {
-        if (sender is not GestureSetupViewModel gestureSetupViewModel)
+        if (sender is not GestureSetupViewModel setup)
             throw new InvalidOperationException("The sender must be a GestureSetupViewModel.");
 
         if (_editedGesture == null)
             throw new InvalidOperationException("The edited gesture cannot be null.");
 
-        gestureSetupViewModel.SetupCompleted -= OnSetupCompleted;
-        gestureSetupViewModel.EditCompleted -= OnEditCompleted;
+        // Unsubscribe from the events
+        setup.SetupCompleted -= OnSetupCompleted;
+        setup.EditCompleted -= OnEditCompleted;
 
-        var gesture = gestureSetupViewModel.BuildGesture() ?? throw new InvalidOperationException("The gesture cannot be null.");
+        var gesture = setup.BuildGesture() ?? throw new InvalidOperationException("The gesture cannot be null.");
 
         var args = new GestureChangedEventArgs(_editedGesture, gesture);
 
         EditCompleted?.Invoke(this, args);
+    }
+
+    private void OnPropertyChanging(object? sender, PropertyChangingEventArgs e)
+    {
+        if (e.PropertyName == nameof(NextViewModel) && NextViewModel != null)
+            NextViewModel.BackRequested -= OnBackRequestedAhead;
+    }
+
+    private void OnGestureChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(NextViewModel) && NextViewModel != null)
+            NextViewModel.BackRequested += OnBackRequestedAhead;
     }
 
     #endregion

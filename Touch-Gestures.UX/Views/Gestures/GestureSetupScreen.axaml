@@ -19,6 +19,9 @@
       <DataTemplate x:DataType="setupsvm:TapSetupViewModel">
         <setups:TapSetup />
       </DataTemplate>
+      <DataTemplate x:DataType="setupsvm:SwipeSetupViewModel">
+        <setups:SwipeSetup />
+      </DataTemplate>
       <DataTemplate x:DataType="setupsvm:GestureSetupViewModel">
         <setups:GestureSetup />
       </DataTemplate>

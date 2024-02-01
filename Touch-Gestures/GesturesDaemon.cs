@@ -126,7 +126,7 @@ namespace TouchGestures
         private void LoadSettings(string path)
         {
             if (!File.Exists(_settingsPath))
-                SaveSettings();
+                SaveSettingsCore();
 
             var res = Settings.TryLoadFrom(_settingsPath, out var temp);
 
@@ -136,9 +136,9 @@ namespace TouchGestures
                 HasErrored = true;
         }
 
-        private bool SaveSettings()
+        private bool SaveSettingsCore()
         {
-            Log.Write("Gesture Daemon", "Saving settings...");
+            Log.Write("Gestures Daemon", "Saving settings...");
 
             try
             {
@@ -147,7 +147,7 @@ namespace TouchGestures
             }
             catch (Exception e)
             {
-                Log.Write("Gesture Daemon", $"Failed to save settings: {e.Message}", LogLevel.Error);
+                Log.Write("Gestures Daemon", $"Failed to save settings: {e.Message}", LogLevel.Error);
             }
 
             return false;
@@ -214,6 +214,8 @@ namespace TouchGestures
 
             return Task.FromResult(serializedSettings);
         }
+
+        public Task<bool> SaveSettings() => Task.FromResult(SaveSettingsCore());
 
         public Task<bool> UpdateSettings(SerializableSettings settings)
         {

@@ -34,7 +34,13 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
         gestureSetupViewModel.IsOptionsSelectionStepActive = true;
     }
 
-    protected override void GoBack() => BackRequested?.Invoke(this, EventArgs.Empty);
+    protected override void GoBack()
+    {
+        if (NextViewModel != null)
+            NextViewModel.BackRequested -= OnBackRequestedAhead;
+
+        BackRequested?.Invoke(this, EventArgs.Empty);
+    }
 
     #endregion
 

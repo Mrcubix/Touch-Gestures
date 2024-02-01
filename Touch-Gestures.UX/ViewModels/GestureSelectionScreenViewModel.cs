@@ -22,9 +22,9 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
         new HoldTileViewModel(),
         new SwipeTileViewModel(),
         new PinchTileViewModel(),
-        //new PanTileViewModel(),
         new RotateTileViewModel(),
-        new NodeTileViewModel(),
+        //new PanTileViewModel(),
+        //new NodeTileViewModel(),
     };
 
     [ObservableProperty]

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.ObjectModel;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TouchGestures.Lib.Entities;
-using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.UX.Events;
 
@@ -72,6 +72,7 @@ namespace TouchGestures.UX.ViewModels
         #region Events
 
         public override event EventHandler? BackRequested;
+        public event EventHandler<EventArgs>? SaveRequested;
         public event EventHandler<GestureChangedEventArgs>? GesturesChanged;
 
         #endregion
@@ -92,6 +93,9 @@ namespace TouchGestures.UX.ViewModels
 
             NextViewModel = setupWizard;
         }
+
+        [RelayCommand(CanExecute = nameof(IsConnected))]
+        public void RequestSave() => SaveRequested?.Invoke(this, EventArgs.Empty);
 
         #endregion
 
@@ -122,6 +126,7 @@ namespace TouchGestures.UX.ViewModels
             NextViewModel.BackRequested -= OnBackRequestedAhead;
             NextViewModel = this;
 
+            // We build the binding display using content from the plugin property & returned data from the binding dialog
             var bindingDisplay = new GestureBindingDisplayViewModel(e);
             bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
 
@@ -130,6 +135,7 @@ namespace TouchGestures.UX.ViewModels
             bindingDisplay.DeletionRequested += OnDeletionRequested;
             bindingDisplay.BindingChanged += OnGestureBindingsChanged;
 
+            // We add the binding to the list of bindings, we may need to insert it instead to avoid having to re-sort the list
             GestureBindings.Add(bindingDisplay);
 
             GesturesChanged?.Invoke(this, new GestureChangedEventArgs(null, e.Gesture!));
@@ -145,11 +151,12 @@ namespace TouchGestures.UX.ViewModels
                 throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
 
             var setupWizard = new GestureSetupWizardViewModel();
-            setupWizard.Edit(bindingDisplay);
 
             // We need to check whenever the edit is completed & when te user goes back
             setupWizard.EditCompleted += (s, args) => OnEditCompleted(s, bindingDisplay, args);
             setupWizard.BackRequested += OnBackRequestedAhead;
+
+            setupWizard.Edit(bindingDisplay);
 
             NextViewModel = setupWizard;
         }
@@ -165,6 +172,7 @@ namespace TouchGestures.UX.ViewModels
             if (args.NewValue is not INamed named)
                 throw new ArgumentException("The edited gesture must be named.");
 
+            // The edit was completed, we need to update the binding display
             bindingDisplay.AssociatedGesture = args.NewValue;
             bindingDisplay.PluginProperty = serialized.PluginProperty;
             bindingDisplay.Description = named.Name;
@@ -185,6 +193,7 @@ namespace TouchGestures.UX.ViewModels
             if (sender is not GestureBindingDisplayViewModel bindingDisplay)
                 throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
 
+            // We need to update the content of the binding display
             var args = new GestureChangedEventArgs(bindingDisplay.AssociatedGesture, bindingDisplay.AssociatedGesture);
             bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
 
@@ -211,18 +220,24 @@ namespace TouchGestures.UX.ViewModels
 
         private void OnConnected(object? sender, EventArgs e)
         {
-            IsConnected = true;
+            Dispatcher.UIThread.Post(() =>
+            {
+                IsConnected = true;
 
-            foreach (var binding in GestureBindings)
-                binding.IsConnected = true;
+                foreach (var binding in GestureBindings)
+                    binding.IsConnected = true;
+            });
         }
 
         private void OnDisconnected(object? sender, EventArgs e)
         {
-            IsConnected = false;
+            Dispatcher.UIThread.Post(() =>
+            {
+                IsConnected = false;
 
-            foreach (var binding in GestureBindings)
-                binding.IsConnected = false;
+                foreach (var binding in GestureBindings)
+                    binding.IsConnected = false;
+            });
         }
 
         #endregion

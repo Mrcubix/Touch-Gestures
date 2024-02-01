@@ -16,6 +16,8 @@ using TouchGestures.Lib.Serializables.Gestures;
 using System.Threading;
 using TouchGestures.UX.Events;
 using Avalonia.Threading;
+using System.Numerics;
+using Avalonia;
 
 namespace TouchGestures.UX.ViewModels;
 
@@ -25,9 +27,15 @@ public partial class MainViewModel : NavigableViewModel
 {
     #region Fields
 
+    private CancellationTokenSource _reconnectionTokenSource = new();
     private RpcClient<IGesturesDaemon> _client;
     private SerializableSettings _settings;
-    private CancellationTokenSource _reconnectionTokenSource = new();
+    private Rect _tabletRect;
+    private float _LinesPerMM = 0;
+    
+    #endregion
+
+    #region Observable Fields
 
     // Home Menu
 
@@ -35,11 +43,14 @@ public partial class MainViewModel : NavigableViewModel
       // Add Button
         // -> GestureSetupWizard
           // Gesture Selection
-          // Gesture Trigger Selection
-          // Gesture Action Selection
-            // Add Button
+          // Gesture Option Selection
+          // Gesture Binding Selection
+          // Gesture Settings Tweaking
 
     // Settings
+
+    [ObservableProperty]
+    private ObservableCollection<SerializablePlugin> _plugins = new();
 
     [ObservableProperty]
     private string _connectionStateText = "Not connected";
@@ -47,11 +58,12 @@ public partial class MainViewModel : NavigableViewModel
     [ObservableProperty]
     private bool _isConnected = false;
 
-    [ObservableProperty]
-    private ObservableCollection<SerializablePlugin> _plugins = new();
+    #region VMs
 
     [ObservableProperty]
     private BindingsOverviewViewModel _bindingsOverviewViewModel;
+
+    #endregion
 
     #region Testing VMs
 
@@ -68,7 +80,7 @@ public partial class MainViewModel : NavigableViewModel
     public MainViewModel()
     {
         _settings = new();
-        _bindingsOverviewViewModel = new(this);
+        BindingsOverviewViewModel = new(this);
 
         BackRequested = null!;
 
@@ -81,6 +93,7 @@ public partial class MainViewModel : NavigableViewModel
         NextViewModel!.PropertyChanging += OnCurrentViewChanging;
         NextViewModel!.BackRequested += OnBackRequestedAhead;
 
+        BindingsOverviewViewModel.SaveRequested += OnSaveRequested;
         BindingsOverviewViewModel.GesturesChanged += OnGestureChanged;
 
         _client = new("GesturesDaemon");
@@ -193,6 +206,21 @@ public partial class MainViewModel : NavigableViewModel
         return null;
     }
 
+    private async Task SaveSettingsAsync()
+    {
+        if (!_client.IsConnected)
+            return;
+
+        try
+        {
+            await _client.Instance.SaveSettings();
+        }
+        catch (Exception e)
+        {
+            HandleException(e);
+        }
+    }
+
     private async Task UploadSettingsAsync()
     {
         if (!_client.IsConnected)
@@ -241,26 +269,6 @@ public partial class MainViewModel : NavigableViewModel
                 break;
             case SerializableSwipeGesture swipeGesture:
                 _settings.SwipeGestures.Add(swipeGesture);
-                break;
-            default:
-                throw new NotImplementedException();
-        }
-    }
-
-    private void ChangeGesture(GestureChangedEventArgs args)
-    {
-        int index;
-
-        // TODO: Rewrite this garbage somehow
-        switch(args.OldValue)
-        {
-            case SerializableTapGesture tapGesture:
-                index = _settings.TapGestures.IndexOf(tapGesture);
-                _settings.TapGestures[index] = (SerializableTapGesture)args.NewValue!;
-                break;
-            case SerializableSwipeGesture swipeGesture:
-                index = _settings.SwipeGestures.IndexOf(swipeGesture);
-                _settings.SwipeGestures[index] = (SerializableSwipeGesture)args.NewValue!;
                 break;
             default:
                 throw new NotImplementedException();
@@ -328,6 +336,24 @@ public partial class MainViewModel : NavigableViewModel
             Dispatcher.UIThread.Post(() => OnSettingsChanged(_settings));
         }
 
+        if (await _client.Instance.IsTabletConnected())
+        {
+            float? tempLinesPerMM = await _client.Instance.GetTabletLinesPerMM();
+
+            if (tempLinesPerMM != null)
+            {
+                _LinesPerMM = tempLinesPerMM.Value;
+            }
+
+            Vector2? tempTabletSize = await _client.Instance.GetTabletSize();
+
+            if (tempTabletSize != null)
+            {
+                _tabletRect = new Rect(0, 0, tempTabletSize.Value.X, tempTabletSize.Value.Y);
+                Dispatcher.UIThread.Post(() => OnTabletRectChanged(_tabletRect, _LinesPerMM));
+            }
+        }
+
         IsConnected = true;
     }
 
@@ -358,18 +384,29 @@ public partial class MainViewModel : NavigableViewModel
         NextViewModel = this;
     }
 
+    private void OnSaveRequested(object? sender, EventArgs e)
+    {
+        _ = SaveSettingsAsync();
+    }
+
     private void OnSettingsChanged(SerializableSettings e)
     {
         bool isOverviewNextViewModel = NextViewModel is BindingsOverviewViewModel;
 
         BindingsOverviewViewModel = new(this, e);
 
+        BindingsOverviewViewModel.SaveRequested += OnSaveRequested;
         BindingsOverviewViewModel.GesturesChanged += OnGestureChanged;
 
         if (isOverviewNextViewModel)
             NextViewModel = BindingsOverviewViewModel;
 
         SettingsChanged?.Invoke(this, e);
+    }
+
+    private void OnTabletRectChanged(Rect bounds, float linesPerMM)
+    {
+        // TODO: set it in the appropriates Node Canvases
     }
 
     //

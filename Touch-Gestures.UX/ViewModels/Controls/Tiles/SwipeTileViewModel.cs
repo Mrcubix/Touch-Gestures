@@ -13,6 +13,6 @@ public partial class SwipeTileViewModel : GestureTileViewModel
         GestureName = "Swipe";
         Description = "A gesture completed by swiping in a specific direction";
         Icon = LoadBitmap("Assets/Setups/Swipe/swipe_up.png");
-        // Gesture Setup
+        AssociatedSetup = new SwipeSetupViewModel();
     }
 }
