@@ -10,7 +10,7 @@
              x:Class="TouchGestures.UX.Views.Gestures.Setups.SwipeSetup">
 
   <Design.DataContext>
-    <vm:GestureSetupViewModel />
+    <vm:SwipeSetupViewModel />
   </Design.DataContext>
 
   <UserControl.Styles>

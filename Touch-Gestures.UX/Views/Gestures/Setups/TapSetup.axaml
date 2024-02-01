@@ -10,7 +10,7 @@
              x:Class="TouchGestures.UX.Views.Gestures.Setups.TapSetup">
 
   <Design.DataContext>
-    <vm:GestureSetupViewModel />
+    <vm:TapSetupViewModel />
   </Design.DataContext>
 
   <UserControl.Styles>
