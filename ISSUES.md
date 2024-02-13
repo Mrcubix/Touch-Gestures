@@ -5,7 +5,23 @@ Multiple json related errors appear in the devtools console, seems like the file
 
 Controls & Views to test on:
 
-- [GestureTile](/Touch-Gestures.UX/Controls/GestureTile.axaml)
-- [BindingsOverview](/Touch-Gestures.UX/Views/BindingsOverview.axaml)
-- [TapSetup](/Touch-Gestures.UX/Views/Gestures/Setups/TapSetup.axaml)
-- [SwipeSetup](/Touch-Gestures.UX/Views/Gestures/Setups/SwipeSetup.axaml)
+###### [GestureTile](/Touch-Gestures.UX/Controls/GestureTile.axaml)
+
+![GestureTilePreview](https://i.imgur.com/uYg4RXY.png)
+
+###### [BindingsOverview](/Touch-Gestures.UX/Views/BindingsOverview.axaml)
+
+![BindingsOverviewPreview](https://i.imgur.com/B4gmYgs.png)
+
+###### [GestureSelectionScreen](/Touch-Gestures.UX/Views/Gestures/GestureSetupScreen.axaml)
+
+![GestureSelectionScreenPreview](https://i.imgur.com/43JOnBj.png)
+
+###### [TapSetup](/Touch-Gestures.UX/Views/Gestures/Setups/TapSetup.axaml)
+
+
+![TapSetupPreview](https://i.imgur.com/UHdY2Qz.png)
+
+###### [SwipeSetup](/Touch-Gestures.UX/Views/Gestures/Setups/SwipeSetup.axaml)
+
+![SwipeSetupPreview](https://i.imgur.com/w3TMt6l.png)
