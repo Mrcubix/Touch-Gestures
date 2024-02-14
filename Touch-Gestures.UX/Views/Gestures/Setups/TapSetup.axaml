@@ -5,7 +5,7 @@
              xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels.Controls.Setups"
              xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
              xmlns:gestures-views="clr-namespace:TouchGestures.UX.Views.Gestures"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="768" d:DesignHeight="628"
              x:DataType="vm:TapSetupViewModel"
              x:Class="TouchGestures.UX.Views.Gestures.Setups.TapSetup">
 

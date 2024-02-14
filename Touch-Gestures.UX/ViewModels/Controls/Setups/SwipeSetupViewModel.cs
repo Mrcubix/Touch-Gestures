@@ -32,6 +32,12 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
 
     #region Constructors
 
+    /// Design-time constructor
+    public SwipeSetupViewModel() : this(false) 
+    { 
+        IsOptionsSelectionStepActive = true;
+    }
+
     public SwipeSetupViewModel(bool isEditing = false)
     {
         IsEditing = isEditing;

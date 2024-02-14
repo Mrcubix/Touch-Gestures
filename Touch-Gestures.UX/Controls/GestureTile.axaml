@@ -4,7 +4,8 @@
 
   <Design.PreviewWith>
     <Grid>
-      <controls:GestureTile GestureName="Swipe" Description="A gesture completed by swiping in a specific direction" Width="264" Height="264" />
+      <controls:GestureTile GestureName="Swipe" Description="A gesture completed by swiping in a specific direction" 
+                            Width="264" Height="264" Icon="Assets/Setups/Swipe/swipe_up.png"/>
     </Grid>
   </Design.PreviewWith>
 

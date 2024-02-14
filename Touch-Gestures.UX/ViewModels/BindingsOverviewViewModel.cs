@@ -28,6 +28,16 @@ namespace TouchGestures.UX.ViewModels
 
         #region Constructors
 
+        // Design-time constructor
+        public BindingsOverviewViewModel()
+        {
+            _parentViewModel = new MainViewModel();
+            IsConnected = false;
+
+            NextViewModel = this;
+            BackRequested = null!;
+        }
+
         public BindingsOverviewViewModel(MainViewModel mainViewModel)
         {
             _parentViewModel = mainViewModel;

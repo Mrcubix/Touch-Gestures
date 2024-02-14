@@ -30,6 +30,12 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
     #region Constructors
 
+    /// Design-time constructor
+    public TapSetupViewModel() : this(false) 
+    { 
+        IsOptionsSelectionStepActive = true;
+    }
+
     public TapSetupViewModel(bool isEditing = false)
     {
         IsEditing = isEditing;

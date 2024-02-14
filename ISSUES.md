@@ -13,12 +13,11 @@ Controls & Views to test on:
 
 ![BindingsOverviewPreview](https://i.imgur.com/B4gmYgs.png)
 
-###### [GestureSelectionScreen](/Touch-Gestures.UX/Views/Gestures/GestureSetupScreen.axaml)
+###### [GestureSelectionScreen](/Touch-Gestures.UX/Views/Gestures/GestureSelectionScreen.axaml)
 
 ![GestureSelectionScreenPreview](https://i.imgur.com/43JOnBj.png)
 
 ###### [TapSetup](/Touch-Gestures.UX/Views/Gestures/Setups/TapSetup.axaml)
-
 
 ![TapSetupPreview](https://i.imgur.com/UHdY2Qz.png)
 
