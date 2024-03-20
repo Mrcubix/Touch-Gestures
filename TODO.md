@@ -53,9 +53,9 @@ Add a `OnExternalGestureCompleted` event to `IGestures` with as parameter an Ges
 
 #### Gestures Unit Tests
 
-- [-] Tap (Any)
+- [x] Tap (Any)
     - [x] Relative
-    - [ ] Absolute
+    - [x] Absolute
 - [ ] Hold (Any)
     - [ ] Relative
     - [ ] Absolute
@@ -71,16 +71,16 @@ Add a `OnExternalGestureCompleted` event to `IGestures` with as parameter an Ges
 
 #### Gestures Setup
 
-- [-] Tap (Any)
+- [x] Tap (Any)
     - [x] Relative
-    - [-] Absolute
+    - [x] Absolute
 
 - [ ] Hold (Any)
     - [ ] Relative
     - [ ] Absolute
 
-- [-] Swipe (Single)
-    - [-] Relative
+- [x] Swipe (Single)
+    - [x] Relative
     - [x] Absolute
 
 - [ ] Pinch (Single)
