@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.UX.Events;
+using Rect = Avalonia.Rect;
 
 namespace TouchGestures.UX.ViewModels
 {
@@ -87,6 +88,12 @@ namespace TouchGestures.UX.ViewModels
 
         #endregion
 
+        #region Properties
+
+        public Rect Bounds { get; set; }
+
+        #endregion
+
         #region Methods
 
         protected override void GoBack()
@@ -97,7 +104,8 @@ namespace TouchGestures.UX.ViewModels
         [RelayCommand(CanExecute = nameof(IsConnected))]
         public void StartSetupWizard()
         {
-            var setupWizard = new GestureSetupWizardViewModel();
+            var setupWizard = new GestureSetupWizardViewModel(Bounds);
+
             setupWizard.SetupCompleted += OnSetupCompleted;
             setupWizard.BackRequested += OnBackRequestedAhead;
 
@@ -160,7 +168,7 @@ namespace TouchGestures.UX.ViewModels
             if (sender is not GestureBindingDisplayViewModel bindingDisplay)
                 throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
 
-            var setupWizard = new GestureSetupWizardViewModel();
+            var setupWizard = new GestureSetupWizardViewModel(Bounds);
 
             // We need to check whenever the edit is completed & when te user goes back
             setupWizard.EditCompleted += (s, args) => OnEditCompleted(s, bindingDisplay, args);

@@ -1,4 +1,4 @@
-using System.Numerics;
+using System.Drawing;
 using Newtonsoft.Json;
 using OpenTabletDriver.External.Common.Serializables;
 using TouchGestures.Entities.Gestures;
@@ -15,19 +15,19 @@ namespace TouchGestures.Lib.Serializables.Gestures
         {
         }
 
-        public SerializableTapGesture(Vector2 threshold) : base(threshold)
+        public SerializableTapGesture(Rectangle bounds) : base(bounds)
         {
         }
 
-        public SerializableTapGesture(Vector2 threshold, double deadline) : base(threshold, deadline)
+        public SerializableTapGesture(Rectangle bounds, double deadline) : base(bounds, deadline)
         {
         }
 
-        public SerializableTapGesture(Vector2 threshold, double deadline, int requiredTouchesCount) : base(threshold, deadline, requiredTouchesCount)
+        public SerializableTapGesture(Rectangle bounds, double deadline, int requiredTouchesCount) : base(bounds, deadline, requiredTouchesCount)
         {
         }
 
-        public SerializableTapGesture(TapGesture gesture) : base(gesture.Threshold, gesture.Deadline, gesture.RequiredTouchesCount)
+        public SerializableTapGesture(TapGesture gesture) : base(gesture.Bounds, gesture.Deadline, gesture.RequiredTouchesCount)
         {
         }
 

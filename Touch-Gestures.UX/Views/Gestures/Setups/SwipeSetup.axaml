@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels.Controls.Setups"
              xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
+             xmlns:containers="clr-namespace:TouchGestures.UX.Controls.Containers"
              xmlns:gestures-views="clr-namespace:TouchGestures.UX.Views.Gestures"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:SwipeSetupViewModel"
@@ -14,7 +15,13 @@
   </Design.DataContext>
 
   <UserControl.Styles>
-    <Style Selector="Border">
+    <Style Selector="Border#VIEW_Area">
+      <Setter Property="BorderBrush" Value="{StaticResource BorderColorBrush}" />
+      <Setter Property="Background" Value="{StaticResource AccentColorBrush}" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="CornerRadius" Value="5" />
+    </Style>
+    <Style Selector="Border#VIEW_Content">
       <Setter Property="BorderBrush" Value="{StaticResource BorderColorBrush}" />
       <Setter Property="Background" Value="{StaticResource AccentColorBrush}" />
       <Setter Property="BorderThickness" Value="2" />
@@ -37,10 +44,14 @@
     <gestures-views:GestureBindingSelectionScreen IsVisible="{Binding IsBindingSelectionStepActive}" />
     
     <!-- Tweaks need to either have the same content, or need their own namespace -->
-    <Grid RowDefinitions="Auto, Auto" IsVisible="{Binding IsSettingsTweakingStepActive}" 
+    <Grid RowDefinitions="Auto, Auto, Auto" IsVisible="{Binding IsSettingsTweakingStepActive}" 
           HorizontalAlignment="Center" VerticalAlignment="Center">
 
-      <Border Name="VIEW_Content" Grid.Row="0" Margin="0, 12">
+      <Border Name="VIEW_Area" Grid.Row="0" Margin="0, 12">
+        <containers:AreaEditor DataContext="{Binding AreaDisplay}" Margin="10" />
+      </Border>
+
+      <Border Name="VIEW_Content" Grid.Row="1" Margin="0, 12">
         <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto" Margin="16">
 
           <StackPanel Orientation="Horizontal" Grid.Column="0" ToolTip.Tip="The time in milliseconds that the gesture must be completed once the swipe started">
@@ -61,7 +72,7 @@
       </Border>
     
       <controls:SetupNavigationBar  BackCommand="{Binding GoBackCommand}" NextCommand="{Binding DoCompleteCommand}" NextButtonText="Complete"
-                                    Grid.Row="1" HorizontalAlignment="Center" CanGoNext="{Binding AreGestureSettingTweaked}" />
+                                    Grid.Row="2" HorizontalAlignment="Center" CanGoNext="{Binding AreGestureSettingTweaked}" />
                                     
     </Grid>
 

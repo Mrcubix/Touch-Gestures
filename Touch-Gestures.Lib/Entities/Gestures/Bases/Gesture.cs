@@ -42,6 +42,9 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
         /// <inheritdoc />
         public abstract bool HasCompleted { get; protected set; }
 
+        /// <inheritdoc />
+        public abstract bool IsRestrained { get; }
+
         #endregion
 
         #region Event Handlers

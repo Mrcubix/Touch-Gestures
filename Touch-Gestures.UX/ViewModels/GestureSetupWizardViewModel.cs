@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Serializables.Gestures;
@@ -14,6 +15,8 @@ namespace TouchGestures.UX.ViewModels;
 public partial class GestureSetupWizardViewModel : NavigableViewModel
 {
     private Gesture _editedGesture = null!;
+
+    private Rect _bounds;
 
     #region Observable Fields
 
@@ -44,6 +47,11 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         GestureSelectionScreenViewModel.GestureSelected += OnGestureSelected;
 
         GestureSetupScreenViewModel.BackRequested += OnBackRequestedAhead;
+    }
+
+    public GestureSetupWizardViewModel(Rect bounds) : this()
+    {
+        _bounds = bounds;
     }
 
     #endregion
@@ -78,8 +86,8 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         // now we need to generate the correct setup view model
         GestureSetupViewModel setupViewModel = _editedGesture switch
         {
-            SerializableTapGesture => new TapSetupViewModel(_editedGesture),
-            SerializableSwipeGesture => new SwipeSetupViewModel(_editedGesture),
+            SerializableTapGesture => new TapSetupViewModel(_editedGesture, _bounds),
+            SerializableSwipeGesture => new SwipeSetupViewModel(_editedGesture, _bounds),
             _ => new GestureSetupViewModel()
         };
 
@@ -101,10 +109,14 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         if (selectedTile == null)
             throw new ArgumentNullException(nameof(selectedTile), "A selected tile cannot be null.");
 
-        selectedTile.AssociatedSetup.SetupCompleted += OnSetupCompleted;
-        selectedTile.AssociatedSetup.EditCompleted += OnEditCompleted;
+        var associatedSetup = selectedTile.AssociatedSetup;
 
-        GestureSetupScreenViewModel.StartSetup(selectedTile.AssociatedSetup);
+        associatedSetup.SetupCompleted += OnSetupCompleted;
+        associatedSetup.EditCompleted += OnEditCompleted;
+
+        associatedSetup.AreaDisplay = new(_bounds);
+
+        GestureSetupScreenViewModel.StartSetup(associatedSetup);
         NextViewModel = GestureSetupScreenViewModel;
     }
 

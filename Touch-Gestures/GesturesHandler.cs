@@ -88,8 +88,14 @@ namespace TouchGestures
 
         #region Events Handlers
 
-        public void OnSettingsChanged(object? sender, Settings s)
+        public void OnSettingsChanged(object? sender, Settings? s)
         {
+            if (s == null)
+            {
+                Log.Write(PLUGIN_NAME, "Settings are null", LogLevel.Error);
+                return;
+            }
+
             _settings = s;
 
             Gestures.Clear();

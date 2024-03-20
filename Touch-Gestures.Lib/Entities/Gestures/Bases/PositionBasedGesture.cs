@@ -11,7 +11,7 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
     public abstract class PositionBasedGesture : Gesture, IPositionBasedGesture
     {
         /// <inheritdoc />
-        public abstract Vector2 StartPosition { get; protected set; }
+        public virtual Vector2 StartPosition { get; protected set; }
 
         /// <inheritdoc />
         [JsonProperty]

@@ -349,7 +349,8 @@ public partial class MainViewModel : NavigableViewModel
 
             if (tempTabletSize != null)
             {
-                _tabletRect = new Rect(0, 0, tempTabletSize.Value.X, tempTabletSize.Value.Y);
+                double x = Math.Round(tempTabletSize.Value.X, 5), y = Math.Round(tempTabletSize.Value.Y, 5);
+                _tabletRect = new Rect(0, 0, x, y);
                 Dispatcher.UIThread.Post(() => OnTabletRectChanged(_tabletRect, _LinesPerMM));
             }
         }
@@ -407,6 +408,9 @@ public partial class MainViewModel : NavigableViewModel
     private void OnTabletRectChanged(Rect bounds, float linesPerMM)
     {
         // TODO: set it in the appropriates Node Canvases
+
+        // TODO: set it in the GestureSetupWizard
+        BindingsOverviewViewModel.Bounds = bounds;
     }
 
     //

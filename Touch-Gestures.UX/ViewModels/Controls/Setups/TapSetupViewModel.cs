@@ -2,17 +2,20 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Numerics;
+using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Extentions;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
 using static AssetLoaderExtensions;
+
+#nullable enable
 
 public partial class TapSetupViewModel : GestureSetupViewModel
 {
@@ -64,12 +67,13 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         SelectedGestureSetupPickIndex = 0;
 
         BindingDisplay = new BindingDisplayViewModel();
+        AreaDisplay = new AreaDisplayViewModel();
         _gesture = new SerializableTapGesture();
 
         SubscribeToSettingsChanges();
     }
 
-    public TapSetupViewModel(Gesture gesture) : this(true)
+    public TapSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
         if (gesture is not SerializableTapGesture serializedTapGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
@@ -85,6 +89,8 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         SelectedGestureSetupPickIndex = serializedTapGesture.RequiredTouchesCount - 1;
 
         BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
+
+        SetupArea(fullArea, serializedTapGesture.Bounds);
     }
 
     protected override void SubscribeToSettingsChanges()
@@ -145,7 +151,8 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not int option)
             return null;
 
-        _gesture.Threshold = new Vector2(Threshold, Threshold);
+        //_gesture.Threshold = new Vector2(Threshold, Threshold);
+        _gesture.Bounds = AreaDisplay?.MappedArea.ToNativeArea();
         _gesture.Deadline = Deadline;
         _gesture.RequiredTouchesCount = option;
         _gesture.PluginProperty = BindingDisplay.PluginProperty;
@@ -159,10 +166,9 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Threshold) ||
-            e.PropertyName == nameof(Deadline))
+        if (e.PropertyName == nameof(Deadline))
         {
-            AreGestureSettingTweaked = Threshold > 0 && Deadline > 0;
+            AreGestureSettingTweaked = Deadline > 0;
         }
     }
 

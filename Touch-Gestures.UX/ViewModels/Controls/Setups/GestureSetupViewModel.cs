@@ -1,12 +1,14 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Extensions;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
@@ -66,6 +68,9 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     [ObservableProperty]
     private BindingDisplayViewModel _bindingDisplay;
 
+    [ObservableProperty]
+    private AreaDisplayViewModel? _areaDisplay;
+
     #endregion
 
     #region Constructors
@@ -81,6 +86,7 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
         GestureSetupPickItems = null;
 
         BindingDisplay = new BindingDisplayViewModel();
+        AreaDisplay = new AreaDisplayViewModel();
     }
 
     protected virtual void SubscribeToSettingsChanges()
@@ -131,6 +137,27 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     protected virtual void DoComplete() => throw new NotImplementedException("DoComplete has not been overriden.");
 
     public virtual Gesture? BuildGesture() => throw new NotImplementedException("BuildGesture has not been overriden.");
+
+    public virtual void SetupArea(Rect fullArea, OpenTabletDriver.Plugin.Area? mapped = null)
+    {
+        if (mapped != null && mapped.IsZero() == false)
+        {
+            // Let's use the area that is provided
+
+            var nativeAreaPosition = mapped.Position;
+            
+            var converted = new Area(Math.Round(nativeAreaPosition.X, 5), Math.Round(nativeAreaPosition.Y, 5), 
+                                     Math.Round(mapped.Width, 5), Math.Round(mapped.Height, 5),
+                                     Math.Round(mapped.Rotation, 5), true);
+
+            AreaDisplay = new AreaDisplayViewModel(fullArea, converted);
+        }
+        else
+        {
+            // We default to the full area
+            AreaDisplay = new AreaDisplayViewModel(fullArea);
+        }
+    }
 
     #endregion
 

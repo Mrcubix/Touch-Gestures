@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>TouchGestures.Lib</RootNamespace>
-    <NoWarn>NETSDK1138; VSTHRD200</NoWarn>
+    <NoWarn>$(NoWarn); NETSDK1138; VSTHRD200</NoWarn>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

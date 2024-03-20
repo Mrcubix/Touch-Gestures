@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
-using TouchGestures.Lib.Enums;
 
 namespace TouchGestures.Lib.Interfaces
 {
@@ -23,6 +22,11 @@ namespace TouchGestures.Lib.Interfaces
         ///   Whether the gesture has completed.
         /// </summary>
         bool HasCompleted { get; }
+
+        /// <summary>
+        ///   Whether the gesture is relative or absolute.
+        /// </summary>
+        bool IsRestrained { get; }
 
         #endregion
 

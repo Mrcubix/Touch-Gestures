@@ -10,7 +10,7 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
     public abstract class TimeBasedGesture : Gesture, ITimeBasedGesture
     {
         /// <inheritdoc />
-        public abstract DateTime TimeStarted { get; protected set; }
+        public virtual DateTime TimeStarted { get; protected set; }
 
         /// <inheritdoc />
         [JsonProperty]

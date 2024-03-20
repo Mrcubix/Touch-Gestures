@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using Newtonsoft.Json;
+using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib;
 using TouchGestures.Lib.Entities.Gestures.Bases;
@@ -63,9 +64,15 @@ namespace TouchGestures.Entities.Gestures
 
         public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, Rectangle bounds) : this(threshold, deadline, direction)
         {
-            IsAbsolute = true;
-            Bounds = bounds;
+            IsRestrained = true;
+            Bounds = new Area(bounds.Width, bounds.Height, new Vector2(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2), 0);
         }   
+
+        public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, Area? bounds) : this(threshold, deadline, direction)
+        {
+            IsRestrained = true;
+            Bounds = bounds;
+        }
 
         #endregion
 
@@ -83,6 +90,8 @@ namespace TouchGestures.Entities.Gestures
         #endregion
 
         #region Properties
+
+        #region Parents Implementations
 
         /// <inheritdoc/>
         public override bool HasStarted
@@ -131,11 +140,21 @@ namespace TouchGestures.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
-        public bool IsAbsolute { get; protected set; }
+        public override bool IsRestrained { get; }
 
         /// <inheritdoc/>
         [JsonProperty]
-        public Rectangle Bounds { get; protected set; }
+        public override Vector2 Threshold { get; set; }
+
+        /// <inheritdoc/>
+        [JsonProperty]
+        public override double Deadline { get; set; }
+
+        /// <inheritdoc/>
+        [JsonProperty]
+        public Area? Bounds { get; set; } = AreaExtensions.Zero;
+
+        #endregion
 
         /// <summary>
         ///   The direction of the swipe.
@@ -191,7 +210,7 @@ namespace TouchGestures.Entities.Gestures
                 {
                     if (!HasStarted)
                     {
-                        if (IsAbsolute && !point.IsInside(Bounds))
+                        if (IsRestrained && Bounds != null && !point.IsInside(Bounds))
                             return;
 
                         StartPosition = point.Position;

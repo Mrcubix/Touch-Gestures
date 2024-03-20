@@ -53,7 +53,7 @@ namespace TouchGestures.Entities
 
         #region Methods
 
-        public static bool TryLoadFrom(string path, out Settings settings)
+        public static bool TryLoadFrom(string path, out Settings? settings)
         {
             settings = null!;
 
@@ -61,7 +61,8 @@ namespace TouchGestures.Entities
             {
                 try
                 {
-                    settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(path), _serializerSettings)!;
+                    var serialized = File.ReadAllText(path);
+                    settings = JsonConvert.DeserializeObject<Settings>(serialized, _serializerSettings)!;
 
                     return true;
                 }

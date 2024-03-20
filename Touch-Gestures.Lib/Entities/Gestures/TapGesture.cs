@@ -1,23 +1,27 @@
 using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Numerics;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Input;
 using Newtonsoft.Json;
-using TouchGestures.Lib.Enums;
 using TouchGestures.Lib;
 using TouchGestures.Lib.Entities.Gestures.Bases;
+using System.Linq;
 using System.Drawing;
+using TouchGestures.Lib.Extensions;
+using System.Collections.Generic;
+using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Entities.Gestures
 {
     /// <summary>
-    ///   Represent a 1-finger tap gesture.
+    ///   Represent a x-finger tap gesture.
     /// </summary>
+    /// <remarks>
+    ///   A tap gesture is triggered when a <see cref="RequiredTouchesCount"/> number of fingers are pressed and released within a certain time frame.
+    /// </remarks>
     [JsonObject(MemberSerialization.OptIn)]
-    public class TapGesture : MixedBasedGesture
+    public class TapGesture : MixedBasedGesture, IAbsolutePositionable
     {
         #region Fields
 
@@ -27,9 +31,9 @@ namespace TouchGestures.Entities.Gestures
 
         private int _requiredTouchesCount = 1;
 
-        private int[] _invokingTouchesIndices = null!;
-        private bool[] _releasedTouches = null!;
-        private TouchPoint[] _previousPoints = null!;
+        private byte[] _activatingPoints = null!;
+        private bool[] _releasedPoints = null!;
+        private List<TouchPoint> _currentPoints = null!;
 
         #endregion
 
@@ -44,9 +48,14 @@ namespace TouchGestures.Entities.Gestures
             RequiredTouchesCount = 1;
         }
 
-        public TapGesture(Vector2 threshold) : this()
+        public TapGesture(Rectangle bounds) : this()
         {
-            Threshold = threshold;
+            Bounds = new Area(bounds.Width, bounds.Height, new Vector2(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2), 0);
+        }
+
+        public TapGesture(Area? bounds) : this()
+        {
+            Bounds = bounds;
         }
 
         public TapGesture(double deadline) : this()
@@ -54,12 +63,23 @@ namespace TouchGestures.Entities.Gestures
             Deadline = deadline;
         }
 
-        public TapGesture(Vector2 threshold, double deadline) : this(threshold)
+        public TapGesture(Rectangle bounds, double deadline) : this(bounds)
         {
             Deadline = deadline;
         }
 
-        public TapGesture(Vector2 threshold, double deadline, int requiredTouchesCount) : this(threshold, deadline)
+        public TapGesture(Area? bounds, double deadline) : this()
+        {
+            Bounds = bounds;
+            Deadline = deadline;
+        }
+
+        public TapGesture(Rectangle bounds, double deadline, int requiredTouchesCount) : this(bounds, deadline)
+        {
+            RequiredTouchesCount = requiredTouchesCount;
+        }
+
+        public TapGesture(Area? bounds, double deadline, int requiredTouchesCount) : this(bounds, deadline)
         {
             RequiredTouchesCount = requiredTouchesCount;
         }
@@ -81,6 +101,8 @@ namespace TouchGestures.Entities.Gestures
 
         #region Properties
 
+        #region Parents Implementation
+
         /// <inheritdoc/>
         public override bool HasStarted
         {
@@ -91,7 +113,7 @@ namespace TouchGestures.Entities.Gestures
 
                 _hasStarted = value;
 
-                if (value && !previous)
+                if (value && previous == false)
                     GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasEnded, _hasCompleted, StartPosition));
             }
         }
@@ -106,7 +128,7 @@ namespace TouchGestures.Entities.Gestures
 
                 _hasEnded = value;
 
-                if (value && !previous)
+                if (value && previous == false)
                     GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, value, _hasCompleted));
             }
         }
@@ -121,10 +143,24 @@ namespace TouchGestures.Entities.Gestures
 
                 _hasCompleted = value;
 
-                if (value && !previous)
+                if (value && previous == false)
                     GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasEnded, value));
             }
         }
+
+        /// <inheritdoc/>
+        [JsonProperty]
+        public override bool IsRestrained { get; }
+
+        /// <inheritdoc/>
+        [JsonProperty]
+        public override Vector2 Threshold { get; set; }
+
+        /// <inheritdoc/>
+        [JsonProperty]
+        public override double Deadline { get; set; }
+
+        #endregion
 
         /// <summary>
         ///   Indicates whether the gesture was invalidated after any checks. <br/>
@@ -145,14 +181,18 @@ namespace TouchGestures.Entities.Gestures
                     Log.Write("Touch Gestures", "The number of required touches cannot be less than 1, setting to 1.", LogLevel.Warning);
 
                 _requiredTouchesCount = value;
-                _invokingTouchesIndices = new int[value];
-                _releasedTouches = new bool[value];
 
-                Array.Fill(_invokingTouchesIndices, -1);
+                _currentPoints = new List<TouchPoint>(value);
+                _activatingPoints = new byte[value];
+                _releasedPoints = new bool[value];
 
                 //_currentTouches = new List<int>(value);
             }
         }
+
+        /// <inheritdoc/>
+        [JsonProperty]
+        public Area? Bounds { get; set; } = AreaExtensions.Zero;
 
         #endregion
 
@@ -194,114 +234,175 @@ namespace TouchGestures.Entities.Gestures
             // a tap is only triggered on release
             if (points.Length > 0)
             {
-                if (_previousPoints == null || _previousPoints.Length != points.Length)
-                    _previousPoints = new TouchPoint[points.Length];
+                // 1. Check the currently active points
+                bool res = CheckActivePoints(points, out int currentIndex);
 
-                List<int> currentPointsIndices = new(points.Length);
+                // Gesture has already been invalidated
+                if (res == false)
+                    return;
 
-                for (int i = 0; i < points.Length; i++)
-                    if (points[i] != null)
-                        currentPointsIndices.Add(i);
-
-                // Create List of TouchPoints from the indices
-                List<TouchPoint> currentPoints = new(currentPointsIndices.Count);
-                int currentPointsCount = currentPointsIndices.Count;
-
-                // Fill the list
-                foreach (int index in currentPointsIndices)
-                    currentPoints.Add(points[index]);
-
-                if (!HasStarted)
+                // 2. Has the gesture started?
+                if (HasStarted == false)
                 {
-                    // We start the gesture when the required touches are present, no more, no less
-                    if (currentPointsCount == RequiredTouchesCount)
+                    // 2.1 Check if the required touches are active
+                    if (currentIndex == _requiredTouchesCount)
                     {
-                        HasStarted = true;
-
-                        // get the position of the first non-null point
-                        StartPosition = points[currentPointsIndices[0]].Position;
+                        // Check if the gesture is relative, in which case, the points must be inside the bounds
+                        if (IsRestrained == false && Bounds != null && Bounds.IsZero() == false)
+                            foreach (var point in _currentPoints)
+                                if (!point.IsInside(Bounds))
+                                    return;
 
                         TimeStarted = DateTime.Now;
-
                         IsInvalidState = false;
 
-                        // no index or ids are stored within the points
-                        _invokingTouchesIndices = currentPointsIndices.ToArray();
+                        // Set the activating points
+                        _activatingPoints = _currentPoints.Select(p => p.TouchID).ToArray();
+
+                        // Set the gesture as started
+                        HasStarted = true;
                     }
                 }
                 else
                 {
-                    // check if the current points are the same as the invoking points
-                    if (currentPointsCount == 0)
-                        Array.Fill(_releasedTouches, true);
+                    // 2.2 Proceed with further handling of the input
+                    OnInputCore();
+                }
+            }
+        }
 
-                    var enumerator = _invokingTouchesIndices.AsEnumerable().GetEnumerator();
-                    var currentIndex = -1;
+        /// <summary>
+        ///   Checks the currently active points and sets the current points array.
+        /// </summary>
+        /// <param name="points">The points to check</param>
+        /// <param name="currentIndex">The current index of the points array</param>
+        /// <returns>True if the points are valid, false otherwise</returns>
+        private bool CheckActivePoints(TouchPoint[] points, out int currentIndex)
+        {
+            currentIndex = 0;
 
-                    // we check if the invoking touches have been released or not
-                    while (!IsInvalidState && enumerator.MoveNext())
+            _currentPoints.Clear();
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                TouchPoint point = points[i];
+
+                // point is active
+                if (point != null)
+                {
+                    // check if currentIndex is less than the required touches count
+                    if (currentIndex < _requiredTouchesCount)
                     {
+                        // add the point to the current points array
+                        _currentPoints.Add(point);
                         currentIndex++;
-
-                        int index = enumerator.Current;
-                        int indexOf = currentPointsIndices.IndexOf(index);
-
-                        // if an invoking touch is not in the current points, 
-                        if (indexOf != -1)
-                        {
-                            // check if the touch is outside the threshold
-                            var point = currentPoints[indexOf];
-
-                            // check if point is active & within the set threshold
-                            if (point != null)
-                                if (Math.Abs(point.Position.X - StartPosition.X) > Threshold.X || Math.Abs(point.Position.Y - StartPosition.Y) > Threshold.Y)
-                                    IsInvalidState = true;
-
-                            _releasedTouches[currentIndex] = false;
-
-                            // remove the point from the list
-                            currentPointsIndices.RemoveAt(indexOf);
-                        }
-                        else
-                        {
-                            _releasedTouches[currentIndex] = true;
-                        }
                     }
-
-                    // if there are still points in the current points, the state is invalid
-                    if (currentPointsIndices.Count > 0)
-                        IsInvalidState = true;
-
-                    /* 
-                      Used to check if the any current points were not in the invoking points, 
-                      but that was slower than now just removing invoking points upon earlier discovery
-                    */
-                    /*foreach (int index in currentPointsIndices)
-                        if (!_invokingTouchesIndices.Contains(index))
-                            IsInvalidState = true;*/
-
-
-                    // check if the deadline has been reached
-                    if ((DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
-                        HasEnded = true;
                     else
                     {
-                        // check if all touches have been released
-                        if (_releasedTouches.All(released => released))
-                        {
-                            if (!IsInvalidState)
-                                CompleteGesture();
-                            else
-                            {
-                                // Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release
-                                if (currentPointsCount == 0)
-                                    HasEnded = true;
-                            }
-                        }
+                        // if currentIndex is greater than the required touches count, then the gesture is invalid
+                        IsInvalidState = true;
+                        return false;
                     }
                 }
-                _previousPoints = points;
             }
+
+            return true;
+        }
+
+        /// <summary>
+        ///   Handles the core of the input for the gesture once it has started.
+        /// </summary>
+        private void OnInputCore()
+        {
+            // 3. Start by iterating over the activating points & check if they are still active
+            CheckReleasedPoints();
+
+            // if there are still points in the current points, the state is invalid
+            if (_currentPoints.Count > 0)
+                IsInvalidState = true;
+
+            // 4. Deadline & Release check
+
+            // 4.1 Check if the deadline has been reached
+            if ((DateTime.Now - TimeStarted).TotalMilliseconds > Deadline)
+                HasEnded = true;
+            else
+            {
+                // 4.2 Check if all points have been released
+                if (_releasedPoints.All(released => released))
+                {
+                    if (!IsInvalidState)
+                        CompleteGesture();
+                    else
+                    {
+                        // Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release
+                        if (_currentPoints.Count == 0)
+                            HasEnded = true;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///   Checks the currently active points and sets the released points array.
+        ///   Also removes the points from the current points array if they have been released.
+        /// </summary>
+        private void CheckReleasedPoints()
+        {
+            if (_currentPoints.Count == 0)
+                Array.Fill(_releasedPoints, true);
+
+            var enumerator = _activatingPoints.AsEnumerable().GetEnumerator();
+            var currentIndex = -1;
+
+            // We enumerate over activating points instead of current points for efficiency
+            while (IsInvalidState == false && enumerator.MoveNext())
+            {
+                currentIndex++;
+
+                byte id = enumerator.Current;
+                int indexOf = _currentPoints.FindIndex(p => p.TouchID == id);
+
+                // 3.1. Check if the point is still active
+                if (indexOf != -1)
+                {
+                    var point = _currentPoints[indexOf];
+
+                    // 3.1.1. If Relative mode, check if the point is inside the bounds
+                    if (IsRestrained == false)
+                        HandleRelativeMode(point);
+
+                    // 3.1.2. The point has not been released, set it in the released points array
+                    _releasedPoints[currentIndex] = false;
+
+                    // 3.1.3. Remove the point from the current points array
+                    _currentPoints.RemoveAt(indexOf);
+                }
+                else
+                {
+                    // 3.2. the point has been released, set it in the released points array
+                    _releasedPoints[currentIndex] = true;
+                }
+            }
+        }
+
+        /// <summary>
+        ///   Handles the relative mode of the gesture.
+        /// </summary>
+        /// <remarks>
+        ///   The point must be non-null & outside the bounds for the gesture to be invalid
+        /// </remarks>
+        /// <param name="point">The point to check</param>
+        /// <returns>True if the point is valid, false otherwise</returns>
+        private bool HandleRelativeMode(TouchPoint point)
+        {
+            if (Bounds != AreaExtensions.Zero && point != null && Bounds != null && !point.IsInside(Bounds))
+            {
+                IsInvalidState = true;
+                return false;
+            }
+
+            return true;
         }
 
         #endregion

@@ -11,6 +11,7 @@ using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Extentions;
+using Rect = Avalonia.Rect;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
@@ -70,7 +71,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
         SubscribeToSettingsChanges();
     }
 
-    public SwipeSetupViewModel(Gesture gesture) : this(true)
+    public SwipeSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
         if (gesture is not SerializableSwipeGesture serializedSwipeGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
@@ -80,9 +81,11 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
         Threshold = (int)serializedSwipeGesture.Threshold.X;
         Deadline = serializedSwipeGesture.Deadline;
 
-        SelectedGestureSetupPickIndex = (int)serializedSwipeGesture.Direction - 1;
+        SelectedGestureSetupPickIndex = (int)serializedSwipeGesture.Direction;
 
         BindingDisplay.PluginProperty = serializedSwipeGesture.PluginProperty;
+
+        SetupArea(fullArea, serializedSwipeGesture.Bounds);
     }
 
     protected override void SubscribeToSettingsChanges()
@@ -143,7 +146,8 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not SwipeDirection option)
             return null;
 
-        _gesture.Threshold = new Vector2(Threshold, Threshold);
+        //_gesture.Threshold = new Vector2(Threshold, Threshold);
+        _gesture.Bounds = AreaDisplay?.MappedArea.ToNativeArea();
         _gesture.Deadline = Deadline;
         _gesture.Direction = option;
         _gesture.PluginProperty = BindingDisplay.PluginProperty;

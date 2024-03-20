@@ -25,7 +25,7 @@ namespace TouchGestures.Entities.Gestures
         {
         }
 
-        public BindableSwipeGesture(SerializableSwipeGesture swipeGesture) : base(swipeGesture.Threshold, swipeGesture.Deadline, swipeGesture.Direction)
+        public BindableSwipeGesture(SerializableSwipeGesture swipeGesture) : base(swipeGesture.Threshold, swipeGesture.Deadline, swipeGesture.Direction, swipeGesture.Bounds)
         {
         }
 
@@ -112,6 +112,7 @@ namespace TouchGestures.Entities.Gestures
             return new BindableSwipeGesture(swipeGesture)
             {
                 Store = store,
+                Bounds = swipeGesture.Bounds,
                 Binding = store?.Construct<IBinding>()
             };
         }

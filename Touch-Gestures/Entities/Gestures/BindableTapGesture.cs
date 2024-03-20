@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using OpenTabletDriver.External.Common.Serializables;
+using System.Drawing;
 
 namespace TouchGestures.Entities.Gestures
 {
@@ -24,35 +25,35 @@ namespace TouchGestures.Entities.Gestures
         {
         }
 
-        public BindableTapGesture(SerializableTapGesture tapGesture) : base(tapGesture.Threshold, tapGesture.Deadline, tapGesture.RequiredTouchesCount)
+        public BindableTapGesture(SerializableTapGesture tapGesture) : base(tapGesture.Bounds, tapGesture.Deadline, tapGesture.RequiredTouchesCount)
         {
         }
 
-        public BindableTapGesture(Vector2 threshold) : base(threshold)
+        public BindableTapGesture(Rectangle bounds) : base(bounds)
         {
         }
 
-        public BindableTapGesture(Vector2 threshold, double deadline) : base(threshold, deadline)
+        public BindableTapGesture(Rectangle bounds, double deadline) : base(bounds, deadline)
         {
         }
 
-        public BindableTapGesture(Vector2 threshold, double deadline, IBinding binding) : this(threshold, deadline)
+        public BindableTapGesture(Rectangle bounds, double deadline, IBinding binding) : this(bounds, deadline)
         {
             Binding = binding;
         }
 
-        public BindableTapGesture(Vector2 threshold, double deadline, int requiredTouchesCount) : this(threshold, deadline)
+        public BindableTapGesture(Rectangle bounds, double deadline, int requiredTouchesCount) : this(bounds, deadline)
         {
             RequiredTouchesCount = requiredTouchesCount;
         }
 
-        public BindableTapGesture(Vector2 threshold, IBinding binding, int requiredTouchesCount) : this(threshold)
+        public BindableTapGesture(Rectangle bounds, IBinding binding, int requiredTouchesCount) : this(bounds)
         {
             RequiredTouchesCount = requiredTouchesCount;
             Binding = binding;
         }
 
-        public BindableTapGesture(Vector2 threshold, double deadline, IBinding binding, int requiredTouchesCount) : this(threshold, deadline)
+        public BindableTapGesture(Rectangle bounds, double deadline, IBinding binding, int requiredTouchesCount) : this(bounds, deadline)
         {
             RequiredTouchesCount = requiredTouchesCount;
             Binding = binding;

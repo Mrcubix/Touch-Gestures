@@ -1,4 +1,4 @@
-using System.Drawing;
+using OpenTabletDriver.Plugin;
 
 namespace TouchGestures.Lib.Interfaces
 {
@@ -9,12 +9,12 @@ namespace TouchGestures.Lib.Interfaces
         /// <summary>
         ///    Check whether a situation needs to start in a specific area.
         /// </summary>
-        bool IsAbsolute { get; }
+        bool IsRestrained { get; }
 
         /// <summary>
         ///   The absolute bounds of the situation.
         /// </summary>
-        Rectangle Bounds { get; }
+        Area? Bounds { get; }
 
         #endregion
     }

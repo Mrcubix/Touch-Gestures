@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:containers="clr-namespace:TouchGestures.UX.Controls.Containers"
+             xmlns:otdextcontrols="clr-namespace:OpenTabletDriver.External.Avalonia.Controls;assembly=OpenTabletDriver.External.Avalonia"
+             xmlns:otdexttemplated="clr-namespace:OpenTabletDriver.External.Avalonia.TemplatedControls;assembly=OpenTabletDriver.External.Avalonia"
+             xmlns:gn="clr-namespace:TouchGestures.UX.Controls.Nodes"
+             xmlns:vm="clr-namespace:OpenTabletDriver.External.Avalonia.ViewModels;assembly=OpenTabletDriver.External.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="250"
+             x:DataType="vm:AreaDisplayViewModel"
+             x:Class="TouchGestures.UX.Controls.Containers.AreaEditor">
+
+  <Design.DataContext>
+    <vm:AreaDisplayViewModel />
+  </Design.DataContext>
+
+  <Design.PreviewWith>
+    <!--<containers:AreaEditor VerticalAlignment="Top"/>-->
+  </Design.PreviewWith>
+
+  <UserControl.Styles>
+    <!-- All DoubleInput except the last one has 10 right margin -->
+    <Style Selector="Grid#Settings > otdexttemplated|DoubleInput:nth-last-child(1)">
+      <Setter Property="Margin" Value="0,10,0,0"/>
+    </Style>
+
+    <Style Selector="Grid#Settings > otdexttemplated|DoubleInput">
+      <Setter Property="Margin" Value="0,10,10,0"/>
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto, Auto">
+    <otdextcontrols:AreaDisplay Name="Area" Grid.Row="0" DataContext="{Binding}" Height="180"/>
+
+    <Grid ColumnDefinitions="*, *, *, *" Name="Settings" Grid.Row="1">
+      <otdexttemplated:DoubleInput DataContext="{Binding MappedArea}" Grid.Column="0" Label="Width" Value="{Binding Width}" Unit="mm" Description="The width of the area."/>
+      <otdexttemplated:DoubleInput DataContext="{Binding MappedArea}" Grid.Column="1" Label="Height" Value="{Binding Height}" Unit="mm" Description="The height of the area."/>
+      <otdexttemplated:DoubleInput DataContext="{Binding MappedArea}" Grid.Column="2" Label="X" Value="{Binding X}" Unit="mm" Description="The X position of the area."/>
+      <otdexttemplated:DoubleInput DataContext="{Binding MappedArea}" Grid.Column="3" Label="Y" Value="{Binding Y}" Unit="mm" Description="The Y position of the area."/>
+    </Grid>
+  </Grid>
+
+</UserControl>

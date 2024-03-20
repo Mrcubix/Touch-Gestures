@@ -69,7 +69,7 @@ namespace TouchGestures
             IdentifyPlugins();
 
             // construct bindings
-            TouchGestureSettings.ConstructBindings();
+            TouchGestureSettings?.ConstructBindings();
 
             OnSettingsChanged?.Invoke(this, TouchGestureSettings);
 
@@ -82,7 +82,7 @@ namespace TouchGestures
         #region Events
 
         public event EventHandler? OnReady;
-        public event EventHandler<Settings>? OnSettingsChanged;
+        public event EventHandler<Settings?>? OnSettingsChanged;
 
         #endregion
 
@@ -90,7 +90,7 @@ namespace TouchGestures
 
         public Dictionary<int, TypeInfo> IdentifierToPluginConversion = new();
 
-        public Settings TouchGestureSettings { get; private set; } = Settings.Default;
+        public Settings? TouchGestureSettings { get; private set; } = Settings.Default;
 
         public Vector2 TabletSize { get; private set; } = new(-1, -1);
 

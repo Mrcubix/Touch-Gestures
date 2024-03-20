@@ -37,7 +37,7 @@ Add a `OnExternalGestureCompleted` event to `IGestures` with as parameter an Ges
 
 - [-] Tap (Any)
     - [x] Relative
-    - [ ] Absolute
+    - [x] Absolute
 - [ ] Hold (Any)
     - [ ] Relative
     - [ ] Absolute
@@ -93,7 +93,10 @@ Add a `OnExternalGestureCompleted` event to `IGestures` with as parameter an Ges
     
 ## TODO
 
-- Complete setup for the swipe gesture
 - Complete the rest of gestures (functionality + tests + setup)
 
+## HOW TO DETECTED IF TOUCH INPUT IS INSIDE A ROTATED RECTANGLE
 
+- Rotate the rectangle back to 0 degrees
+- rotate the input point by the same amount
+- check if the rotated point is inside the rectangle
