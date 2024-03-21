@@ -15,6 +15,50 @@ namespace TouchGestures.Lib.Extensions
             return area.Position == Vector2.Zero && area.Width == 0 && area.Height == 0 && area.Rotation == 0;
         }
 
+        public static Area Add(this Area area, Area other)
+        {
+            return new Area
+            {
+                Position = area.Position + other.Position,
+                Width = area.Width + other.Width,
+                Height = area.Height + other.Height,
+                Rotation = area.Rotation + other.Rotation
+            };
+        }
+
+        public static Area Subtract(this Area area, Area other)
+        {
+            return new Area
+            {
+                Position = area.Position - other.Position,
+                Width = area.Width - other.Width,
+                Height = area.Height - other.Height,
+                Rotation = area.Rotation - other.Rotation
+            };
+        }
+
+        public static Area Multiply(this Area area, float factor)
+        {
+            return new Area
+            {
+                Position = area.Position * factor,
+                Width = area.Width * factor,
+                Height = area.Height * factor,
+                Rotation = area.Rotation
+            };
+        }
+
+        public static Area Divide(this Area area, float factor)
+        {
+            return new Area
+            {
+                Position = area.Position / factor,
+                Width = area.Width / factor,
+                Height = area.Height / factor,
+                Rotation = area.Rotation
+            };
+        }
+
         public static bool Contains(this Area area, Vector2 point)
         {
             // Area might be rotated so we need to check if the point is inside the rotated rectangle

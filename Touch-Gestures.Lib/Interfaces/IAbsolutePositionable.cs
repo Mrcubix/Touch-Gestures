@@ -1,4 +1,4 @@
-using OpenTabletDriver.Plugin;
+using TouchGestures.Lib.Entities;
 
 namespace TouchGestures.Lib.Interfaces
 {
@@ -14,7 +14,7 @@ namespace TouchGestures.Lib.Interfaces
         /// <summary>
         ///   The absolute bounds of the situation.
         /// </summary>
-        Area? Bounds { get; }
+        SharedArea? Bounds { get; }
 
         #endregion
     }

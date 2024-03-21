@@ -28,9 +28,23 @@ namespace TouchGestures.Lib.Interfaces
         /// </summary>
         bool IsRestrained { get; }
 
+        /// <summary>
+        ///   The number of lines per millimeter.
+        /// </summary>
+        float LinesPerMM { get; }
+
         #endregion
 
         #region Methods
+
+        /// <summary>
+        ///   Ends the gesture prematurely.
+        /// </summary>
+        void End();
+
+        #endregion
+
+        #region Event Handlers
 
         /// <summary>
         ///   Called when a touch input is received.

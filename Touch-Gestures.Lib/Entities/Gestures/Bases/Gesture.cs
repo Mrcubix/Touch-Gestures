@@ -1,8 +1,8 @@
 using System;
-using System.Drawing;
 using Newtonsoft.Json;
+using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
-using TouchGestures.Lib.Enums;
+using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Input;
 using TouchGestures.Lib.Interfaces;
 
@@ -12,6 +12,12 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
     [JsonObject(MemberSerialization.OptIn)]
     public abstract class Gesture : IGesture
     {
+        #region Fields
+
+        protected SharedArea? _bounds = SharedArea.Zero;
+
+        #endregion
+
         #region Events
 
         /// <summary>
@@ -44,6 +50,19 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
 
         /// <inheritdoc />
         public abstract bool IsRestrained { get; }
+
+        /// <inheritdoc />
+        public virtual float LinesPerMM { get; } = 1f;
+
+        #endregion
+
+        #region Methods
+
+        /// <inheritdoc />
+        public virtual void End()
+        {
+            HasEnded = true;
+        }
 
         #endregion
 

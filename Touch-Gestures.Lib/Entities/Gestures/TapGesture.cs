@@ -11,6 +11,8 @@ using System.Drawing;
 using TouchGestures.Lib.Extensions;
 using System.Collections.Generic;
 using TouchGestures.Lib.Interfaces;
+using Microsoft;
+using TouchGestures.Lib.Entities;
 
 namespace TouchGestures.Entities.Gestures
 {
@@ -18,42 +20,46 @@ namespace TouchGestures.Entities.Gestures
     ///   Represent a x-finger tap gesture.
     /// </summary>
     /// <remarks>
-    ///   A tap gesture is triggered when a <see cref="RequiredTouchesCount"/> number of fingers are pressed and released within a certain time frame.
+    ///   A tap gesture is triggered when a <see cref="RequiredTouchesCount"/> number of fingers are pressed and released within a specified deadline.
     /// </remarks>
     [JsonObject(MemberSerialization.OptIn)]
-    public class TapGesture : MixedBasedGesture, IAbsolutePositionable
+    public class TapGesture : TimeBasedGesture, IAbsolutePositionable
     {
         #region Fields
 
-        private bool _hasStarted = false;
-        private bool _hasEnded = false;
-        private bool _hasCompleted = false;
+        protected bool _hasStarted = false;
+        protected bool _hasEnded = false;
+        protected bool _hasCompleted = false;
 
-        private int _requiredTouchesCount = 1;
+        protected int _requiredTouchesCount = 1;
 
-        private byte[] _activatingPoints = null!;
-        private bool[] _releasedPoints = null!;
-        private List<TouchPoint> _currentPoints = null!;
+        protected List<TouchPoint> _currentPoints = null!;
+        protected byte[] _activatingPoints = null!;
+        protected bool[] _releasedPoints = null!;
+        protected int _previousReleasedCount = 0;
+        protected int _releasedCount = 0;
 
         #endregion
 
         #region Constructors
 
-        public TapGesture() : base(1000)
+        public TapGesture()
         {
             GestureStarted += (_, args) => OnGestureStart(args);
             GestureEnded += (_, args) => OnGestureEnd(args);
             GestureCompleted += (_, args) => OnGestureComplete(args);
+
+            Deadline = 1000;
 
             RequiredTouchesCount = 1;
         }
 
         public TapGesture(Rectangle bounds) : this()
         {
-            Bounds = new Area(bounds.Width, bounds.Height, new Vector2(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2), 0);
+            Bounds = new SharedArea(bounds.Width, bounds.Height, new Vector2(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2), 0);
         }
 
-        public TapGesture(Area? bounds) : this()
+        public TapGesture(SharedArea? bounds) : this()
         {
             Bounds = bounds;
         }
@@ -68,7 +74,7 @@ namespace TouchGestures.Entities.Gestures
             Deadline = deadline;
         }
 
-        public TapGesture(Area? bounds, double deadline) : this()
+        public TapGesture(SharedArea? bounds, double deadline) : this()
         {
             Bounds = bounds;
             Deadline = deadline;
@@ -79,7 +85,7 @@ namespace TouchGestures.Entities.Gestures
             RequiredTouchesCount = requiredTouchesCount;
         }
 
-        public TapGesture(Area? bounds, double deadline, int requiredTouchesCount) : this(bounds, deadline)
+        public TapGesture(SharedArea? bounds, double deadline, int requiredTouchesCount) : this(bounds, deadline)
         {
             RequiredTouchesCount = requiredTouchesCount;
         }
@@ -154,10 +160,6 @@ namespace TouchGestures.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
-        public override Vector2 Threshold { get; set; }
-
-        /// <inheritdoc/>
-        [JsonProperty]
         public override double Deadline { get; set; }
 
         #endregion
@@ -165,7 +167,7 @@ namespace TouchGestures.Entities.Gestures
         /// <summary>
         ///   Indicates whether the gesture was invalidated after any checks. <br/>
         /// </summary>
-        public bool IsInvalidState { get; private set; }
+        public bool IsInvalidState { get; protected set; }
 
         /// <summary>
         ///   The number of touches required to trigger the gesture. <br/>
@@ -192,7 +194,16 @@ namespace TouchGestures.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
-        public Area? Bounds { get; set; } = AreaExtensions.Zero;
+        public SharedArea? Bounds
+        {
+            get => _bounds?.Divide(LinesPerMM);
+            set => _bounds = value?.Multiply(LinesPerMM);
+        }
+
+        /// <summary>
+        ///   The position where the gesture started.
+        /// </summary>
+        public Vector2 StartPosition { get; protected set; }
 
         #endregion
 
@@ -248,9 +259,9 @@ namespace TouchGestures.Entities.Gestures
                     if (currentIndex == _requiredTouchesCount)
                     {
                         // Check if the gesture is relative, in which case, the points must be inside the bounds
-                        if (IsRestrained == false && Bounds != null && Bounds.IsZero() == false)
+                        if (IsRestrained == false && _bounds != null && _bounds.IsZero() == false)
                             foreach (var point in _currentPoints)
-                                if (!point.IsInside(Bounds))
+                                if (!point.IsInside(_bounds))
                                     return;
 
                         TimeStarted = DateTime.Now;
@@ -277,7 +288,7 @@ namespace TouchGestures.Entities.Gestures
         /// <param name="points">The points to check</param>
         /// <param name="currentIndex">The current index of the points array</param>
         /// <returns>True if the points are valid, false otherwise</returns>
-        private bool CheckActivePoints(TouchPoint[] points, out int currentIndex)
+        protected bool CheckActivePoints(TouchPoint[] points, out int currentIndex)
         {
             currentIndex = 0;
 
@@ -312,16 +323,24 @@ namespace TouchGestures.Entities.Gestures
         /// <summary>
         ///   Handles the core of the input for the gesture once it has started.
         /// </summary>
-        private void OnInputCore()
+        protected virtual void OnInputCore()
         {
             // 3. Start by iterating over the activating points & check if they are still active
             CheckReleasedPoints();
 
-            // if there are still points in the current points, the state is invalid
+            // If there are still points in the current points, 
+            // that means other touch points were pressed after the gesture started, 
+            // the state is invalid.
             if (_currentPoints.Count > 0)
                 IsInvalidState = true;
 
+            // An activating point was released but then it was pressed again
+            if (_previousReleasedCount > _releasedCount)
+                IsInvalidState = true;
+
             // 4. Deadline & Release check
+            if (RequiredTouchesCount == 1)
+                Log.Write("Touch Gestures", $"Deadline: {Deadline}, Time: {(DateTime.Now - TimeStarted).TotalMilliseconds}");
 
             // 4.1 Check if the deadline has been reached
             if ((DateTime.Now - TimeStarted).TotalMilliseconds > Deadline)
@@ -347,10 +366,12 @@ namespace TouchGestures.Entities.Gestures
         ///   Checks the currently active points and sets the released points array.
         ///   Also removes the points from the current points array if they have been released.
         /// </summary>
-        private void CheckReleasedPoints()
+        protected virtual void CheckReleasedPoints()
         {
             if (_currentPoints.Count == 0)
                 Array.Fill(_releasedPoints, true);
+
+            _releasedCount = 0;
 
             var enumerator = _activatingPoints.AsEnumerable().GetEnumerator();
             var currentIndex = -1;
@@ -382,6 +403,7 @@ namespace TouchGestures.Entities.Gestures
                 {
                     // 3.2. the point has been released, set it in the released points array
                     _releasedPoints[currentIndex] = true;
+                    _releasedCount++;
                 }
             }
         }
@@ -394,9 +416,9 @@ namespace TouchGestures.Entities.Gestures
         /// </remarks>
         /// <param name="point">The point to check</param>
         /// <returns>True if the point is valid, false otherwise</returns>
-        private bool HandleRelativeMode(TouchPoint point)
+        protected bool HandleRelativeMode(TouchPoint point)
         {
-            if (Bounds != AreaExtensions.Zero && point != null && Bounds != null && !point.IsInside(Bounds))
+            if (_bounds != SharedArea.Zero && point != null && _bounds != null && !point.IsInside(_bounds))
             {
                 IsInvalidState = true;
                 return false;

@@ -9,10 +9,11 @@ using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
+using TouchGestures.Converters;
 using TouchGestures.Entities;
 using TouchGestures.Lib.Contracts;
+using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities;
-using WheelAddon.Converters;
 
 namespace TouchGestures
 {
@@ -29,7 +30,8 @@ namespace TouchGestures
             Converters = new List<JsonConverter>
             {
                 new PluginSettingStoreConverter(),
-                new PluginSettingConverter()
+                new PluginSettingConverter(),
+                new SharedAreaConverter()
             }
         };
 

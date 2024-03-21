@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin;
-using WheelAddon.Converters;
 using System.Reflection;
+using TouchGestures.Converters;
+using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Entities.Gestures;
 
@@ -26,7 +27,8 @@ namespace TouchGestures.Entities
             Converters = new List<JsonConverter>
             {
                 new PluginSettingStoreConverter(),
-                new PluginSettingConverter()
+                new PluginSettingConverter(),
+                new SharedAreaConverter()
             }
         };
 

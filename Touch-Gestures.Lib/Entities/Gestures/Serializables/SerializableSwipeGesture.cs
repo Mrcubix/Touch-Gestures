@@ -2,6 +2,7 @@ using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.External.Common.Serializables;
 using TouchGestures.Entities.Gestures;
+using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Interfaces;
@@ -33,11 +34,13 @@ namespace TouchGestures.Lib.Serializables.Gestures
         {
         }
 
-        public SerializableSwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction) : base(threshold, deadline, direction)
+        public SerializableSwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, SharedArea area) 
+            : base(threshold, deadline, direction, area)
         {
         }
 
-        public SerializableSwipeGesture(SwipeGesture gesture) : base(gesture.Threshold, gesture.Deadline, gesture.Direction)
+        public SerializableSwipeGesture(SwipeGesture gesture) 
+            : base(gesture.Threshold, gesture.Deadline, gesture.Direction, gesture.Bounds)
         {
         }
 

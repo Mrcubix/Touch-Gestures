@@ -80,7 +80,7 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
         _gesture = serializedTapGesture;
 
-        Threshold = (int)serializedTapGesture.Threshold.X;
+        //Threshold = (int)serializedTapGesture.Threshold.X;
         Deadline = serializedTapGesture.Deadline;
 
         if (serializedTapGesture.RequiredTouchesCount > GestureSetupPickItems!.Count)
@@ -152,7 +152,7 @@ public partial class TapSetupViewModel : GestureSetupViewModel
             return null;
 
         //_gesture.Threshold = new Vector2(Threshold, Threshold);
-        _gesture.Bounds = AreaDisplay?.MappedArea.ToNativeArea();
+        _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
         _gesture.Deadline = Deadline;
         _gesture.RequiredTouchesCount = option;
         _gesture.PluginProperty = BindingDisplay.PluginProperty;

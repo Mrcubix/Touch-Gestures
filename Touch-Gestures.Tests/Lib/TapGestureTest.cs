@@ -12,18 +12,18 @@ namespace TouchGestures.Tests.Lib
     {
         #region Constants & Readonly fields
 
-        private const int MAX_TOUCHES = 3;
-        private const double DEADLINE = 500;
-        private const int TESTED_TOUCHES = 2;
+        protected const int MAX_TOUCHES = 3;
+        protected const double DEADLINE = 500;
+        protected const int TESTED_TOUCHES = 2;
 
-        private readonly Rectangle BOUNDS = new(0, 0, 30, 30);
-        private readonly Vector2 THRESHOLD = new(30, 30);
+        protected readonly Rectangle BOUNDS = new(0, 0, 30, 30);
+        protected readonly Vector2 THRESHOLD = new(30, 30);
 
         #endregion
 
         #region Constructor
 
-        private readonly ITestOutputHelper _output;
+        protected readonly ITestOutputHelper _output;
 
         public TapGestureTest(ITestOutputHelper output)
         {

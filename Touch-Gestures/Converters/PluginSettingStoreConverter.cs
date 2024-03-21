@@ -9,18 +9,13 @@ using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin;
 
-namespace WheelAddon.Converters
+namespace TouchGestures.Converters
 {
-    public class PluginSettingStoreConverter : JsonConverter
+    public class PluginSettingStoreConverter : JsonConverter<PluginSettingStore>
     {
         private readonly IReadOnlyCollection<TypeInfo> pluginsTypes = AppInfo.PluginManager.PluginTypes;
 
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(PluginSettingStore);
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override PluginSettingStore? ReadJson(JsonReader reader, Type objectType, PluginSettingStore? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             // build a PluginSettingsStore using value.Path as argument
             var value = JObject.Load(reader);
@@ -59,13 +54,10 @@ namespace WheelAddon.Converters
             return store;
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, PluginSettingStore? value, JsonSerializer serializer)
         {
             // write a JObject with Path, Settings and Enable properties
-            var store = (PluginSettingStore?)value;
-
-            // if store is null, write null
-            if (store == null)
+            if (value == null)
             {
                 writer.WriteNull();
                 return;
@@ -73,9 +65,9 @@ namespace WheelAddon.Converters
 
             var obj = new JObject
             {
-                ["Path"] = store.Path,
-                ["Settings"] = JToken.FromObject(store.Settings, serializer),
-                ["Enable"] = store.Enable
+                ["Path"] = value.Path,
+                ["Settings"] = JToken.FromObject(value.Settings, serializer),
+                ["Enable"] = value.Enable
             };
 
             obj.WriteTo(writer, serializer.Converters.ToArray());

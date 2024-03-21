@@ -63,6 +63,8 @@ namespace TouchGestures.Entities.Gestures
 
         #region Properties
 
+        public override float LinesPerMM => Info.Driver.Tablet.Digitizer.MaxX / Info.Driver.Tablet.Digitizer.Width;
+
         /// <inheritdoc/>
         [JsonProperty]
         public PluginSettingStore? Store { get; set; }

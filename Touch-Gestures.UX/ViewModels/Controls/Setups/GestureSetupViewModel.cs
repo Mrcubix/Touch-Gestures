@@ -7,8 +7,8 @@ using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenTabletDriver.External.Avalonia.ViewModels;
+using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Gestures.Bases;
-using TouchGestures.Lib.Extensions;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
@@ -138,12 +138,11 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     public virtual Gesture? BuildGesture() => throw new NotImplementedException("BuildGesture has not been overriden.");
 
-    public virtual void SetupArea(Rect fullArea, OpenTabletDriver.Plugin.Area? mapped = null)
+    public virtual void SetupArea(Rect fullArea, SharedArea? mapped = null)
     {
         if (mapped != null && mapped.IsZero() == false)
         {
             // Let's use the area that is provided
-
             var nativeAreaPosition = mapped.Position;
             
             var converted = new Area(Math.Round(nativeAreaPosition.X, 5), Math.Round(nativeAreaPosition.Y, 5), 

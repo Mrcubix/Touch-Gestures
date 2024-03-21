@@ -18,6 +18,8 @@ using TouchGestures.UX.Events;
 using Avalonia.Threading;
 using System.Numerics;
 using Avalonia;
+using Newtonsoft.Json;
+using TouchGestures.Lib.Converters;
 
 namespace TouchGestures.UX.ViewModels;
 
@@ -26,6 +28,8 @@ namespace TouchGestures.UX.ViewModels;
 public partial class MainViewModel : NavigableViewModel
 {
     #region Fields
+
+    private static readonly List<JsonConverter> Converters = new() { new SharedAreaConverter() };
 
     private CancellationTokenSource _reconnectionTokenSource = new();
     private RpcClient<IGesturesDaemon> _client;
@@ -103,6 +107,8 @@ public partial class MainViewModel : NavigableViewModel
 
     private void InitializeClient()
     {
+        _client.Converters.AddRange(Converters);
+
         _client.Connected += OnClientConnected;
         _client.Connecting += OnClientConnecting;
         _client.Disconnected += OnClientDisconnected;

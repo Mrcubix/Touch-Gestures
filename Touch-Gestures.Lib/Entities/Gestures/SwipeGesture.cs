@@ -2,9 +2,9 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using Newtonsoft.Json;
-using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib;
+using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Extensions;
@@ -65,10 +65,10 @@ namespace TouchGestures.Entities.Gestures
         public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, Rectangle bounds) : this(threshold, deadline, direction)
         {
             IsRestrained = true;
-            Bounds = new Area(bounds.Width, bounds.Height, new Vector2(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2), 0);
+            Bounds = new SharedArea(bounds.Width, bounds.Height, new Vector2(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2), 0);
         }   
 
-        public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, Area? bounds) : this(threshold, deadline, direction)
+        public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, SharedArea? bounds) : this(threshold, deadline, direction)
         {
             IsRestrained = true;
             Bounds = bounds;
@@ -152,7 +152,11 @@ namespace TouchGestures.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
-        public Area? Bounds { get; set; } = AreaExtensions.Zero;
+        public SharedArea? Bounds
+        {
+            get => _bounds?.Divide(LinesPerMM);
+            set => _bounds = value?.Multiply(LinesPerMM);
+        }
 
         #endregion
 

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using OpenTabletDriver.External.Common.RPC;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
@@ -12,6 +13,8 @@ using OpenTabletDriver.Plugin.Tablet.Touch;
 using OTD.EnhancedOutputMode.Lib.Interface;
 using OTD.EnhancedOutputMode.Tool;
 using TouchGestures.Entities;
+using TouchGestures.Lib.Converters;
+using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures 
@@ -23,6 +26,7 @@ namespace TouchGestures
 
         public const string PLUGIN_NAME = "Touch Gestures";
 
+        private static readonly List<JsonConverter> Converters = new() { new SharedAreaConverter() };
         private readonly RpcServer<GesturesDaemon> rpcServer;
 
         #endregion
@@ -30,6 +34,7 @@ namespace TouchGestures
         #region Fields
 
         private Settings _settings = Settings.Default;
+        private bool _hasPreviousGestureStarted;
 
         #endregion
 
@@ -48,6 +53,7 @@ namespace TouchGestures
 
             // start the RPC server
             rpcServer = new RpcServer<GesturesDaemon>("GesturesDaemon");
+            rpcServer.Converters.AddRange(Converters);
 
             rpcServer.Instance.OnSettingsChanged += OnSettingsChanged;
 
@@ -74,9 +80,21 @@ namespace TouchGestures
             {
                 if (rpcServer.Instance.IsReady && TouchToggle.istouchToggled)
                 {
+                    _hasPreviousGestureStarted = false;
+
+                    // We iterate while the previous gesture has not started & there are still gestures to process
                     foreach (var gesture in Gestures)
                     {
                         gesture.OnInput(touchReport.Touches);
+
+                        if (_hasPreviousGestureStarted)
+                        {
+                            gesture.End();
+                            continue;
+                        }
+
+                        if (gesture.HasStarted)
+                            _hasPreviousGestureStarted = true;
                     }
                 }
             }
@@ -96,14 +114,17 @@ namespace TouchGestures
                 return;
             }
 
-            _settings = s;
+            lock (Gestures)
+            {
+                _settings = s;
 
-            Gestures.Clear();
-            
-            Gestures.AddRange(_settings.TapGestures);
-            Gestures.AddRange(_settings.SwipeGestures);
+                Gestures.Clear();
+                
+                Gestures.AddRange(_settings.TapGestures);
+                Gestures.AddRange(_settings.SwipeGestures);
 
-            Log.Debug(PLUGIN_NAME, "Settings updated");
+                Log.Debug(PLUGIN_NAME, "Settings updated");
+            }
         }
 
         #endregion

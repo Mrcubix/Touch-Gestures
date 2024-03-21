@@ -3,16 +3,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenTabletDriver.Desktop.Reflection;
 
-namespace WheelAddon.Converters
+namespace TouchGestures.Converters
 {
-    public class PluginSettingConverter : JsonConverter
+    public class PluginSettingConverter : JsonConverter<PluginSetting>
     {
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(PluginSetting);
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override PluginSetting? ReadJson(JsonReader reader, Type objectType, PluginSetting? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             // build a PluginSettingsStore using value.Path as argument
             var value = JObject.Load(reader);
@@ -21,34 +16,21 @@ namespace WheelAddon.Converters
                 return null!;
 
             if (value.TryGetValue("Property", out var property))
-            {
-                if (property == null)
-                    return null!;
-            }
-            else
-            {
                 return null!;
-            }
 
-            if (value.TryGetValue("Value", out var settingValue))
-            {
-                if (settingValue == null)
-                    return null!;
-            }
-            else
-            {
+            if (!value.TryGetValue("Value", out var settingValue))
                 return null!;
-            }
+
+            if (property == null || settingValue == null)
+                return null!;
 
             return new PluginSetting(property?.Value<string>()!, settingValue?.Value<string>()!);
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, PluginSetting? value, JsonSerializer serializer)
         {
             // write a JObject with Path, Settings and Enable properties
-            var setting = (PluginSetting?)value;
-
-            if (setting == null)
+            if (value == null)
             {
                 writer.WriteNull();
                 return;
@@ -56,9 +38,9 @@ namespace WheelAddon.Converters
 
             var obj = new JObject
             {
-                ["Property"] = setting.Property,
-                ["Value"] = setting.GetValue<string?>(),
-                ["HasValue"] = setting.HasValue
+                ["Property"] = value.Property,
+                ["Value"] = value.GetValue<string?>(),
+                ["HasValue"] = value.HasValue
             };
 
             obj.WriteTo(writer);
