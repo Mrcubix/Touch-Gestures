@@ -70,42 +70,7 @@ namespace TouchGestures.Entities.Gestures
                         }
 
                         _delta = point.Position - StartPosition;
-
-                        switch (Direction)
-                        {
-                            case SwipeDirection.Up:
-                                if (_delta.Y <= -Threshold.Y)
-                                    CompleteGesture();
-                                break;
-                            case SwipeDirection.Down:
-                                if (_delta.Y >= Threshold.Y)
-                                    CompleteGesture();
-                                break;
-                            case SwipeDirection.Left:
-                                if (_delta.X <= -Threshold.X)
-                                    CompleteGesture();
-                                break;
-                            case SwipeDirection.Right:
-                                if (_delta.X >= Threshold.X)
-                                    CompleteGesture();
-                                break;
-                            case SwipeDirection.UpLeft:
-                                if (_delta.Y <= -Threshold.Y && _delta.X <= -Threshold.X)
-                                    CompleteGesture();
-                                break;
-                            case SwipeDirection.UpRight:
-                                if (_delta.Y <= -Threshold.Y && _delta.X >= Threshold.X)
-                                    CompleteGesture();
-                                break;
-                            case SwipeDirection.DownLeft:
-                                if (_delta.Y >= Threshold.Y && _delta.X <= -Threshold.X)
-                                    CompleteGesture();
-                                break;
-                            case SwipeDirection.DownRight:
-                                if (_delta.Y >= Threshold.Y && _delta.X >= Threshold.X)
-                                    CompleteGesture();
-                                break;
-                        }
+                        OnDeltaChanged();
                     }
                 }
                 else
@@ -114,6 +79,45 @@ namespace TouchGestures.Entities.Gestures
                     if (HasStarted)
                         HasEnded = true;
                 }
+            }
+        }
+
+        private void OnDeltaChanged()
+        {
+            switch (Direction)
+            {
+                case SwipeDirection.Up:
+                    if (_delta.Y <= -Threshold.Y)
+                        CompleteGesture();
+                    break;
+                case SwipeDirection.Down:
+                    if (_delta.Y >= Threshold.Y)
+                        CompleteGesture();
+                    break;
+                case SwipeDirection.Left:
+                    if (_delta.X <= -Threshold.X)
+                        CompleteGesture();
+                    break;
+                case SwipeDirection.Right:
+                    if (_delta.X >= Threshold.X)
+                        CompleteGesture();
+                    break;
+                case SwipeDirection.UpLeft:
+                    if (_delta.Y <= -Threshold.Y && _delta.X <= -Threshold.X)
+                        CompleteGesture();
+                    break;
+                case SwipeDirection.UpRight:
+                    if (_delta.Y <= -Threshold.Y && _delta.X >= Threshold.X)
+                        CompleteGesture();
+                    break;
+                case SwipeDirection.DownLeft:
+                    if (_delta.Y >= Threshold.Y && _delta.X <= -Threshold.X)
+                        CompleteGesture();
+                    break;
+                case SwipeDirection.DownRight:
+                    if (_delta.Y >= Threshold.Y && _delta.X >= Threshold.X)
+                        CompleteGesture();
+                    break;
             }
         }
     }
