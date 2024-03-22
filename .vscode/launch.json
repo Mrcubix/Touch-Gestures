@@ -21,6 +21,7 @@
             "name": "OpenTabletDriver C# Plugin Debugging",
             "type": "coreclr",
             "request": "attach",
+            "requireExactSource": false,
             "processName": "OpenTabletDriver.Daemon.exe",
             "logging": {
                 "moduleLoad": false

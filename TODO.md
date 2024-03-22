@@ -38,12 +38,19 @@ Add a `OnExternalGestureCompleted` event to `IGestures` with as parameter an Ges
 - [-] Tap (Any)
     - [x] Relative
     - [x] Absolute
-- [ ] Hold (Any)
-    - [ ] Relative
-    - [ ] Absolute
+
+- [?] Hold (Any)
+    - [?] Relative
+    - [?] Absolute
+
 - [x] Swipe (Single)
     - [x] Relative
     - [x] Absolute
+
+- [x] Pan (Single)
+    - [x] Relative
+    - [x] Absolute
+
 - [ ] Pinch (Single)
     - [ ] Relative
     - [ ] Absolute
@@ -56,15 +63,23 @@ Add a `OnExternalGestureCompleted` event to `IGestures` with as parameter an Ges
 - [x] Tap (Any)
     - [x] Relative
     - [x] Absolute
-- [ ] Hold (Any)
-    - [ ] Relative
-    - [ ] Absolute
+
+- [?] Hold (Any)
+    - [?] Relative
+    - [?] Absolute
+
 - [x] Swipe (Single)
     - [x] Relative
     - [x] Absolute
+
+- [x] Pan (Single)
+    - [x] Relative
+    - [x] Absolute
+
 - [ ] Pinch (Single)
     - [ ] Relative
     - [ ] Absolute
+
 - [ ] Rotate (Single)
     - [ ] Relative
     - [ ] Absolute
@@ -75,11 +90,15 @@ Add a `OnExternalGestureCompleted` event to `IGestures` with as parameter an Ges
     - [x] Relative
     - [x] Absolute
 
-- [ ] Hold (Any)
-    - [ ] Relative
-    - [ ] Absolute
+- [?] Hold (Any)
+    - [?] Relative
+    - [?] Absolute
 
 - [x] Swipe (Single)
+    - [x] Relative
+    - [x] Absolute
+
+- [x] Pan (Single)
     - [x] Relative
     - [x] Absolute
 
@@ -100,3 +119,8 @@ Add a `OnExternalGestureCompleted` event to `IGestures` with as parameter an Ges
 - Rotate the rectangle back to 0 degrees
 - rotate the input point by the same amount
 - check if the rotated point is inside the rectangle
+
+## Issues
+
+- Look into a way to prevent swipe gesture from stealing each others turn 
+  since condition for starting such gestures are met constantly
