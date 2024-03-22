@@ -13,11 +13,10 @@ using OpenTabletDriver.Plugin.Tablet.Touch;
 using OTD.EnhancedOutputMode.Lib.Interface;
 using OTD.EnhancedOutputMode.Tool;
 using TouchGestures.Entities;
+using TouchGestures.Entities.Gestures;
 using TouchGestures.Lib.Converters;
-using TouchGestures.Lib.Entities;
-using TouchGestures.Lib.Interfaces;
 
-namespace TouchGestures 
+namespace TouchGestures
 {
     [PluginName(PLUGIN_NAME)]
     public class GesturesHandler : IFilter, IGateFilter, IDisposable
@@ -42,14 +41,14 @@ namespace TouchGestures
 
         public GesturesHandler()
         {
-            #if DEBUG
+#if DEBUG
 
             while (!Debugger.IsAttached)
             {
                 Thread.Sleep(100);
             }
 
-            #endif
+#endif
 
             // start the RPC server
             rpcServer = new RpcServer<GesturesDaemon>("GesturesDaemon");
@@ -66,7 +65,8 @@ namespace TouchGestures
 
         #region Properties
 
-        public List<IGesture> Gestures { get; set; } = new();
+        public List<TapGesture> TapGestures { get; set; } = new();
+        public List<SwipeGesture> SwipeGestures { get; set; } = new();
 
         #endregion
 
@@ -82,11 +82,14 @@ namespace TouchGestures
                 {
                     _hasPreviousGestureStarted = false;
 
-                    // We iterate while the previous gesture has not started & there are still gestures to process
-                    foreach (var gesture in Gestures)
+                    // Iterate through all tap gestures
+                    foreach (var gesture in TapGestures)
                     {
                         gesture.OnInput(touchReport.Touches);
 
+                        // TODO: Ending it might not be the best move as simillar gesture might not work at all
+
+                        // if the previous gesture has started, end any gesture after it
                         if (_hasPreviousGestureStarted)
                         {
                             gesture.End();
@@ -96,6 +99,10 @@ namespace TouchGestures
                         if (gesture.HasStarted)
                             _hasPreviousGestureStarted = true;
                     }
+
+                    // Iterate through all swipe gestures
+                    foreach (var gesture in SwipeGestures)
+                        gesture.OnInput(touchReport.Touches);
                 }
             }
 
@@ -114,17 +121,18 @@ namespace TouchGestures
                 return;
             }
 
-            lock (Gestures)
-            {
-                _settings = s;
+            _settings = s;
 
-                Gestures.Clear();
-                
-                Gestures.AddRange(_settings.TapGestures);
-                Gestures.AddRange(_settings.SwipeGestures);
+            TapGestures.Clear();
+            SwipeGestures.Clear();
 
-                Log.Debug(PLUGIN_NAME, "Settings updated");
-            }
+            _settings.TapGestures.Sort((x, y) => x.RequiredTouchesCount > y.RequiredTouchesCount ? -1 : 1);
+            _settings.SwipeGestures.Sort((x, y) => x.Direction > y.Direction ? -1 : 1);
+
+            TapGestures.AddRange(_settings.TapGestures);
+            SwipeGestures.AddRange(_settings.SwipeGestures);
+
+            Log.Debug(PLUGIN_NAME, "Settings updated");
         }
 
         #endregion

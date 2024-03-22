@@ -15,7 +15,7 @@ namespace TouchGestures.Converters
             if (value == null)
                 return null!;
 
-            if (value.TryGetValue("Property", out var property))
+            if (!value.TryGetValue("Property", out var property))
                 return null!;
 
             if (!value.TryGetValue("Value", out var settingValue))
