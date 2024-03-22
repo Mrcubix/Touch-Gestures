@@ -5,7 +5,6 @@ using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Entities.Gestures.Bases
 {
-
     [JsonObject(MemberSerialization.OptIn)]
     public abstract class MixedBasedGesture : Gesture, IMixedBasedGesture
     {

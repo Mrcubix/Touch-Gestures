@@ -33,7 +33,7 @@ namespace TouchGestures.Entities.Gestures
 
         public HoldGesture(Rectangle bounds) : this()
         {
-            Bounds = new SharedArea(bounds.Width, bounds.Height, new Vector2(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2), 0);
+            Bounds = new SharedArea(bounds.Width, bounds.Height, new Vector2(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2)), 0);
         }
 
         public HoldGesture(SharedArea? bounds) : this()

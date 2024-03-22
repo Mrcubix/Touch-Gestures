@@ -96,8 +96,7 @@ namespace TouchGestures.UX.ViewModels
                 serialized.PluginProperty = PluginProperty;
 
                 BindingChanged?.Invoke(this, args);
-            }
-                
+            }  
         }
 
         #endregion
