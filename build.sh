@@ -41,6 +41,7 @@ mv temp/Touch-Gestures.Lib.dll build/plugin/Touch-Gestures.Lib.dll
 mv temp/Touch-Gestures.Lib.pdb build/plugin/Touch-Gestures.Lib.pdb
 mv temp/OpenTabletDriver.External.Common.dll build/plugin/OpenTabletDriver.External.Common.dll
 mv temp/OpenTabletDriver.External.Common.pdb build/plugin/OpenTabletDriver.External.Common.pdb
+mv temp/Newtonsoft.Json.dll build/plugin/Newtonsoft.Json.dll
 
 if [ $? -ne 0 ];
 then
