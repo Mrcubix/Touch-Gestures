@@ -41,11 +41,6 @@ public abstract class DraggableNode : Shape
     private Point _dragStartPoint;
 
     /// <summary>
-    ///   The parent of the Control, if it is a ContentPresenter.
-    ///   This is used to get the actual parent of the Control.
-    /// </summary>
-
-    /// <summary>
     ///   The parent used to move the Control around from.
     /// </summary>
     private Control? _realParent = null!;

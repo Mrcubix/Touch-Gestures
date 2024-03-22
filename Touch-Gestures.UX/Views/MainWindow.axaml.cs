@@ -22,6 +22,16 @@ public partial class MainWindow : AppMainWindow
         InitializeComponent();
     }
 
+    public override void ShowBindingEditorDialog(object? sender, BindingDisplayViewModel e)
+    {
+        _ = Dispatcher.UIThread.InvokeAsync(() => ShowBindingEditorDialogCore(e));
+    }
+
+    public override void ShowAdvancedBindingEditorDialog(object? sender, BindingDisplayViewModel e)
+    {
+        _ = Dispatcher.UIThread.InvokeAsync(() => ShowAdvancedBindingEditorDialogCore(e));
+    }
+
     private async Task ShowBindingEditorDialogCore(BindingDisplayViewModel e)
     {
         if (DataContext is MainViewModel vm && !_isEditorDialogOpen)
@@ -36,35 +46,11 @@ public partial class MainWindow : AppMainWindow
                 DataContext = _bindingEditorDialogViewModel
             };
 
-            #if DEBUG
-
-            dialog.AttachDevTools();
-
-            #endif
-
             // Now we show the dialog
 
             var res = await dialog.ShowDialog<SerializablePluginSettings>(this);
 
-            _isEditorDialogOpen = false;
-
-            // We handle the result
-
-            // The dialog was closed or the cancel button was pressed
-            if (res == null)
-                return;
-
-            // The user selected "Clear"
-            if (res.Identifier == -1 || res.Value == "None")
-            {
-                e.PluginProperty = null;
-                e.Content = "";
-            }
-            else
-            {
-                e.PluginProperty = res;
-                e.Content = vm.GetFriendlyContentFromProperty(res);
-            }
+            HandleBindingEditorResult(res, e);
         }
     }
 
@@ -103,35 +89,33 @@ public partial class MainWindow : AppMainWindow
 
             var res = await dialog.ShowDialog<SerializablePluginSettings>(this);
 
+            HandleBindingEditorResult(res, e);
+        }
+    }
+
+    private void HandleBindingEditorResult(SerializablePluginSettings result, BindingDisplayViewModel e)
+    {
+        if (DataContext is MainViewModel vm)
+        {
             _isEditorDialogOpen = false;
 
             // We handle the result
 
             // The dialog was closed or the cancel button was pressed
-            if (res == null)
+            if (result == null)
                 return;
 
             // The user selected "Clear"
-            if (res.Identifier == -1 || res.Value == "None")
+            if (result.Identifier == -1 || result.Value == "None")
             {
                 e.PluginProperty = null;
                 e.Content = "";
             }
             else
             {
-                e.PluginProperty = res;
-                e.Content = vm.GetFriendlyContentFromProperty(res);
+                e.PluginProperty = result;
+                e.Content = vm.GetFriendlyContentFromProperty(result);
             }
         }
-    }
-
-    public override void ShowBindingEditorDialog(object? sender, BindingDisplayViewModel e)
-    {
-        _ = Dispatcher.UIThread.InvokeAsync(() => ShowBindingEditorDialogCore(e));
-    }
-
-    public override void ShowAdvancedBindingEditorDialog(object? sender, BindingDisplayViewModel e)
-    {
-        _ = Dispatcher.UIThread.InvokeAsync(() => ShowAdvancedBindingEditorDialogCore(e));
     }
 }

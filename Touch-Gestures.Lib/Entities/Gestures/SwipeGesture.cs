@@ -67,7 +67,7 @@ namespace TouchGestures.Entities.Gestures
         public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, Rectangle bounds) : this(threshold, deadline, direction)
         {
             IsRestrained = true;
-            Bounds = new SharedArea(bounds.Width, bounds.Height, new Vector2(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2), 0);
+            Bounds = new SharedArea(bounds.Width, bounds.Height, new Vector2(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2)), 0);
         }
 
         public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, SharedArea? bounds) : this(threshold, deadline, direction)

@@ -8,7 +8,6 @@ using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Entities.Gestures.Bases
 {
-
     [JsonObject(MemberSerialization.OptIn)]
     public abstract class Gesture : IGesture
     {

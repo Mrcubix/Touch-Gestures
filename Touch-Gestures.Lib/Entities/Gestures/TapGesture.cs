@@ -56,7 +56,7 @@ namespace TouchGestures.Entities.Gestures
 
         public TapGesture(Rectangle bounds) : this()
         {
-            Bounds = new SharedArea(bounds.Width, bounds.Height, new Vector2(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2), 0);
+            Bounds = new SharedArea(bounds.Width, bounds.Height, new Vector2(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2)), 0);
         }
 
         public TapGesture(SharedArea? bounds) : this()
