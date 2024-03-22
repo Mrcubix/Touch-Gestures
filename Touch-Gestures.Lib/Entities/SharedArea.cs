@@ -92,8 +92,8 @@ namespace TouchGestures.Lib.Entities
 
             var centeredPoint = point - Position;
 
-            var rotatedX = centeredPoint.X * cos - centeredPoint.Y * sin;
-            var rotatedY = centeredPoint.X * sin + centeredPoint.Y * cos;
+            var rotatedX = (centeredPoint.X * cos) - (centeredPoint.Y * sin);
+            var rotatedY = (centeredPoint.X * sin) + (centeredPoint.Y * cos);
 
             return rotatedX >= 0 && rotatedX <= Width && rotatedY >= 0 && rotatedY <= Height;
         }

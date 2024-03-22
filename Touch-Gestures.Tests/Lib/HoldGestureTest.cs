@@ -30,13 +30,9 @@ namespace TouchGestures.Tests.Lib
 
         #region Test Samples
 
-        
-
         #endregion
 
         #region Tests
-
-
 
         #endregion
     }

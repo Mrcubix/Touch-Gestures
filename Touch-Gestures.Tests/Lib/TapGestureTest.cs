@@ -210,7 +210,6 @@ namespace TouchGestures.Tests.Lib
             FinalizeGesture(gesture);
 
             _output.WriteLine("Gesture was completed & ended successfully");
-            
         }
 
         #endregion

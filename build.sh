@@ -20,20 +20,20 @@ then
     exit 1
 fi
 
-cd build
+(
+    cd build
 
-rm -rf build/*
+    rm -rf build/*
 
-mkdir plugin
+    mkdir plugin
 
-# check if directory exists
-if [ ! -d "plugin" ];
-then
-    echo "Failed to create the 'build/plugin' directory"
-    exit 1
-fi
-
-cd ..
+    # check if directory exists
+    if [ ! -d "plugin" ];
+    then
+        echo "Failed to create the 'build/plugin' directory"
+        exit 1
+    fi
+)
 
 mv temp/Touch-Gestures.dll build/plugin/Touch-Gestures.dll
 mv temp/Touch-Gestures.pdb build/plugin/Touch-Gestures.pdb
@@ -52,7 +52,7 @@ fi
 
 cd ./build/plugin
 
-zip -r Touch-Gestures.zip *
+zip -r Touch-Gestures.zip ./*
 
 cd ../../
 
