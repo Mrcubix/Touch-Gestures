@@ -23,7 +23,13 @@ namespace TouchGestures.Lib.Entities
         public List<SerializableTapGesture> TapGestures { get; set; } = new();
 
         [JsonProperty]
+        public List<SerializableHoldGesture> HoldGestures { get; set; } = new();
+
+        [JsonProperty]
         public List<SerializableSwipeGesture> SwipeGestures { get; set; } = new();
+
+        [JsonProperty]
+        public List<SerializablePanGesture> PanGestures { get; set; } = new();
 
         public IEnumerator<Gesture> GetEnumerator()
         {

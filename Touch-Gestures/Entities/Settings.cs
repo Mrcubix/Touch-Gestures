@@ -49,7 +49,13 @@ namespace TouchGestures.Entities
         public List<BindableTapGesture> TapGestures { get; set; } = new();
 
         [JsonProperty]
+        public List<BindableHoldGesture> HoldGestures { get; set; } = new();
+
+        [JsonProperty]
         public List<BindableSwipeGesture> SwipeGestures { get; set; } = new();
+
+        [JsonProperty]
+        public List<BindablePanGesture> PanGestures { get; set; } = new();
 
         #endregion
 
@@ -83,7 +89,17 @@ namespace TouchGestures.Entities
 
         public void ConstructBindings()
         {
+            foreach (var gesture in TapGestures)
+                gesture.Binding = gesture.Store?.Construct<IBinding>();
 
+            foreach (var gesture in SwipeGestures)
+                gesture.Binding = gesture.Store?.Construct<IBinding>();
+
+            foreach (var gesture in HoldGestures)
+                gesture.Binding = gesture.Store?.Construct<IBinding>();
+
+            foreach (var gesture in PanGestures)
+                gesture.Binding = gesture.Store?.Construct<IBinding>();
         }
 
         /*public SerializableSettings ToSerializable(Dictionary<int, TypeInfo> identifierToPlugin)
@@ -116,6 +132,17 @@ namespace TouchGestures.Entities
                     result.TapGestures.Add(tapGesture);
             }
 
+            foreach (var gesture in settings.HoldGestures)
+            {
+                if (gesture.PluginProperty == null)
+                    continue;
+
+                var holdGesture = BindableHoldGesture.FromSerializable(gesture, identifierToPlugin);
+
+                if (holdGesture != null)
+                    result.HoldGestures.Add(holdGesture);
+            }
+
             foreach (var gesture in settings.SwipeGestures)
             {
                 if (gesture.PluginProperty == null)
@@ -125,6 +152,17 @@ namespace TouchGestures.Entities
 
                 if (swipeGesture != null)
                     result.SwipeGestures.Add(swipeGesture);
+            }
+
+            foreach (var gesture in settings.PanGestures)
+            {
+                if (gesture.PluginProperty == null)
+                    continue;
+
+                var panGesture = BindablePanGesture.FromSerializable(gesture, identifierToPlugin);
+
+                if (panGesture != null)
+                    result.PanGestures.Add(panGesture);
             }
 
             // TODO: Implement the rest of the gestures conversions
