@@ -338,26 +338,22 @@ namespace TouchGestures.Entities.Gestures
             if (_previousReleasedCount > _releasedCount)
                 IsInvalidState = true;
 
-            // 4. Deadline & Release check
-            if (RequiredTouchesCount == 1)
-                Log.Write("Touch Gestures", $"Deadline: {Deadline}, Time: {(DateTime.Now - TimeStarted).TotalMilliseconds}");
+            // 4. Deadline & Release checks
 
             // 4.1 Check if the deadline has been reached
             if ((DateTime.Now - TimeStarted).TotalMilliseconds > Deadline)
-                HasEnded = true;
-            else
+                IsInvalidState = true;
+
+            // 4.2 Check if all points have been released
+            if (_releasedPoints.All(released => released))
             {
-                // 4.2 Check if all points have been released
-                if (_releasedPoints.All(released => released))
+                if (!IsInvalidState)
+                    CompleteGesture();
+                else
                 {
-                    if (!IsInvalidState)
-                        CompleteGesture();
-                    else
-                    {
-                        // Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release
-                        if (_currentPoints.Count == 0)
-                            HasEnded = true;
-                    }
+                    // Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release
+                    if (_currentPoints.Count == 0)
+                        HasEnded = true;
                 }
             }
         }
