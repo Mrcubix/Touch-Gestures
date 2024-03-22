@@ -18,6 +18,7 @@ namespace TouchGestures.Tests.Lib
             - The gesture should not trigger is the threshold is not reached & the invoking touch point is released,
             - The gesture should not trigger if the threshold is reached but the invoking touch point is released after the deadline passed
             - Absolute positionable gestures should only trigger if the starting touch point is within the bounds
+            - The gesture should only be complete upon releasing the touch point
         */
 
         #region Constants & readonly fields
@@ -161,9 +162,11 @@ namespace TouchGestures.Tests.Lib
 
             _output.WriteLine($"Left Swipe Sample Data passed to OnInput");
 
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.True(gesture.HasStarted);
+            Assert.False(gesture.HasEnded);
+            Assert.False(gesture.HasCompleted);
+
+            TestReleasedSampleData(gesture);
 
             UnsubscribeToCompletion(gesture, SwipeDirection.Left);
 
@@ -186,9 +189,11 @@ namespace TouchGestures.Tests.Lib
 
             _output.WriteLine($"Up Swipe Sample Data passed to OnInput");
 
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.True(gesture.HasStarted);
+            Assert.False(gesture.HasEnded);
+            Assert.False(gesture.HasCompleted);
+
+            TestReleasedSampleData(gesture);
 
             UnsubscribeToCompletion(gesture, SwipeDirection.Up);
 
@@ -211,9 +216,11 @@ namespace TouchGestures.Tests.Lib
 
             _output.WriteLine($"Right Swipe Sample Data passed to OnInput");
 
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.True(gesture.HasStarted);
+            Assert.False(gesture.HasEnded);
+            Assert.False(gesture.HasCompleted);
+
+            TestReleasedSampleData(gesture);
 
             UnsubscribeToCompletion(gesture, SwipeDirection.Right);
 
@@ -236,9 +243,11 @@ namespace TouchGestures.Tests.Lib
 
             _output.WriteLine($"Down Swipe Sample Data passed to OnInput");
 
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.True(gesture.HasStarted);
+            Assert.False(gesture.HasEnded);
+            Assert.False(gesture.HasCompleted);
+
+            TestReleasedSampleData(gesture);
 
             UnsubscribeToCompletion(gesture, SwipeDirection.Down);
 
@@ -261,9 +270,11 @@ namespace TouchGestures.Tests.Lib
 
             _output.WriteLine($"Left Up Swipe Sample Data passed to OnInput");
 
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.True(gesture.HasStarted);
+            Assert.False(gesture.HasEnded);
+            Assert.False(gesture.HasCompleted);
+
+            TestReleasedSampleData(gesture);
 
             UnsubscribeToCompletion(gesture, SwipeDirection.UpLeft);
 
@@ -286,9 +297,11 @@ namespace TouchGestures.Tests.Lib
 
             _output.WriteLine($"Right Up Swipe Sample Data passed to OnInput");
 
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.True(gesture.HasStarted);
+            Assert.False(gesture.HasEnded);
+            Assert.False(gesture.HasCompleted);
+
+            TestReleasedSampleData(gesture);
 
             UnsubscribeToCompletion(gesture, SwipeDirection.UpRight);
 
@@ -311,9 +324,11 @@ namespace TouchGestures.Tests.Lib
 
             _output.WriteLine($"Left Down Swipe Sample Data passed to OnInput");
 
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.True(gesture.HasStarted);
+            Assert.False(gesture.HasEnded);
+            Assert.False(gesture.HasCompleted);
+
+            TestReleasedSampleData(gesture);
 
             UnsubscribeToCompletion(gesture, SwipeDirection.DownLeft);
 
@@ -336,9 +351,11 @@ namespace TouchGestures.Tests.Lib
 
             _output.WriteLine($"Right Down Swipe Sample Data passed to OnInput");
 
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.True(gesture.HasStarted);
+            Assert.False(gesture.HasEnded);
+            Assert.False(gesture.HasCompleted);
+
+            TestReleasedSampleData(gesture);
 
             UnsubscribeToCompletion(gesture, SwipeDirection.DownRight);
 
@@ -399,10 +416,8 @@ namespace TouchGestures.Tests.Lib
             SubscribeToCompletion(gesture, SwipeDirection.DownRight);
 
             TestOriginSampleData(gesture);
-
+            
             gesture.OnInput(ReleasedSampleData);
-
-            _output.WriteLine($"Released Swipe Sample Data passed to OnInput");
 
             Assert.False(gesture.HasStarted);
             Assert.True(gesture.HasEnded);
@@ -455,6 +470,22 @@ namespace TouchGestures.Tests.Lib
             Assert.True(gesture.HasStarted);
             Assert.False(gesture.HasEnded);
             Assert.False(gesture.HasCompleted);
+        }
+
+        /// <summary>
+        ///   Upon releasing the touch point, we check if the threshold has been reached <br/>
+        ///   Only then the gesture is considered completed.
+        /// </summary>
+        /// <param name="gesture">The gesture to be tested on</param>
+        private void TestReleasedSampleData(SwipeGesture gesture)
+        {
+            gesture.OnInput(ReleasedSampleData);
+
+            _output.WriteLine($"Released Sample Data passed to OnInput");
+
+            Assert.False(gesture.HasStarted);
+            Assert.True(gesture.HasEnded);
+            Assert.True(gesture.HasCompleted);
         }
 
         private void SubscribeToCompletion(SwipeGesture gesture, SwipeDirection direction)

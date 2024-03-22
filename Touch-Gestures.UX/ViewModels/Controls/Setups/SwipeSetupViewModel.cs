@@ -146,7 +146,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not SwipeDirection option)
             return null;
 
-        //_gesture.Threshold = new Vector2(Threshold, Threshold);
+        _gesture.Threshold = new Vector2(Threshold, Threshold);
         _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
         _gesture.Deadline = Deadline;
         _gesture.Direction = option;
