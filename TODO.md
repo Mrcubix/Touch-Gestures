@@ -90,17 +90,17 @@
     - [x] Relative
     - [x] Absolute
 
-- [ ] Hold (Any)
-    - [ ] Relative
-    - [ ] Absolute
+- [?] Hold (Any)
+    - [?] Relative
+    - [?] Absolute
 
 - [x] Swipe (Single)
     - [x] Relative
     - [x] Absolute
 
-- [ ] Pan (Single)
-    - [ ] Relative
-    - [ ] Absolute
+- [x] Pan (Single)
+    - [x] Relative
+    - [x] Absolute
 
 - [ ] Pinch (Single)
     - [ ] Relative
