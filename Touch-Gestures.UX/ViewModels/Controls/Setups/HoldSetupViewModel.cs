@@ -19,31 +19,21 @@ using static AssetLoaderExtensions;
 
 #nullable enable
 
-[Name("Tap"), Icon("Assets/Setups/Tap/tap_triple.png"),
- Description("A gesture completed by tapping with any specified number of fingers")]
-public partial class TapSetupViewModel : GestureSetupViewModel
+[Name("Hold"), Icon("Assets/Setups/Hold/hold.png"),
+ Description("A gesture completed by holding any specified number of fingers down for a specified amount of time")]
+public partial class HoldSetupViewModel : TapSetupViewModel
 {
-    private readonly SerializableTapGesture _gesture;
-
-    #region Observable Fields
-
-    [ObservableProperty]
-    protected int _threshold;
-
-    [ObservableProperty]
-    protected double _deadline;
-
-    #endregion
+    private readonly SerializableHoldGesture _gesture;
 
     #region Constructors
 
     /// Design-time constructor
-    public TapSetupViewModel() : this(false) 
+    public HoldSetupViewModel() : this(false) 
     { 
         IsOptionsSelectionStepActive = true;
     }
 
-    public TapSetupViewModel(bool isEditing = false)
+    public HoldSetupViewModel(bool isEditing = false)
     {
         IsEditing = isEditing;
 
@@ -75,14 +65,14 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
         BindingDisplay = new BindingDisplayViewModel();
         AreaDisplay = new AreaDisplayViewModel();
-        _gesture = new SerializableTapGesture();
+        _gesture = new SerializableHoldGesture();
 
         SubscribeToSettingsChanges();
     }
 
-    public TapSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
+    public HoldSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
-        if (gesture is not SerializableTapGesture serializedTapGesture)
+        if (gesture is not SerializableHoldGesture serializedTapGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
 
         _gesture = serializedTapGesture;
@@ -100,32 +90,9 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         SetupArea(fullArea, serializedTapGesture.Bounds);
     }
 
-    protected override void SubscribeToSettingsChanges()
-    {
-        PropertyChanged += OnSettingsTweaksChanged;
-
-        base.SubscribeToSettingsChanges();
-    }
-
     #endregion
 
     #region Methods
-
-    protected override void GoBack()
-    {
-        if (IsBindingSelectionStepActive) // Step 2
-        {
-            IsBindingSelectionStepActive = false;
-            IsOptionsSelectionStepActive = true;
-        }
-        else if (IsSettingsTweakingStepActive) // Step 3
-        {
-            IsSettingsTweakingStepActive = false;
-            IsBindingSelectionStepActive = true;
-        }
-        else // Step 1
-            base.GoBack();
-    }
 
     protected override void GoNext()
     {
@@ -136,21 +103,13 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
             var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
 
-            BindingDisplay.Description = $"{value}-Touch Tap";
+            BindingDisplay.Description = $"{value}-Touch Hold";
         }
         else if (IsBindingSelectionStepActive)
         {
             IsBindingSelectionStepActive = false;
             IsSettingsTweakingStepActive = true;
         }
-    }
-
-    protected override void DoComplete()
-    {
-        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not int option)
-            return;
-
-        OnSetupCompleted(this);
     }
 
     public override Gesture? BuildGesture()
@@ -168,31 +127,6 @@ public partial class TapSetupViewModel : GestureSetupViewModel
     }
 
     #endregion
-
-    #region Events Handlers
-
-    protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(Deadline))
-        {
-            AreGestureSettingTweaked = Deadline > 0;
-        }
-    }
-
-    #endregion
-
-    #region Interface Implementations
-
-    public override void Dispose()
-    {
-        base.Dispose();
-
-        if (GestureSetupPickPreviews != null)
-            foreach (var bitmap in GestureSetupPickPreviews)
-                bitmap?.Dispose();
-    }
-
-    #endregion
 }
 
-public class TapTileViewModel : GestureTileViewModel<TapSetupViewModel> {}
+public class HoldTileViewModel : GestureTileViewModel<HoldSetupViewModel> {}

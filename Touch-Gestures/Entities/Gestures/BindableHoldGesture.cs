@@ -9,6 +9,8 @@ using System.Reflection;
 using System.Linq;
 using OpenTabletDriver.External.Common.Serializables;
 using System.Drawing;
+using TouchGestures.Lib.Entities;
+using TouchGestures.Extensions;
 
 namespace TouchGestures.Entities.Gestures
 {
@@ -20,20 +22,35 @@ namespace TouchGestures.Entities.Gestures
     {
         #region Constructors
 
+        #region Base Constructors
+
         public BindableHoldGesture() : base()
         {
-        }
-
-        public BindableHoldGesture(SerializableHoldGesture tapGesture) : base(tapGesture.Bounds, tapGesture.Deadline, tapGesture.RequiredTouchesCount)
-        {
+            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableHoldGesture(Rectangle bounds) : base(bounds)
         {
+            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableHoldGesture(Rectangle bounds, double deadline) : base(bounds, deadline)
         {
+            LinesPerMM = Info.Driver.GetTouchLPMM();
+        }
+
+        public BindableHoldGesture(SharedArea? sharedArea, double deadline, int requiredTouchesCount) 
+            : base(sharedArea, deadline, requiredTouchesCount)
+        {
+            LinesPerMM = Info.Driver.GetTouchLPMM();
+        }
+
+        #endregion
+
+        public BindableHoldGesture(SerializableHoldGesture tapGesture) 
+            : this(tapGesture.Bounds, tapGesture.Deadline, tapGesture.RequiredTouchesCount)
+        {
+            LinesPerMM = Info.Driver.Tablet.Digitizer.MaxX / Info.Driver.Tablet.Digitizer.Width;
         }
 
         public BindableHoldGesture(Rectangle bounds, double deadline, IBinding binding) : this(bounds, deadline)
@@ -61,8 +78,6 @@ namespace TouchGestures.Entities.Gestures
         #endregion
 
         #region Properties
-
-        public override float LinesPerMM => Info.Driver.Tablet.Digitizer.MaxX / Info.Driver.Tablet.Digitizer.Width;
 
         /// <inheritdoc/>
         [JsonProperty]

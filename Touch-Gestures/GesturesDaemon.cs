@@ -11,6 +11,7 @@ using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
 using TouchGestures.Converters;
 using TouchGestures.Entities;
+using TouchGestures.Extensions;
 using TouchGestures.Lib.Contracts;
 using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities;
@@ -64,7 +65,7 @@ namespace TouchGestures
             if (Info.Driver.Tablet != null)
             {
                 TabletSize = new Vector2(Info.Driver.Tablet.Digitizer.Width, Info.Driver.Tablet.Digitizer.Height);
-                LinesPerMM = Info.Driver.Tablet.Digitizer.MaxX / Info.Driver.Tablet.Digitizer.Width;
+                LinesPerMM = Info.Driver.GetTouchLPMM();
             }
 
             // identify plugins

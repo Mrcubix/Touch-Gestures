@@ -51,7 +51,7 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
         public abstract bool IsRestrained { get; }
 
         /// <inheritdoc />
-        public virtual float LinesPerMM { get; } = 1f;
+        public virtual float LinesPerMM { get; protected set; } = 1;
 
         #endregion
 

@@ -1,31 +1,29 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Numerics;
+using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using TouchGestures.Lib.Entities.Gestures.Bases;
-using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Attributes;
 using TouchGestures.UX.Extentions;
-using Rect = Avalonia.Rect;
-using DescriptionAttribute = TouchGestures.UX.Attributes.DescriptionAttribute;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
+using DescriptionAttribute = TouchGestures.UX.Attributes.DescriptionAttribute;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
 using static AssetLoaderExtensions;
 
+#nullable enable
 
-[Name("Swipe"), Icon("Assets/Setups/Swipe/swipe_up.png"),
-Description("A gesture completed by swiping in a specified direction, then releasing the touch point.")]
-public partial class SwipeSetupViewModel : GestureSetupViewModel
+[Name("Pinch"), Icon("Assets/Setups/Pinch/pinch_inner.png"),
+ Description("A gesture completed by pinching, simillar to how you would zoom in, in various application")]
+public partial class PinchSetupViewModel : GestureSetupViewModel
 {
-    private readonly SerializableSwipeGesture _gesture;
+    private readonly SerializableTapGesture _gesture;
 
     #region Observable Fields
 
@@ -40,58 +38,59 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
     #region Constructors
 
     /// Design-time constructor
-    public SwipeSetupViewModel() : this(false) 
+    public PinchSetupViewModel() : this(false) 
     { 
         IsOptionsSelectionStepActive = true;
     }
 
-    public SwipeSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
-    {
-        if (gesture is not SerializableSwipeGesture serializedSwipeGesture)
-            throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
-
-        _gesture = serializedSwipeGesture;
-
-        Threshold = (int)serializedSwipeGesture.Threshold.X;
-        Deadline = serializedSwipeGesture.Deadline;
-
-        SelectedGestureSetupPickIndex = (int)serializedSwipeGesture.Direction;
-
-        BindingDisplay.PluginProperty = serializedSwipeGesture.PluginProperty;
-
-        SetupArea(fullArea, serializedSwipeGesture.Bounds);
-    }
-
-    public SwipeSetupViewModel(bool isEditing = false)
+    public PinchSetupViewModel(bool isEditing = false)
     {
         IsEditing = isEditing;
 
         CanGoBack = true;
         CanGoNext = true;
 
-        GestureSetupPickText = "Direction of the Swipe:";
-
-        GestureSetupPickItems = new ObservableCollection<object>(Enum.GetValues<SwipeDirection>().Cast<object>());
+        GestureSetupPickText = "Direction of pinch:";
+        GestureSetupPickItems = new ObservableCollection<object>(Enumerable.Range(1, 2).Cast<object>());
 
         Bitmap?[] images = LoadBitmaps(
-            "Assets/Setups/Swipe/swipe_up.png",
-            "Assets/Setups/Swipe/swipe_down.png",
-            "Assets/Setups/Swipe/swipe_left.png",
-            "Assets/Setups/Swipe/swipe_right.png",
-            "Assets/Setups/Swipe/swipe_up_left.png",
-            "Assets/Setups/Swipe/swipe_up_right.png",
-            "Assets/Setups/Swipe/swipe_down_left.png",
-            "Assets/Setups/Swipe/swipe_down_right.png"
+            "Assets/Setups/Pinch/pinch_inner.png",
+            "Assets/Setups/Pinch/pinch_outer.png"
         );
 
         GestureSetupPickPreviews = new ObservableCollection<Bitmap?>(images);
 
         SelectedGestureSetupPickIndex = 0;
 
+        // A 80ms deadline is the minimum required for taps for work properly and about consistently
+        //Deadline = 80;
+
         BindingDisplay = new BindingDisplayViewModel();
-        _gesture = new SerializableSwipeGesture();
+        AreaDisplay = new AreaDisplayViewModel();
+        _gesture = new SerializableTapGesture();
 
         SubscribeToSettingsChanges();
+    }
+
+    /// Constructor used when editing a gesture
+    public PinchSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
+    {
+        if (gesture is not SerializableTapGesture serializedTapGesture)
+            throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
+
+        _gesture = serializedTapGesture;
+
+        //Threshold = (int)serializedTapGesture.Threshold.X;
+        //Deadline = serializedTapGesture.Deadline;
+
+        if (serializedTapGesture.RequiredTouchesCount > GestureSetupPickItems!.Count)
+            throw new IndexOutOfRangeException("Gesture required touches count is greater than the number of available options");
+
+        SelectedGestureSetupPickIndex = serializedTapGesture.RequiredTouchesCount - 1;
+
+        BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
+
+        SetupArea(fullArea, serializedTapGesture.Bounds);
     }
 
     protected override void SubscribeToSettingsChanges()
@@ -130,7 +129,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
 
             var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
 
-            BindingDisplay.Description = $"{value} Swipe";
+            BindingDisplay.Description = $"{value} Pinch";
         }
         else if (IsBindingSelectionStepActive)
         {
@@ -141,25 +140,16 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
 
     protected override void DoComplete()
     {
-        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not SwipeDirection option)
+        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not int option)
             return;
 
         OnSetupCompleted(this);
     }
 
-    public override Gesture? BuildGesture()
+    /*public override Gesture? BuildGesture()
     {
-        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not SwipeDirection option)
-            return null;
-
-        _gesture.Threshold = new Vector2(Threshold, Threshold);
-        _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
-        _gesture.Deadline = Deadline;
-        _gesture.Direction = option;
-        _gesture.PluginProperty = BindingDisplay.PluginProperty;
-
-        return _gesture;
-    }
+        
+    }*/
 
     #endregion
 
@@ -167,10 +157,9 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
 
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Threshold) ||
-            e.PropertyName == nameof(Deadline))
+        if (e.PropertyName == nameof(Deadline))
         {
-            AreGestureSettingTweaked = Threshold > 0 && Deadline > 0;
+            AreGestureSettingTweaked = Deadline > 0;
         }
     }
 
@@ -190,4 +179,4 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
     #endregion
 }
 
-public class SwipeTileViewModel : GestureTileViewModel<SwipeSetupViewModel> {}
+public class PinchTileViewModel : GestureTileViewModel<PinchSetupViewModel> {}

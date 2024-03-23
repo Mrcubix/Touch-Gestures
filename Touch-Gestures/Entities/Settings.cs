@@ -182,12 +182,28 @@ namespace TouchGestures.Entities
                     result.TapGestures.Add(tapGesture);
             }
 
+            foreach (var gesture in settings.HoldGestures)
+            {
+                var holdGesture = BindableHoldGesture.ToSerializable(gesture, identifierToPlugin);
+
+                if (holdGesture != null)
+                    result.HoldGestures.Add(holdGesture);
+            }
+
             foreach (var gesture in settings.SwipeGestures)
             {
                 var swipeGesture = BindableSwipeGesture.ToSerializable(gesture, identifierToPlugin);
 
                 if (swipeGesture != null)
                     result.SwipeGestures.Add(swipeGesture);
+            }
+
+            foreach (var gesture in settings.PanGestures)
+            {
+                var panGesture = BindablePanGesture.ToSerializable(gesture, identifierToPlugin);
+
+                if (panGesture != null)
+                    result.PanGestures.Add(panGesture);
             }
 
             return result;

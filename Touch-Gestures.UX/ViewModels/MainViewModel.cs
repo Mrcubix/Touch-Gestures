@@ -273,8 +273,14 @@ public partial class MainViewModel : NavigableViewModel
             case SerializableTapGesture tapGesture:
                 _settings.TapGestures.Add(tapGesture);
                 break;
+            case SerializableHoldGesture holdGesture:
+                _settings.HoldGestures.Add(holdGesture);
+                break;
             case SerializableSwipeGesture swipeGesture:
                 _settings.SwipeGestures.Add(swipeGesture);
+                break;
+            case SerializablePanGesture panGesture:
+                _settings.PanGestures.Add(panGesture);
                 break;
             default:
                 throw new NotImplementedException();
@@ -288,8 +294,14 @@ public partial class MainViewModel : NavigableViewModel
             case SerializableTapGesture tapGesture:
                 _settings.TapGestures.Remove(tapGesture);
                 break;
+            case SerializableHoldGesture holdGesture:
+                _settings.HoldGestures.Remove(holdGesture);
+                break;
             case SerializableSwipeGesture swipeGesture:
                 _settings.SwipeGestures.Remove(swipeGesture);
+                break;
+            case SerializablePanGesture panGesture:
+                _settings.PanGestures.Remove(panGesture);
                 break;
             default:
                 throw new NotImplementedException();

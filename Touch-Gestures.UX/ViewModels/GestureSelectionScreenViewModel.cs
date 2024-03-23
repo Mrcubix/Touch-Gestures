@@ -3,6 +3,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
+using TouchGestures.UX.ViewModels.Controls.Setups;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
 using static TouchGestures.UX.Extentions.ObservableCollectionExtensions;
 
@@ -16,16 +17,18 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
 
     private string _searchText = string.Empty;
 
-    private GestureTileViewModel[] _gestureTileViewModels = new GestureTileViewModel[]
-    {
+    // This array contains setup for different gestures, using different view models
+    private GestureTileViewModel[] _gestureTileViewModels =
+    [
         new TapTileViewModel(),
         new HoldTileViewModel(),
         new SwipeTileViewModel(),
+        new PanTileViewModel(),
         new PinchTileViewModel(),
-        new RotateTileViewModel(),
-        //new PanTileViewModel(),
-        //new NodeTileViewModel(),
-    };
+        
+        /*new RotateTileViewModel(),
+          new NodeTileViewModel()*/
+    ];
 
     [ObservableProperty]
     private ObservableCollection<GestureTileViewModel> _currentGestureTiles = new();

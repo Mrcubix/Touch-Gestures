@@ -13,13 +13,13 @@ using OpenTabletDriver.Plugin.Tablet.Touch;
 using OTD.EnhancedOutputMode.Lib.Interface;
 using OTD.EnhancedOutputMode.Tool;
 using TouchGestures.Entities;
-using TouchGestures.Entities.Gestures;
 using TouchGestures.Lib.Converters;
+using TouchGestures.Lib.Entities.Gestures.Bases;
 
 namespace TouchGestures
 {
     [PluginName(PLUGIN_NAME)]
-    public class GesturesHandler : IFilter, IGateFilter, IDisposable
+    public class GesturesHandler : IFilter, IGateFilter, IInitialize, IDisposable
     {
         #region Constants
 
@@ -43,6 +43,8 @@ namespace TouchGestures
         {
 #if DEBUG
 
+            Console.WriteLine("Waiting for debugger to attach...");
+
             while (!Debugger.IsAttached)
             {
                 Thread.Sleep(100);
@@ -55,18 +57,23 @@ namespace TouchGestures
             rpcServer.Converters.AddRange(Converters);
 
             rpcServer.Instance.OnSettingsChanged += OnSettingsChanged;
+        }
 
+        public void Initialize()
+        {
             rpcServer.Instance.Initialize();
 
             _ = Task.Run(() => rpcServer.MainAsync());
+
+            Log.Write(PLUGIN_NAME, "Initialized");
         }
 
         #endregion
 
         #region Properties
 
-        public List<TapGesture> TapGestures { get; set; } = new();
-        public List<SwipeGesture> SwipeGestures { get; set; } = new();
+        public List<Gesture> ConflictingGestures { get; set; } = new();
+        public List<Gesture> NonConflictingGestures { get; set; } = new();
 
         #endregion
 
@@ -82,8 +89,8 @@ namespace TouchGestures
                 {
                     _hasPreviousGestureStarted = false;
 
-                    // Iterate through all tap gestures
-                    foreach (var gesture in TapGestures)
+                    // Iterate through all conflicting gestures
+                    foreach (var gesture in ConflictingGestures)
                     {
                         gesture.OnInput(touchReport.Touches);
 
@@ -100,8 +107,8 @@ namespace TouchGestures
                             _hasPreviousGestureStarted = true;
                     }
 
-                    // Iterate through all swipe gestures
-                    foreach (var gesture in SwipeGestures)
+                    // Iterate through all non-conflicting gestures
+                    foreach (var gesture in NonConflictingGestures)
                         gesture.OnInput(touchReport.Touches);
                 }
             }
@@ -123,14 +130,19 @@ namespace TouchGestures
 
             _settings = s;
 
-            TapGestures.Clear();
-            SwipeGestures.Clear();
+            ConflictingGestures.Clear();
+            NonConflictingGestures.Clear();
 
             _settings.TapGestures.Sort((x, y) => x.RequiredTouchesCount > y.RequiredTouchesCount ? -1 : 1);
+            _settings.HoldGestures.Sort((x, y) => x.RequiredTouchesCount > y.RequiredTouchesCount ? -1 : 1);
             _settings.SwipeGestures.Sort((x, y) => x.Direction > y.Direction ? -1 : 1);
+            _settings.PanGestures.Sort((x, y) => x.Direction > y.Direction ? -1 : 1);
 
-            TapGestures.AddRange(_settings.TapGestures);
-            SwipeGestures.AddRange(_settings.SwipeGestures);
+            ConflictingGestures.AddRange(_settings.TapGestures);
+            //ConflictingGestures.AddRange(_settings.HoldGestures);
+
+            NonConflictingGestures.AddRange(_settings.SwipeGestures);
+            NonConflictingGestures.AddRange(_settings.PanGestures);
 
             Log.Debug(PLUGIN_NAME, "Settings updated");
         }
@@ -159,23 +171,6 @@ namespace TouchGestures
         #endregion
 
         #region Plugin Properties
-
-        [Property("Numerical Input Box Property"),
-         Unit("Some Unit Here"),
-         DefaultPropertyValue(727),
-         ToolTip("Filter template:\n\n" +
-                 "A property that appear as an input box.\n\n" +
-                 "Has a numerical value.")
-        ]
-        public int ExampleNumericalProperty { get; set; }
-
-        [BooleanProperty("Boolean Property", ""),
-         DefaultPropertyValue(true),
-         ToolTip("Area Randomizer:\n\n" +
-                 "A property that appear as a check box.\n\n" +
-                 "Has a Boolean value")
-        ]
-        public bool ExampleBooleanProperty { set; get; }
 
         #endregion
     }

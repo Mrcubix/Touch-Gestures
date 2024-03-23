@@ -34,9 +34,9 @@ namespace TouchGestures.Lib.Extensions
             var position = point.Position;
 
             var left = area.Position.X - (area.Width / 2);
-            var right = area.Position.X + (area.Width / 2);
+            var right = left + area.Width;
             var top = area.Position.Y - (area.Height / 2);
-            var bottom = area.Position.Y + (area.Height / 2);
+            var bottom = top + area.Height;
 
             return position.X >= left && position.X <= right &&
                    position.Y >= top && position.Y <= bottom;
@@ -53,9 +53,9 @@ namespace TouchGestures.Lib.Extensions
             var position = point.Position;
 
             var left = area.Position.X - (area.Width / 2);
-            var right = area.Position.X + (area.Width / 2);
+            var right = left + area.Width;
             var top = area.Position.Y - (area.Height / 2);
-            var bottom = area.Position.Y + (area.Height / 2);
+            var bottom = top + area.Height;
 
             return position.X >= left && position.X <= right &&
                    position.Y >= top && position.Y <= bottom;

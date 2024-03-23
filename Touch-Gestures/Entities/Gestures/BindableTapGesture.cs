@@ -1,4 +1,3 @@
-using System.Numerics;
 using OpenTabletDriver.Plugin;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -10,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using OpenTabletDriver.External.Common.Serializables;
 using System.Drawing;
+using TouchGestures.Extensions;
 
 namespace TouchGestures.Entities.Gestures
 {
@@ -23,18 +23,22 @@ namespace TouchGestures.Entities.Gestures
 
         public BindableTapGesture() : base()
         {
+            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableTapGesture(SerializableTapGesture tapGesture) : base(tapGesture.Bounds, tapGesture.Deadline, tapGesture.RequiredTouchesCount)
         {
+            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableTapGesture(Rectangle bounds) : base(bounds)
         {
+            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableTapGesture(Rectangle bounds, double deadline) : base(bounds, deadline)
         {
+            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableTapGesture(Rectangle bounds, double deadline, IBinding binding) : this(bounds, deadline)
@@ -62,8 +66,6 @@ namespace TouchGestures.Entities.Gestures
         #endregion
 
         #region Properties
-
-        public override float LinesPerMM => Info.Driver.Tablet.Digitizer.MaxX / Info.Driver.Tablet.Digitizer.Width;
 
         /// <inheritdoc/>
         [JsonProperty]

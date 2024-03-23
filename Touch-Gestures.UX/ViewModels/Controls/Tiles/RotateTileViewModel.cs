@@ -6,7 +6,7 @@ using static TouchGestures.UX.Extentions.AssetLoaderExtensions;
 
 #nullable enable
 
-public partial class RotateTileViewModel : GestureTileViewModel
+public partial class RotateTileViewModel : GestureTileViewModel<GestureSetupViewModel>
 {
     public RotateTileViewModel()
     {

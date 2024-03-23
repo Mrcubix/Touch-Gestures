@@ -38,9 +38,19 @@ namespace TouchGestures.Lib.Entities
                 yield return tapGesture;
             }
 
+            foreach (var holdGesture in HoldGestures)
+            {
+                yield return holdGesture;
+            }
+
             foreach (var swipeGesture in SwipeGestures)
             {
                 yield return swipeGesture;
+            }
+
+            foreach (var panGesture in PanGestures)
+            {
+                yield return panGesture;
             }
 
             // do the same for other gestures

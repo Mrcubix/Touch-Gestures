@@ -87,7 +87,9 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         GestureSetupViewModel setupViewModel = _editedGesture switch
         {
             SerializableTapGesture => new TapSetupViewModel(_editedGesture, _bounds),
+            SerializableHoldGesture => new HoldSetupViewModel(_editedGesture, _bounds),
             SerializableSwipeGesture => new SwipeSetupViewModel(_editedGesture, _bounds),
+            SerializablePanGesture => new PanSetupViewModel(_editedGesture, _bounds),
             _ => new GestureSetupViewModel()
         };
 

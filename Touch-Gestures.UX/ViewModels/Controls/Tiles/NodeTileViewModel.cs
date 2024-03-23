@@ -4,7 +4,7 @@ namespace TouchGestures.UX.ViewModels.Controls.Tiles;
 
 #nullable enable
 
-public partial class NodeTileViewModel : GestureTileViewModel
+public partial class NodeTileViewModel : GestureTileViewModel<GestureSetupViewModel>
 {
     public NodeTileViewModel()
     {

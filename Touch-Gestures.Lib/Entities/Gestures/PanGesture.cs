@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Extensions;
@@ -38,6 +39,21 @@ namespace TouchGestures.Entities.Gestures
 
         #endregion
 
+        /// <inheritdoc/>
+        protected override void OnGestureEnd(GestureEventArgs e)
+        {
+            // reset the gesture
+            HasStarted = false;
+        }
+
+        /// <inheritdoc/>
+        protected override void OnGestureComplete(GestureEventArgs e)
+        {
+            HasStarted = false;
+            StartPosition = Vector2.Zero;
+            _delta = Vector2.Zero;
+        }
+
         public override void OnInput(TouchPoint[] points)
         {
             if (points.Length > 0)
@@ -48,7 +64,7 @@ namespace TouchGestures.Entities.Gestures
                 {
                     if (!HasStarted)
                     {
-                        if (IsRestrained && Bounds != null && !point.IsInside(Bounds))
+                        if (IsRestrained && _bounds != null && !point.IsInside(_bounds))
                             return;
 
                         StartPosition = point.Position;
@@ -60,7 +76,7 @@ namespace TouchGestures.Entities.Gestures
                         if (Deadline != 0 && (DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
                             IsInvalidState = true;
 
-                        if (IsRestrained && Bounds != null && !point.IsInside(Bounds))
+                        if (IsRestrained && _bounds != null && !point.IsInside(_bounds))
                             IsInvalidState = true;
 
                         if (IsInvalidState)
@@ -70,7 +86,7 @@ namespace TouchGestures.Entities.Gestures
                         }
 
                         _delta = point.Position - StartPosition;
-                        OnDeltaChanged();
+                        OnDelta();
                     }
                 }
                 else
@@ -79,45 +95,6 @@ namespace TouchGestures.Entities.Gestures
                     if (HasStarted)
                         HasEnded = true;
                 }
-            }
-        }
-
-        private void OnDeltaChanged()
-        {
-            switch (Direction)
-            {
-                case SwipeDirection.Up:
-                    if (_delta.Y <= -Threshold.Y)
-                        CompleteGesture();
-                    break;
-                case SwipeDirection.Down:
-                    if (_delta.Y >= Threshold.Y)
-                        CompleteGesture();
-                    break;
-                case SwipeDirection.Left:
-                    if (_delta.X <= -Threshold.X)
-                        CompleteGesture();
-                    break;
-                case SwipeDirection.Right:
-                    if (_delta.X >= Threshold.X)
-                        CompleteGesture();
-                    break;
-                case SwipeDirection.UpLeft:
-                    if (_delta.Y <= -Threshold.Y && _delta.X <= -Threshold.X)
-                        CompleteGesture();
-                    break;
-                case SwipeDirection.UpRight:
-                    if (_delta.Y <= -Threshold.Y && _delta.X >= Threshold.X)
-                        CompleteGesture();
-                    break;
-                case SwipeDirection.DownLeft:
-                    if (_delta.Y >= Threshold.Y && _delta.X <= -Threshold.X)
-                        CompleteGesture();
-                    break;
-                case SwipeDirection.DownRight:
-                    if (_delta.Y >= Threshold.Y && _delta.X >= Threshold.X)
-                        CompleteGesture();
-                    break;
             }
         }
     }

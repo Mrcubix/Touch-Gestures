@@ -16,12 +16,23 @@
 
   <ContentControl Content="{Binding NextViewModel}">
     <ContentControl.DataTemplates>
+      <!-- Need to be placed before Hold as hold is a subset of a tap -->
+      <DataTemplate x:DataType="setupsvm:HoldSetupViewModel">
+        <setups:HoldSetup />
+      </DataTemplate>
+      <!-- Tap Setup -->
       <DataTemplate x:DataType="setupsvm:TapSetupViewModel">
         <setups:TapSetup />
       </DataTemplate>
+      <!-- Need to be placed before Swipe as panning is a subset of a swipe -->
+      <DataTemplate x:DataType="setupsvm:PanSetupViewModel">
+        <setups:PanSetup />
+      </DataTemplate>
+      <!-- Swipe Setup -->
       <DataTemplate x:DataType="setupsvm:SwipeSetupViewModel">
         <setups:SwipeSetup />
       </DataTemplate>
+      <!-- No Implementation exist for the selected gesture -->
       <DataTemplate x:DataType="setupsvm:GestureSetupViewModel">
         <setups:GestureSetup />
       </DataTemplate>

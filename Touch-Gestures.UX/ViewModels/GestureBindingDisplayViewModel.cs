@@ -7,98 +7,99 @@ using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.UX.Events;
 
-namespace TouchGestures.UX.ViewModels
+namespace TouchGestures.UX.ViewModels;
+
+#nullable enable
+
+public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel
 {
-    public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel
+    #region Fields
+
+    [ObservableProperty]
+    private bool _isConnected = false;
+
+    [ObservableProperty]
+    private Gesture _associatedGesture;
+
+    #endregion
+
+    #region Constructors
+
+    public GestureBindingDisplayViewModel(Gesture gesture)
     {
-        #region Fields
+        if (gesture is not ISerializable serialized)
+            throw new ArgumentException("Gesture must be serializable");
 
-        [ObservableProperty]
-        private bool _isConnected = false;
+        AssociatedGesture = gesture;
 
-        [ObservableProperty]
-        private Gesture _associatedGesture;
+        PluginProperty = serialized.PluginProperty;
 
-        #endregion
+        if (gesture is INamed named)
+            Description = named.Name;
 
-        #region Constructors
-
-        public GestureBindingDisplayViewModel(Gesture gesture)
-        {
-            if (gesture is not ISerializable serialized)
-                throw new ArgumentException("Gesture must be serializable");
-
-            AssociatedGesture = gesture;
-
-            PluginProperty = serialized.PluginProperty;
-
-            if (gesture is INamed named)
-                Description = named.Name;
-
-            Initialize();
-        }
-
-        public GestureBindingDisplayViewModel(GestureAddedEventArgs e)
-        {
-            if (e.Gesture == null)
-                throw new ArgumentNullException(nameof(e.Gesture));
-
-            if (e.Gesture is not ISerializable)
-                throw new ArgumentException("Gesture must implement ISerializable");
-
-            Description = e.BindingDisplay.Description;
-            Content = e.BindingDisplay.Content;
-            PluginProperty = e.BindingDisplay.PluginProperty;
-
-            AssociatedGesture = e.Gesture;
-
-            Initialize();
-        }
-
-        private void Initialize()
-        {
-            PropertyChanged += OnPropertyChanged;
-        }
-
-        #endregion
-
-        #region Events
-
-        public event EventHandler? EditRequested;
-
-        public event EventHandler? DeletionRequested;
-
-        public event EventHandler<GestureBindingsChangedArgs>? BindingChanged;
-
-        #endregion
-
-        #region Commands
-
-        [RelayCommand(CanExecute = nameof(IsConnected))]
-        public void EditGesture() => EditRequested?.Invoke(this, EventArgs.Empty);
-
-        [RelayCommand]
-        public void DeleteGesture() => DeletionRequested?.Invoke(this, EventArgs.Empty);
-
-        #endregion
-
-        #region Event Handlers
-
-        private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(PluginProperty))
-            {
-                if (AssociatedGesture is not ISerializable serialized)
-                    return;
-
-                var args = new GestureBindingsChangedArgs(serialized.PluginProperty, PluginProperty);
-
-                serialized.PluginProperty = PluginProperty;
-
-                BindingChanged?.Invoke(this, args);
-            }  
-        }
-
-        #endregion
+        Initialize();
     }
+
+    public GestureBindingDisplayViewModel(GestureAddedEventArgs e)
+    {
+        if (e.Gesture == null)
+            throw new ArgumentNullException(nameof(e.Gesture));
+
+        if (e.Gesture is not ISerializable)
+            throw new ArgumentException("Gesture must implement ISerializable");
+
+        Description = e.BindingDisplay.Description;
+        Content = e.BindingDisplay.Content;
+        PluginProperty = e.BindingDisplay.PluginProperty;
+
+        AssociatedGesture = e.Gesture;
+
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        PropertyChanged += OnPropertyChanged;
+    }
+
+    #endregion
+
+    #region Events
+
+    public event EventHandler? EditRequested;
+
+    public event EventHandler? DeletionRequested;
+
+    public event EventHandler<GestureBindingsChangedArgs>? BindingChanged;
+
+    #endregion
+
+    #region Commands
+
+    [RelayCommand(CanExecute = nameof(IsConnected))]
+    public void EditGesture() => EditRequested?.Invoke(this, EventArgs.Empty);
+
+    [RelayCommand]
+    public void DeleteGesture() => DeletionRequested?.Invoke(this, EventArgs.Empty);
+
+    #endregion
+
+    #region Event Handlers
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(PluginProperty))
+        {
+            if (AssociatedGesture is not ISerializable serialized)
+                return;
+
+            var args = new GestureBindingsChangedArgs(serialized.PluginProperty, PluginProperty);
+
+            serialized.PluginProperty = PluginProperty;
+
+            BindingChanged?.Invoke(this, args);
+        }
+    }
+
+    #endregion
 }

@@ -14,6 +14,7 @@ namespace TouchGestures.Entities.Gestures
     /// <summary>
     ///   Represent a 1-finger tap gesture.
     /// </summary>
+    [Obsolete("Use the new TapGesture instead.")]
     [JsonObject(MemberSerialization.OptIn)]
     public class OldTapGesture : MixedBasedGesture
     {
