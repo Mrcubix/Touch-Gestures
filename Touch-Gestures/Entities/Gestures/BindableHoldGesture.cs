@@ -39,19 +39,17 @@ namespace TouchGestures.Entities.Gestures
             LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
-        public BindableHoldGesture(SharedArea? sharedArea, double deadline, int requiredTouchesCount) 
-            : base(sharedArea, deadline, requiredTouchesCount)
+        public BindableHoldGesture(SharedArea? sharedArea, double deadline, int requiredTouchesCount) : this()
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
+            Bounds = sharedArea;
+            Deadline = deadline;
+            RequiredTouchesCount = requiredTouchesCount;
         }
 
         #endregion
 
         public BindableHoldGesture(SerializableHoldGesture tapGesture) 
-            : this(tapGesture.Bounds, tapGesture.Deadline, tapGesture.RequiredTouchesCount)
-        {
-            LinesPerMM = Info.Driver.Tablet.Digitizer.MaxX / Info.Driver.Tablet.Digitizer.Width;
-        }
+            : this(tapGesture.Bounds, tapGesture.Deadline, tapGesture.RequiredTouchesCount) {}
 
         public BindableHoldGesture(Rectangle bounds, double deadline, IBinding binding) : this(bounds, deadline)
         {

@@ -26,21 +26,24 @@ namespace TouchGestures.Entities.Gestures
             LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
-        public BindableTapGesture(SerializableTapGesture tapGesture) : base(tapGesture.Bounds, tapGesture.Deadline, tapGesture.RequiredTouchesCount)
-        {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
-        }
-
         public BindableTapGesture(Rectangle bounds) : base(bounds)
         {
             LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
-        public BindableTapGesture(Rectangle bounds, double deadline) : base(bounds, deadline)
+        public BindableTapGesture(SerializableTapGesture tapGesture) : this()
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
+            Bounds = tapGesture.Bounds;
+            Deadline = tapGesture.Deadline;
+            RequiredTouchesCount = tapGesture.RequiredTouchesCount;
         }
 
+        public BindableTapGesture(Rectangle bounds, double deadline) : this(bounds)
+        {
+            LinesPerMM = Info.Driver.GetTouchLPMM();
+            Deadline = deadline;
+        }
+            
         public BindableTapGesture(Rectangle bounds, double deadline, IBinding binding) : this(bounds, deadline)
         {
             Binding = binding;

@@ -8,6 +8,7 @@ using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using TouchGestures.Extensions;
+using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.Lib.Serializables.Gestures;
@@ -58,7 +59,7 @@ namespace TouchGestures.Entities.Gestures
             LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
-        public BindablePanGesture(Vector2 threshold, double deadline, IBinding binding) : base(threshold, deadline)
+        public BindablePanGesture(Vector2 threshold, double deadline, IBinding binding) : this(threshold, deadline)
         {
             Binding = binding;
         }

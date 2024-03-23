@@ -112,6 +112,8 @@ namespace TouchGestures
             // obtain all IBinding plugins
             var plugins = OpenTabletDriver.Desktop.AppInfo.PluginManager.GetChildTypes<IBinding>();
 
+            IdentifierToPluginConversion.Clear();
+
             foreach(var plugin in plugins)
             {
                 var identifierHash = 0;
