@@ -58,7 +58,6 @@ namespace TouchGestures.Lib.Entities.Gestures
         /// <inheritdoc/>
         protected override void OnGestureComplete(GestureEventArgs e)
         {
-            StartPosition = Vector2.Zero;
             _delta = Vector2.Zero;
         }
 
