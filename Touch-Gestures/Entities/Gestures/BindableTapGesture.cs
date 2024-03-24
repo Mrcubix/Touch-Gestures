@@ -10,6 +10,7 @@ using System.Linq;
 using OpenTabletDriver.External.Common.Serializables;
 using System.Drawing;
 using TouchGestures.Extensions;
+using TouchGestures.Lib.Entities.Gestures;
 
 namespace TouchGestures.Entities.Gestures
 {

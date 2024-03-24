@@ -30,7 +30,7 @@
     <Style Selector="NumericUpDown">
       <Setter Property="VerticalContentAlignment" Value="Center" />
       <Setter Property="Margin" Value="0, 0, 12, 0" />
-      <Setter Property="Width" Value="128" />
+      <Setter Property="Width" Value="136" />
     </Style>
     <Style Selector="TextBlock">
       <Setter Property="VerticalAlignment" Value="Center" />
@@ -51,23 +51,22 @@
       <!-- Some numerical Inputs -->
       <Border Name="VIEW_Content" Grid.Row="1" Margin="0, 12">
 
-        <Grid ColumnDefinitions="Auto" RowDefinitions="Auto" Margin="16" HorizontalAlignment="Center">
+        <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto" Margin="16" HorizontalAlignment="Center">
 
-          <StackPanel Orientation="Horizontal" Grid.Column="0" ToolTip.Tip="The time in milliseconds that the gesture must be held to be recognized.">
-            <TextBlock Text="Deadline:" />
-            <NumericUpDown Value="{Binding Deadline}" Minimum="0" Maximum="1000" Increment="5" FormatString="{}{0:0}" />
+          <StackPanel Orientation="Horizontal" Grid.Column="0" 
+                      ToolTip.Tip="The amount of time in milliseconds touch points need to stay pressed to be recognized as a hold gesture.">
+            <TextBlock Text="Hold For:" />
+            <NumericUpDown Value="{Binding Deadline}" Minimum="0" Maximum="10000" Increment="5" FormatString="{}{0:0}" />
             <TextBlock Text="ms" VerticalAlignment="Center" />
           </StackPanel>
 
-          <!--
           <TextBlock Grid.Column="1" Padding="16, 0, 24, 0" />
 
           <StackPanel Orientation="Horizontal" Grid.Column="2" ToolTip.Tip="The maximum distance in lines that the gesture can be moved from the starting point.">
             <TextBlock Text="Threshold:" />
-            <NumericUpDown Value="{Binding Threshold}" Minimum="0" Maximum="1000" Increment="5" FormatString="{}{0:0}" />
+            <NumericUpDown Value="{Binding Threshold}" Minimum="0" Maximum="500" Increment="5" FormatString="{}{0:0}" />
             <TextBlock Text="lines" VerticalAlignment="Center" />
           </StackPanel>
-          -->
 
         </Grid>
 

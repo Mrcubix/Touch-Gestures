@@ -14,6 +14,7 @@ using OTD.EnhancedOutputMode.Lib.Interface;
 using OTD.EnhancedOutputMode.Tool;
 using TouchGestures.Entities;
 using TouchGestures.Lib.Converters;
+using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 
 namespace TouchGestures
@@ -72,7 +73,9 @@ namespace TouchGestures
 
         #region Properties
 
-        public List<Gesture> ConflictingGestures { get; set; } = new();
+        public List<TapGesture> TapGestures { get; set; } = new();
+        public List<HoldGesture> HoldGestures { get; set; } = new();
+
         public List<Gesture> NonConflictingGestures { get; set; } = new();
 
         #endregion
@@ -87,25 +90,9 @@ namespace TouchGestures
             {
                 if (rpcServer.Instance.IsReady && TouchToggle.istouchToggled)
                 {
-                    _hasPreviousGestureStarted = false;
-
                     // Iterate through all conflicting gestures
-                    foreach (var gesture in ConflictingGestures)
-                    {
-                        gesture.OnInput(touchReport.Touches);
-
-                        // TODO: Ending it might not be the best move as simillar gesture might not work at all
-
-                        // if the previous gesture has started, end any gesture after it
-                        if (_hasPreviousGestureStarted)
-                        {
-                            gesture.End();
-                            continue;
-                        }
-
-                        if (gesture.HasStarted)
-                            _hasPreviousGestureStarted = true;
-                    }
+                    HandleConflictingGestures(TapGestures, touchReport);
+                    HandleConflictingGestures(HoldGestures, touchReport);
 
                     // Iterate through all non-conflicting gestures
                     foreach (var gesture in NonConflictingGestures)
@@ -114,6 +101,28 @@ namespace TouchGestures
             }
 
             return true;
+        }
+
+        public void HandleConflictingGestures(IEnumerable<Gesture> gestures, ITouchReport touchReport)
+        {
+            _hasPreviousGestureStarted = false;
+
+            foreach (var gesture in gestures)
+            {
+                gesture.OnInput(touchReport.Touches);
+
+                // TODO: Ending it might not be the best move as simillar gesture might not work at all
+
+                // if the previous gesture has started, end any gesture after it
+                if (_hasPreviousGestureStarted)
+                {
+                    gesture.End();
+                    continue;
+                }
+
+                if (gesture.HasStarted)
+                    _hasPreviousGestureStarted = true;
+            }
         }
 
         #endregion
@@ -130,7 +139,8 @@ namespace TouchGestures
 
             _settings = s;
 
-            ConflictingGestures.Clear();
+            TapGestures.Clear();
+            HoldGestures.Clear();
             NonConflictingGestures.Clear();
 
             _settings.TapGestures.Sort((x, y) => x.RequiredTouchesCount > y.RequiredTouchesCount ? -1 : 1);
@@ -138,8 +148,8 @@ namespace TouchGestures
             _settings.SwipeGestures.Sort((x, y) => x.Direction > y.Direction ? -1 : 1);
             _settings.PanGestures.Sort((x, y) => x.Direction > y.Direction ? -1 : 1);
 
-            ConflictingGestures.AddRange(_settings.TapGestures);
-            //ConflictingGestures.AddRange(_settings.HoldGestures);
+            TapGestures.AddRange(_settings.TapGestures);
+            HoldGestures.AddRange(_settings.HoldGestures);
 
             NonConflictingGestures.AddRange(_settings.SwipeGestures);
             NonConflictingGestures.AddRange(_settings.PanGestures);

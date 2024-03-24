@@ -4,6 +4,8 @@ using Xunit.Abstractions;
 
 namespace TouchGestures.Tests.Lib
 {
+    using static TouchGestures.Tests.Samples.TapSamples;
+
     public class HoldGestureTest
     {
         #region Constants & Readonly fields
@@ -25,10 +27,6 @@ namespace TouchGestures.Tests.Lib
         {
             _output = output;
         }
-
-        #endregion
-
-        #region Test Samples
 
         #endregion
 

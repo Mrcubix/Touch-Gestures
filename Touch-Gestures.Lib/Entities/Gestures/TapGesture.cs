@@ -4,17 +4,14 @@ using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Input;
 using Newtonsoft.Json;
-using TouchGestures.Lib;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using System.Linq;
 using System.Drawing;
 using TouchGestures.Lib.Extensions;
 using System.Collections.Generic;
 using TouchGestures.Lib.Interfaces;
-using Microsoft;
-using TouchGestures.Lib.Entities;
 
-namespace TouchGestures.Entities.Gestures
+namespace TouchGestures.Lib.Entities.Gestures
 {
     /// <summary>
     ///   Represent a x-finger tap gesture.
@@ -23,7 +20,7 @@ namespace TouchGestures.Entities.Gestures
     ///   A tap gesture is triggered when a <see cref="RequiredTouchesCount"/> number of fingers are pressed and released within a specified deadline.
     /// </remarks>
     [JsonObject(MemberSerialization.OptIn)]
-    public class TapGesture : TimeBasedGesture, IAbsolutePositionable
+    public class TapGesture : MixedBasedGesture, IAbsolutePositionable
     {
         #region Fields
 
@@ -34,7 +31,7 @@ namespace TouchGestures.Entities.Gestures
         protected int _requiredTouchesCount = 1;
 
         protected List<TouchPoint> _currentPoints = null!;
-        protected byte[] _activatingPoints = null!;
+        protected TouchPoint[] _activatingPoints = null!;
         protected bool[] _releasedPoints = null!;
         protected int _previousReleasedCount = 0;
         protected int _releasedCount = 0;
@@ -162,12 +159,26 @@ namespace TouchGestures.Entities.Gestures
         [JsonProperty]
         public override double Deadline { get; set; }
 
+        /// <inheritdoc/>
+        /// <remarks>
+        ///   Unused for TapGesture
+        /// </remarks>
+        public override Vector2 Threshold { get; set; }
+
         #endregion
 
         /// <summary>
         ///   Indicates whether the gesture was invalidated after any checks. <br/>
         /// </summary>
         public bool IsInvalidState { get; protected set; }
+
+        /// <summary>
+        ///   Whether or not the gesture should use the threshold.
+        /// </summary>
+        /// <remarks>
+        ///   Unused for TapGesture
+        /// </remarks>
+        public bool UseThreshold { get; set; } = false;
 
         /// <summary>
         ///   The number of touches required to trigger the gesture. <br/>
@@ -185,7 +196,7 @@ namespace TouchGestures.Entities.Gestures
                 _requiredTouchesCount = value;
 
                 _currentPoints = new List<TouchPoint>(value);
-                _activatingPoints = new byte[value];
+                _activatingPoints = new TouchPoint[value];
                 _releasedPoints = new bool[value];
 
                 //_currentTouches = new List<int>(value);
@@ -199,11 +210,6 @@ namespace TouchGestures.Entities.Gestures
             get => _bounds?.Divide(LinesPerMM);
             set => _bounds = value?.Multiply(LinesPerMM);
         }
-
-        /// <summary>
-        ///   The position where the gesture started.
-        /// </summary>
-        public Vector2 StartPosition { get; protected set; }
 
         #endregion
 
@@ -268,7 +274,7 @@ namespace TouchGestures.Entities.Gestures
                         IsInvalidState = false;
 
                         // Set the activating points
-                        _activatingPoints = _currentPoints.Select(p => p.TouchID).ToArray();
+                        _activatingPoints = _currentPoints.ToArray();
 
                         // Set the gesture as started
                         HasStarted = true;
@@ -377,13 +383,17 @@ namespace TouchGestures.Entities.Gestures
             {
                 currentIndex++;
 
-                byte id = enumerator.Current;
-                int indexOf = _currentPoints.FindIndex(p => p.TouchID == id);
+                TouchPoint ap = enumerator.Current;
+                int indexOf = _currentPoints.FindIndex(p => p.TouchID == ap.TouchID);
 
                 // 3.1. Check if the point is still active
                 if (indexOf != -1)
                 {
                     var point = _currentPoints[indexOf];
+
+                    // Gestures inheriting from this class might want to check the threshold
+                    if (UseThreshold)
+                        HandleThreshold(point, ap);
 
                     // 3.1.1. If Relative mode, check if the point is inside the bounds
                     if (IsRestrained == false)
@@ -405,6 +415,19 @@ namespace TouchGestures.Entities.Gestures
         }
 
         /// <summary>
+        ///   Handles the threshold of the gesture.
+        /// </summary>
+        /// <remarks>
+        ///   Unused for TapGesture
+        /// </remarks>
+        /// <param name="point">The point to check</param>
+        /// <returns>True if the point is valid, false otherwise</returns>
+        protected virtual void HandleThreshold(TouchPoint point, TouchPoint activatingPoint)
+        {
+            // Unused for TapGesture
+        }
+
+        /// <summary>
         ///   Handles the relative mode of the gesture.
         /// </summary>
         /// <remarks>
@@ -414,7 +437,7 @@ namespace TouchGestures.Entities.Gestures
         /// <returns>True if the point is valid, false otherwise</returns>
         protected bool HandleRelativeMode(TouchPoint point)
         {
-            if (_bounds != SharedArea.Zero && point != null && _bounds != null && !point.IsInside(_bounds))
+            if (point != null && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
             {
                 IsInvalidState = true;
                 return false;

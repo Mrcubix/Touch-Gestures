@@ -1,9 +1,8 @@
 using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.External.Common.Serializables;
-using TouchGestures.Entities.Gestures;
 using TouchGestures.Lib.Entities;
-using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Interfaces;
 

@@ -8,7 +8,7 @@ using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using TouchGestures.Extensions;
-using TouchGestures.Lib.Entities;
+using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.Lib.Serializables.Gestures;

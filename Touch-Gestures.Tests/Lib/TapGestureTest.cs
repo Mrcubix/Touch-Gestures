@@ -1,18 +1,18 @@
 using System.Drawing;
 using System.Threading;
-using OpenTabletDriver.Plugin.Tablet.Touch;
-using TapGesture = TouchGestures.Entities.Gestures.TapGesture;
 using Xunit;
 using Xunit.Abstractions;
 using System.Numerics;
+using TouchGestures.Lib.Entities.Gestures;
 
 namespace TouchGestures.Tests.Lib
 {
+    using static TouchGestures.Tests.Samples.TapSamples;
+
     public class TapGestureTest
     {
         #region Constants & Readonly fields
-
-        protected const int MAX_TOUCHES = 3;
+        
         protected const double DEADLINE = 500;
         protected const int TESTED_TOUCHES = 2;
 
@@ -29,106 +29,6 @@ namespace TouchGestures.Tests.Lib
         {
             _output = output;
         }
-
-        #endregion
-
-        #region Test samples
-
-        // This is a simple one touch point, as if the user was dragging or tapping.
-        public TouchPoint[] NonGestureTouchPoints = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new(1, 1)
-            },
-            null!,
-            null!,
-        };
-
-        // The gesture should be started when passing such touch points.
-        public TouchPoint[] ValidGestureTouchPoints = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new(1, 1)
-            },
-            null!,
-            new()
-            {
-                TouchID = 1,
-                Position = new(2, 2)
-            }
-        };
-
-        // One of the touch is released which should trigger the deadline timer but not the gesture.
-        public TouchPoint[] ValidGestureTouchPointsIntermediaryState = new TouchPoint[MAX_TOUCHES]
-        {
-            null!,
-            null!,
-            new()
-            {
-                TouchID = 1,
-                Position = new(2, 2)
-            },
-        };
-
-        // The gesture should be completed when passing such touch points.
-        public TouchPoint[] ValidGestureTouchPointsFinalState = new TouchPoint[MAX_TOUCHES]
-        {
-            null!,
-            null!,
-            null!,
-        };
-
-        // The gesture should be ended when passing such touch points, considered as invalid.
-        public TouchPoint[] InvalidationGestureTouchPoints = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new(1, 1)
-            },
-            new()
-            {
-                TouchID = 1,
-                Position = new(2, 2)
-            },
-            new()
-            {
-                TouchID = 2,
-                Position = new(3, 3)
-            },
-        };
-
-        // The gesture should be ended when passing such touch points, considered as invalid since a touch point is out of bounds.
-        public TouchPoint[] OutOfBoundsTouchPoints = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new(1, 1)
-            },
-            new()
-            {
-                TouchID = 1,
-                Position = new(100, 100)
-            },
-            null!
-        };
-
-        // the gesture should be ended when passing such touch points, considered as invalid since the touch point is out of bounds during the intermediary state.
-        public TouchPoint[] OutOfBoundsTouchPointsIntermediaryState = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new(100, 1)
-            },
-            null!,
-            null!
-        };
 
         #endregion
 

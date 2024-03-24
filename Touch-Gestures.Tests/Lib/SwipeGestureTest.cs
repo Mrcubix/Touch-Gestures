@@ -2,7 +2,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Threading;
 using OpenTabletDriver.Plugin.Tablet.Touch;
-using TouchGestures.Entities.Gestures;
+using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Input;
 using Xunit;
@@ -10,6 +10,8 @@ using Xunit.Abstractions;
 
 namespace TouchGestures.Tests.Lib
 {
+    using static TouchGestures.Tests.Samples.SwipeSamples;
+
     public class SwipeGestureTest
     {
         /*
@@ -22,8 +24,7 @@ namespace TouchGestures.Tests.Lib
         */
 
         #region Constants & readonly fields
-
-        private const int MAX_TOUCHES = 1;
+        
         private const double DEADLINE = 50;
 
         private readonly Vector2 THRESHOLD = new(30, 30);
@@ -40,105 +41,6 @@ namespace TouchGestures.Tests.Lib
         {
             _output = output;
         }
-
-        #endregion
-
-        #region Sample Data
-
-        public TouchPoint[] OriginSampleData = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new Vector2(0, 0),
-            },
-        };
-
-        public TouchPoint[] OriginAbsoluteFaultyData = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new Vector2(-20, -20),
-            },
-        };
-
-        public TouchPoint[] LeftSwipeSampleData = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new Vector2(-30, 0),
-            },
-        };
-
-        public TouchPoint[] UpSwipeSampleData = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new Vector2(0, -30),
-            },
-        };
-
-        public TouchPoint[] RightSwipeSampleData = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new Vector2(30, 0),
-            },
-        };
-
-        public TouchPoint[] DownSwipeSampleData = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new Vector2(0, 30),
-            },
-        };
-
-        public TouchPoint[] UpLeftSwipeSampleData = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new Vector2(-30, -30),
-            },
-        };
-
-        public TouchPoint[] UpRightSwipeSampleData = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new Vector2(30, -30),
-            },
-        };
-
-        public TouchPoint[] DownLeftSwipeSampleData = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new Vector2(-30, 30),
-            },
-        };
-
-        public TouchPoint[] DownRightSwipeSampleData = new TouchPoint[MAX_TOUCHES]
-        {
-            new()
-            {
-                TouchID = 0,
-                Position = new Vector2(30, 30),
-            },
-        };
-        
-        public TouchPoint[] ReleasedSampleData = new TouchPoint[MAX_TOUCHES]
-        {
-            null!,
-        };
 
         #endregion
 

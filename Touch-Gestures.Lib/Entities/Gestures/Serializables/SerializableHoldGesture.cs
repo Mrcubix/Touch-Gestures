@@ -1,7 +1,7 @@
 using System.Drawing;
 using Newtonsoft.Json;
 using OpenTabletDriver.External.Common.Serializables;
-using TouchGestures.Entities.Gestures;
+using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Serializables.Gestures

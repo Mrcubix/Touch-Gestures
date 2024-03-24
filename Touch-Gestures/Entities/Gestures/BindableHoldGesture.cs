@@ -1,5 +1,4 @@
 using OpenTabletDriver.Plugin;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Interfaces;
 using OpenTabletDriver.Desktop.Reflection;
@@ -11,6 +10,7 @@ using OpenTabletDriver.External.Common.Serializables;
 using System.Drawing;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Extensions;
+using TouchGestures.Lib.Entities.Gestures;
 
 namespace TouchGestures.Entities.Gestures
 {
@@ -49,7 +49,10 @@ namespace TouchGestures.Entities.Gestures
         #endregion
 
         public BindableHoldGesture(SerializableHoldGesture tapGesture) 
-            : this(tapGesture.Bounds, tapGesture.Deadline, tapGesture.RequiredTouchesCount) {}
+            : this(tapGesture.Bounds, tapGesture.Deadline, tapGesture.RequiredTouchesCount) 
+        {
+            Threshold = tapGesture.Threshold;
+        }
 
         public BindableHoldGesture(Rectangle bounds, double deadline, IBinding binding) : this(bounds, deadline)
         {
@@ -88,19 +91,18 @@ namespace TouchGestures.Entities.Gestures
 
         #region Methods
 
-        protected override void CompleteGesture()
+        protected override void Press()
         {
-            base.CompleteGesture();
+            base.Press();
+            Binding?.Press();
+        }
 
-            if (Binding != null)
-            {
-                _ = Task.Run(async () =>
-                {
-                    Binding.Press();
-                    await Task.Delay(15);
-                    Binding.Release();
-                });
-            }
+        protected override void Release()
+        {
+            if (IsPressing)
+                Binding?.Release();
+
+            base.Release();
         }
 
         #endregion

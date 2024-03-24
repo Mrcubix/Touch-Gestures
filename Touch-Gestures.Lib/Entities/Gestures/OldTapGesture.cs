@@ -6,10 +6,9 @@ using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Input;
 using Newtonsoft.Json;
-using TouchGestures.Lib;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 
-namespace TouchGestures.Entities.Gestures
+namespace TouchGestures.Lib.Entities.Gestures
 {
     /// <summary>
     ///   Represent a 1-finger tap gesture.

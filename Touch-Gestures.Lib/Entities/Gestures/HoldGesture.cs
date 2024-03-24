@@ -2,12 +2,11 @@ using System;
 using System.Numerics;
 using TouchGestures.Lib.Input;
 using Newtonsoft.Json;
-using TouchGestures.Lib;
 using System.Linq;
 using System.Drawing;
-using TouchGestures.Lib.Entities;
+using OpenTabletDriver.Plugin.Tablet.Touch;
 
-namespace TouchGestures.Entities.Gestures
+namespace TouchGestures.Lib.Entities.Gestures
 {
     /// <summary>
     ///   Represent a x-finger tap gesture.
@@ -16,7 +15,7 @@ namespace TouchGestures.Entities.Gestures
     ///   A tap gesture is triggered when a <see cref="RequiredTouchesCount"/> number of fingers are pressed and released within a specified deadline.
     /// </remarks>
     [JsonObject(MemberSerialization.OptIn)]
-    public class HoldGesture : TapGesture
+    public partial class HoldGesture : TapGesture
     {
         private bool _deadlineStarted = false;
 
@@ -27,6 +26,8 @@ namespace TouchGestures.Entities.Gestures
             GestureStarted += (_, args) => OnGestureStart(args);
             GestureEnded += (_, args) => OnGestureEnd(args);
             GestureCompleted += (_, args) => OnGestureComplete(args);
+
+            UseThreshold = true;
 
             RequiredTouchesCount = 1;
         }
@@ -136,23 +137,30 @@ namespace TouchGestures.Entities.Gestures
         public override bool IsRestrained { get; }
 
         /// <summary>
-        ///   The deadline within which the gesture must be completed from the moment any activating points are released.
+        ///   The amount of time the user has to keep the touch points pressed to trigger the hold.
         /// </summary>
         [JsonProperty]
         public override double Deadline { get; set; }
 
-        /// <summary>
-        ///   Time at which the first touch point was released.
-        /// </summary>
-        public DateTime TimeFirstReleased { get; private set; }
+        #endregion
 
-        /// <summary>
-        ///   The amount of time the user must keep the touch points pressed to complete the gesture.
-        /// </summary>
-        [JsonProperty]
-        public double Threshold { get; set; }
+        public bool IsPressing { get; private set; }
 
         #endregion
+
+        #region Methods
+
+        protected virtual void Press() 
+        {
+            IsPressing = true;
+        }
+
+        protected virtual void Release() 
+        {
+            IsPressing = false;
+
+            CompleteGesture();
+        }
 
         #endregion
 
@@ -178,30 +186,22 @@ namespace TouchGestures.Entities.Gestures
 
             // 4. Deadline & Release check
 
-            // 4.1 Check if the user has released any touch points, at which point they will have to release all of them within the deadline
-            if (_releasedCount > 0 && _deadlineStarted == false)
-            {
-                _deadlineStarted = true;
-                TimeFirstReleased = DateTime.Now;
-            }
+            // 4.1 Check if the user has held the touch point for the required amount of time
+            if (!IsInvalidState && !IsPressing && (DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
+                Press();
 
-            // 4.2 Check if the user has not released the touch points within the deadline from the first release
-            if (_deadlineStarted && (DateTime.Now - TimeFirstReleased).TotalMilliseconds >= Deadline)
-                IsInvalidState = true;
-
-            // 4.3 Check if all points have been released
+            // 4.2 // 4.1.2 Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release
             if (_releasedPoints.All(released => released))
-            {
-                // 4.3.1 Check if the user has held the touch point for the required amount of time
-                if (!IsInvalidState && (DateTime.Now - TimeStarted).TotalMilliseconds >= Threshold)
-                    CompleteGesture();
-                else
-                {
-                    // 4.3.2 Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release
-                    if (_currentPoints.Count == 0)
-                        HasEnded = true;
-                }
-            }
+                if (_currentPoints.Count == 0)
+                    Release();
+        }
+
+        /// <inheritdoc/>
+        protected override void HandleThreshold(TouchPoint point, TouchPoint activePoint)
+        {
+            // 2. Check if the touch point is within the threshold
+            if (Vector2.Distance(point.Position, activePoint.Position) > Threshold.X)
+                IsInvalidState = true;
         }
 
         #endregion

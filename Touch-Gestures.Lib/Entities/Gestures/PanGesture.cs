@@ -3,12 +3,10 @@ using System.Drawing;
 using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
-using TouchGestures.Lib;
-using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Extensions;
 
-namespace TouchGestures.Entities.Gestures
+namespace TouchGestures.Lib.Entities.Gestures
 {
     /// <summary>
     ///   Represent a swipe gesture in any of the 8 directions in <see cref="SwipeDirection"/>.
@@ -39,6 +37,17 @@ namespace TouchGestures.Entities.Gestures
 
         #endregion
 
+        #region Methods
+
+        protected override void CompleteGesture()
+        {
+            HasCompleted = true;
+        }
+
+        #endregion
+
+        #region Event Handlers
+
         /// <inheritdoc/>
         protected override void OnGestureEnd(GestureEventArgs e)
         {
@@ -49,7 +58,6 @@ namespace TouchGestures.Entities.Gestures
         /// <inheritdoc/>
         protected override void OnGestureComplete(GestureEventArgs e)
         {
-            HasStarted = false;
             StartPosition = Vector2.Zero;
             _delta = Vector2.Zero;
         }
@@ -64,7 +72,7 @@ namespace TouchGestures.Entities.Gestures
                 {
                     if (!HasStarted)
                     {
-                        if (IsRestrained && _bounds != null && !point.IsInside(_bounds))
+                        if (IsRestrained && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
                             return;
 
                         StartPosition = point.Position;
@@ -76,7 +84,7 @@ namespace TouchGestures.Entities.Gestures
                         if (Deadline != 0 && (DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
                             IsInvalidState = true;
 
-                        if (IsRestrained && _bounds != null && !point.IsInside(_bounds))
+                        if (IsRestrained && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
                             IsInvalidState = true;
 
                         if (IsInvalidState)
@@ -97,5 +105,7 @@ namespace TouchGestures.Entities.Gestures
                 }
             }
         }
+
+        #endregion
     }
 }

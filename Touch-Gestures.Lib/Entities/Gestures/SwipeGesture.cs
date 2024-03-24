@@ -3,15 +3,13 @@ using System.Drawing;
 using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
-using TouchGestures.Lib;
-using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Input;
 using TouchGestures.Lib.Interfaces;
 
-namespace TouchGestures.Entities.Gestures
+namespace TouchGestures.Lib.Entities.Gestures
 {
     /// <summary>
     ///   Represent a swipe gesture in any of the 8 directions in <see cref="SwipeDirection"/>.
@@ -225,7 +223,7 @@ namespace TouchGestures.Entities.Gestures
                     // TODO: Swipes are stealing each others turn, an up swipe could mistakenly be started by a down swipe.
                     if (!HasStarted)
                     {
-                        if (IsRestrained && _bounds != null && !point.IsInside(_bounds))
+                        if (IsRestrained && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
                             return;
 
                         StartPosition = point.Position;
@@ -237,7 +235,7 @@ namespace TouchGestures.Entities.Gestures
                         if (Deadline != 0 && (DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
                             IsInvalidState = true;
 
-                        if (IsRestrained && _bounds != null && !point.IsInside(_bounds))
+                        if (IsRestrained && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
                             IsInvalidState = true;
 
                         if (IsInvalidState)
