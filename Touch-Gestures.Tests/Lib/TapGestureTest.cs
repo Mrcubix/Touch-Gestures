@@ -4,6 +4,7 @@ using Xunit;
 using Xunit.Abstractions;
 using System.Numerics;
 using TouchGestures.Lib.Entities.Gestures;
+using OpenTabletDriver.Plugin.Tablet.Touch;
 
 namespace TouchGestures.Tests.Lib
 {
@@ -90,9 +91,11 @@ namespace TouchGestures.Tests.Lib
         public void ValidGestureReleasedDetected()
         {
             TapGesture gesture = IntermidiaryTestPart();
+            var sample = GenerateValidSample(2);
+            var intermediarySamples = GenerateIntermediarySamples(2);
 
             // we pass an intermediary state touch point
-            gesture.OnInput(ValidGestureTouchPoints);
+            gesture.OnInput(sample);
 
             Assert.False(gesture.HasEnded);
             Assert.False(gesture.HasCompleted);
@@ -100,7 +103,7 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine("Gesture has not ended abruptly");
 
             // we pass the intermediary state touch point again
-            gesture.OnInput(ValidGestureTouchPointsIntermediaryState);
+            gesture.OnInput(intermediarySamples[0]);
 
             Assert.False(gesture.HasEnded);
             Assert.False(gesture.HasCompleted);
@@ -130,6 +133,7 @@ namespace TouchGestures.Tests.Lib
         public void MidGestureInvalidation()
         {
             TapGesture gesture = IntermidiaryTestPart();
+            var sample = GenerateValidSample(1);
 
             // we pass an invalidation touch point
             gesture.OnInput(InvalidationGestureTouchPoints);
@@ -149,7 +153,7 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine("Gesture has not ended abruptly as expected");
 
             // we pass an intermediary state touch point
-            gesture.OnInput(ValidGestureTouchPointsIntermediaryState);
+            gesture.OnInput(sample);
 
             // the gesture should not have ended
             Assert.False(gesture.HasEnded);
@@ -162,7 +166,7 @@ namespace TouchGestures.Tests.Lib
             // we finally release all touch points
 
             // we pass an end state touch point
-            gesture.OnInput(ValidGestureTouchPointsFinalState);
+            gesture.OnInput(ReleasedTouchPoints);
 
             // the gesture should have ended
             Assert.True(gesture.HasEnded);
@@ -191,9 +195,10 @@ namespace TouchGestures.Tests.Lib
         public void InvokingTouchPointOutOfBounds()
         {
             TapGesture gesture = new(BOUNDS, DEADLINE, TESTED_TOUCHES);
+            var sample = GenerateValidSample(2);
 
             // we pass a valid gesture touch point
-            gesture.OnInput(ValidGestureTouchPoints);
+            gesture.OnInput(sample);
 
             // the gesture should be started
             Assert.True(gesture.HasStarted);
@@ -220,7 +225,7 @@ namespace TouchGestures.Tests.Lib
             // we finally release all touch points
 
             // we pass an end state touch point
-            gesture.OnInput(ValidGestureTouchPointsFinalState);
+            gesture.OnInput(ReleasedTouchPoints);
 
             // the gesture should have ended
             Assert.True(gesture.HasEnded);
@@ -252,7 +257,7 @@ namespace TouchGestures.Tests.Lib
             Thread.Sleep((int)DEADLINE + 50);
 
             // we pass an end state touch point
-            gesture.OnInput(ValidGestureTouchPointsFinalState);
+            gesture.OnInput(ReleasedTouchPoints);
 
             //Assert.True(gesture.HasEnded);
             //Assert.False(gesture.HasCompleted);
@@ -267,9 +272,11 @@ namespace TouchGestures.Tests.Lib
         private TapGesture IntermidiaryTestPart()
         {
             TapGesture gesture = new(BOUNDS, DEADLINE, TESTED_TOUCHES);
+            TouchPoint[] sample = GenerateValidSample(2);
+            TouchPoint[][] intermediarySamples = GenerateIntermediarySamples(2);
 
             // we pass a valid gesture touch point
-            gesture.OnInput(ValidGestureTouchPoints);
+            gesture.OnInput(sample);
 
             // the gesture should be started
             Assert.True(gesture.HasStarted);
@@ -277,7 +284,7 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine("Gesture started successfully");
 
             // we pass an intermediary state touch point
-            gesture.OnInput(ValidGestureTouchPointsIntermediaryState);
+            gesture.OnInput(intermediarySamples[0]);
 
             // the gesture should not have ended
             Assert.False(gesture.HasEnded);
@@ -293,7 +300,7 @@ namespace TouchGestures.Tests.Lib
         private void FinalizeGesture(TapGesture gesture)
         {
             // we pass an end state touch point
-            gesture.OnInput(ValidGestureTouchPointsFinalState);
+            gesture.OnInput(ReleasedTouchPoints);
 
             // the gesture should be completed
             Assert.True(gesture.HasCompleted);
