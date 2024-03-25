@@ -6,7 +6,6 @@ namespace TouchGestures.UX.Attributes;
 
 using static AssetLoaderExtensions;
 
-
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public sealed class IconAttribute : Attribute
 {

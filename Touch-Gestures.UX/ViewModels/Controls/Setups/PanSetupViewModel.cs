@@ -18,7 +18,6 @@ namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
 using static AssetLoaderExtensions;
 
-
 [Name("Pan"), Icon("Assets/Setups/Swipe/swipe_up.png"),
  Description("A gesture that can be repeated by swiping in a specified direction, without releasing the touch point.")]
 public partial class PanSetupViewModel : SwipeSetupViewModel

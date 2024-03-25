@@ -20,7 +20,6 @@ namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
 using static AssetLoaderExtensions;
 
-
 [Name("Swipe"), Icon("Assets/Setups/Swipe/swipe_up.png"),
 Description("A gesture completed by swiping in a specified direction, then releasing the touch point.")]
 public partial class SwipeSetupViewModel : GestureSetupViewModel

@@ -7,11 +7,6 @@ using TouchGestures.UX.ViewModels.Controls.Setups;
 
 namespace TouchGestures.UX.ViewModels.Controls.Tiles
 {
-
-using static TouchGestures.UX.Extentions.AssetLoaderExtensions;
-
-#nullable enable
-
     [Name("Non-Implemented")]
     [Description("This gesture has not been implemented yet")]
     [Icon("")]
