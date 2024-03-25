@@ -41,6 +41,7 @@ namespace TouchGestures.Lib.Entities
 
         #region IEnumerable Implementation
 
+        /// <returns>Returns an enumerator where all gestures are aggregated.</returns>
         public IEnumerator<Gesture> GetEnumerator()
         {
             foreach (var tapGesture in TapGestures)

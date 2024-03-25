@@ -101,6 +101,9 @@ namespace TouchGestures.UX.ViewModels
             throw new InvalidOperationException();
         }
 
+        /// <summary>
+        ///   Start the gesture setup process of a new gesture.
+        /// </summary>
         [RelayCommand(CanExecute = nameof(IsConnected))]
         public void StartSetupWizard()
         {
@@ -112,6 +115,9 @@ namespace TouchGestures.UX.ViewModels
             NextViewModel = setupWizard;
         }
 
+        /// <summary>
+        ///   Request the save of the current bindings.
+        /// </summary>
         [RelayCommand(CanExecute = nameof(IsConnected))]
         public void RequestSave() => SaveRequested?.Invoke(this, EventArgs.Empty);
 

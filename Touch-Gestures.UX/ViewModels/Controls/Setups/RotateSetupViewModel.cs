@@ -138,6 +138,7 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
         }
     }
 
+    /// <inheritdoc/>
     protected override void DoComplete()
     {
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not string option)
@@ -146,6 +147,7 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
         OnSetupCompleted(this);
     }
 
+    /// <inheritdoc/>
     public override Gesture? BuildGesture()
     {
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not string option)
@@ -164,6 +166,7 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
 
     #region Events Handlers
 
+    /// <inheritdoc/>
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(DistanceThreshold) || e.PropertyName == nameof(IsInner))

@@ -138,6 +138,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
         }
     }
 
+    /// <inheritdoc/>
     protected override void DoComplete()
     {
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not SwipeDirection option)
@@ -146,6 +147,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
         OnSetupCompleted(this);
     }
 
+    /// <inheritdoc/>
     public override Gesture? BuildGesture()
     {
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not SwipeDirection option)
@@ -164,6 +166,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
 
     #region Events Handlers
 
+    /// <inheritdoc/>
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Threshold) ||

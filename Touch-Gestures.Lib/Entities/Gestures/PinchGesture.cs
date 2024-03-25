@@ -12,6 +12,12 @@ using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
+    /// <summary>
+    ///   Represents a pinch gesture. <br/>
+    ///   A pinch gesture is a two-finger gesture where the fingers move towards or away from each other.
+    ///   A rotation can also be detected if the fingers move in a circular motion.
+    ///   The gesture can be inner or outer (Simple Pinch), clockwise or counter-clockwise (Rotation). 
+    /// </summary>
     public class PinchGesture : Gesture, IAbsolutePositionable
     {
         private const double RadToDeg = 180 / Math.PI;
@@ -268,6 +274,9 @@ namespace TouchGestures.Lib.Entities.Gestures
             return true;
         }
 
+        /// <summary>
+        ///   Checks the delta values of the gesture.
+        /// </summary>
         protected virtual /*(double, double, double, double)*/ void CheckDelta()
         {
             if (_currentPoints.Count != REQUIRED_TOUCHES_COUNT)
@@ -381,6 +390,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         {
         }
 
+        /// <inheritdoc/>
         public override void OnInput(TouchPoint[] points)
         {
             if (points.Length == 0)
@@ -419,6 +429,10 @@ namespace TouchGestures.Lib.Entities.Gestures
                 OnInputCore(points);
         }
 
+        /// <summary>
+        ///   The core of the input handling.
+        /// </summary>
+        /// <param name="points">The points to handle</param>
         protected virtual void OnInputCore(TouchPoint[] points)
         {
             //(double distanceDiff, double angleDiff, double distance, double angle) = CheckDelta();
@@ -469,6 +483,12 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #region static Methods
 
+        /// <summary>
+        ///   Gets the distance between two points.
+        /// </summary>
+        /// <param name="a">The origin point</param>
+        /// <param name="b">The target point</param>
+        /// <returns>The distance between the two points</returns>
         private static double GetDistance(Vector2 a, Vector2 b)
         {
             return (a - b).Length();

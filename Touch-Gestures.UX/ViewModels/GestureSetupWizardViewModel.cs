@@ -76,6 +76,11 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
             NextViewModel = GestureSelectionScreenViewModel;
     }
 
+    /// <summary>
+    ///   Start editing a specified gesture.
+    /// </summary>
+    /// <param name="bindingDisplay">The binding display to edit.</param>
+    /// <exception cref="ArgumentNullException"/>
     public void Edit(GestureBindingDisplayViewModel bindingDisplay)
     {
         if (bindingDisplay == null)
@@ -108,6 +113,12 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
     #region Event Handlers
 
+    /// <summary>
+    ///   Handle the event when a gesture is selected on the <see cref="GestureSelectionScreen"/>.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="selectedTile">The selected tile.</param>
+    /// <exception cref="ArgumentNullException"/>
     private void OnGestureSelected(object? sender, GestureTileViewModel selectedTile)
     {
         if (selectedTile == null)

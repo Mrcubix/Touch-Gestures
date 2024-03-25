@@ -26,6 +26,10 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
 
     #region Methods
 
+    /// <summary>
+    ///   Start the gesture setup process.
+    /// </summary>
+    /// <param name="gestureSetupViewModel">The view model to start the setup with.</param>
     public void StartSetup(GestureSetupViewModel gestureSetupViewModel)
     {
         NextViewModel = gestureSetupViewModel;

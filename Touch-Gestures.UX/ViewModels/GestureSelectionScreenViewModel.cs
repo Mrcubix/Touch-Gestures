@@ -17,7 +17,9 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
 
     private string _searchText = string.Empty;
 
-    // This array contains setup for different gestures, using different view models
+    /// <summary>
+    ///   This array contains setup for different gestures, using different view models
+    /// </summary>
     private GestureTileViewModel[] _gestureTileViewModels =
     [
         new TapTileViewModel(),
@@ -59,6 +61,9 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
 
     #region Properties
 
+    /// <summary>
+    ///   The search text to filter the gestures.
+    /// </summary>
     public string SearchText
     {
         get => _searchText;
@@ -85,6 +90,10 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
 
     #region Event Handlers
 
+    /// <summary>
+    ///   Filter the gestures based on the search text.
+    /// </summary>
+    /// <param name="text">The search text.</param>
     private void OnSearchTextChanged(string text)
     {
         CurrentGestureTiles.Clear();

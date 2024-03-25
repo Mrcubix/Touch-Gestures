@@ -110,6 +110,9 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     public bool CanGoNext { get; init; }
 
+    /// <summary>
+    ///   The index of the selected optino on the first step.
+    /// </summary>
     public int SelectedGestureSetupPickIndex
     {
         get => _selectedGestureSetupPickIndex;
@@ -133,11 +136,21 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     [RelayCommand(CanExecute = nameof(CanGoNext))]
     protected virtual void GoNext() => throw new NotImplementedException("GoNext has not been overriden.");
 
+    /// <summary>
+    ///   Complete the gesture setup process.
+    /// </summary>
     [RelayCommand]
     protected virtual void DoComplete() => throw new NotImplementedException("DoComplete has not been overriden.");
 
+    /// <summary>
+    ///   Build the gesture based on the setup.
+    /// </summary>
+    /// <returns>The gesture that was built.</returns>
     public virtual Gesture? BuildGesture() => throw new NotImplementedException("BuildGesture has not been overriden.");
 
+    /// <summary>
+    ///   Convert an area received remotely into a <see cref="AreaDisplayViewModel"/> that we can update in real-time.
+    /// </summary>
     public virtual void SetupArea(Rect fullArea, SharedArea? mapped = null)
     {
         if (mapped != null && mapped.IsZero() == false)
@@ -162,6 +175,13 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     #region Event Handlers
 
+    /// <summary>
+    ///   Handle setup completion.
+    /// </summary>
+    /// <remarks>
+    ///   A different event will be invoked depending on whether the setup is being edited or not.
+    /// </remarks>
+    /// <param name="sender"></param>
     protected virtual void OnSetupCompleted(GestureSetupViewModel sender)
     {
         if (!IsEditing)
@@ -170,6 +190,10 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
             EditCompleted?.Invoke(sender, EventArgs.Empty);
     }
 
+    /// <summary>
+    ///   Handle the event when the binding display property changes. <br/>
+    ///   If not done, it will prevent the user from proceeding to the next step.
+    /// </summary>
     protected virtual void OnBindingDisplayPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(BindingDisplayViewModel.PluginProperty))
@@ -178,6 +202,10 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
         }
     }
 
+    /// <summary>
+    ///   Handle the event when the settings are being tweaked. <br/>
+    ///   Setups need to make use of this to enable the user to proceed to the next step or complete the setup.
+    /// </summary>
     protected virtual void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
         throw new NotImplementedException("OnSettingsTweakingCompleted has not been overriden.");

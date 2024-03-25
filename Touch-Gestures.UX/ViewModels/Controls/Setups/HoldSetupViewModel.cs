@@ -115,6 +115,7 @@ public partial class HoldSetupViewModel : TapSetupViewModel
         }
     }
 
+    /// <inheritdoc/>
     public override Gesture? BuildGesture()
     {
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not int option)
@@ -134,6 +135,7 @@ public partial class HoldSetupViewModel : TapSetupViewModel
 
     #region Events Handlers
 
+    /// <inheritdoc/>
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Deadline) || e.PropertyName == nameof(Threshold))

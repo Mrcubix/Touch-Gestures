@@ -145,6 +145,7 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         }
     }
 
+    /// <inheritdoc/>
     protected override void DoComplete()
     {
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not int option)
@@ -153,6 +154,7 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         OnSetupCompleted(this);
     }
 
+    /// <inheritdoc/>
     public override Gesture? BuildGesture()
     {
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not int option)
@@ -171,6 +173,7 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
     #region Events Handlers
 
+    /// <inheritdoc/>
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Deadline))

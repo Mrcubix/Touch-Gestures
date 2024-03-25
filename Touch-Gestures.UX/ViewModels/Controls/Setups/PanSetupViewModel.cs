@@ -102,6 +102,7 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
         }
     }
 
+    /// <inheritdoc/>
     public override Gesture? BuildGesture()
     {
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not SwipeDirection option)
@@ -115,6 +116,19 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
 
         return _gesture;
     }
+
+    #region Events Handlers
+
+    /// <inheritdoc/>
+    protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Deadline))
+        {
+            AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
+        }
+    }
+
+    #endregion
 
     #endregion
 }

@@ -261,6 +261,9 @@ namespace TouchGestures.Lib.Entities.Gestures
             }
         }
 
+        /// <summary>
+        ///   Called when the delta is calculated.
+        /// </summary>
         protected virtual void OnDelta()
         {
             switch (Direction)

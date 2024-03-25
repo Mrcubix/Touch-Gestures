@@ -9,7 +9,7 @@ using TouchGestures.Lib.Extensions;
 namespace TouchGestures.Lib.Entities.Gestures
 {
     /// <summary>
-    ///   Represent a swipe gesture in any of the 8 directions in <see cref="SwipeDirection"/>.
+    ///   Represent a pan gesture in any of the 8 directions in <see cref="SwipeDirection"/>.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class PanGesture : SwipeGesture
@@ -61,6 +61,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             _delta = Vector2.Zero;
         }
 
+        /// <inheritdoc/>
         public override void OnInput(TouchPoint[] points)
         {
             if (points.Length > 0)
