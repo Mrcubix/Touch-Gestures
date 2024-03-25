@@ -1,0 +1,73 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels.Controls.Setups"
+             xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
+             xmlns:containers="clr-namespace:TouchGestures.UX.Controls.Containers"
+             xmlns:gestures-views="clr-namespace:TouchGestures.UX.Views.Gestures"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:PinchSetupViewModel"
+             x:Class="TouchGestures.UX.Views.Gestures.Setups.PinchSetup">
+
+  <Design.DataContext>
+    <vm:PanSetupViewModel />
+  </Design.DataContext>
+
+  <UserControl.Styles>
+    <Style Selector="Border#VIEW_Area">
+      <Setter Property="BorderBrush" Value="{StaticResource BorderColorBrush}" />
+      <Setter Property="Background" Value="{StaticResource AccentColorBrush}" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="CornerRadius" Value="5" />
+    </Style>
+    <Style Selector="Border#VIEW_Content">
+      <Setter Property="BorderBrush" Value="{StaticResource BorderColorBrush}" />
+      <Setter Property="Background" Value="{StaticResource AccentColorBrush}" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="CornerRadius" Value="5" />
+    </Style>
+    <Style Selector="NumericUpDown">
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0, 0, 12, 0" />
+      <Setter Property="Width" Value="128" />
+    </Style>
+    <Style Selector="TextBlock">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0, 0, 12, 0" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid>
+
+    <gestures-views:GestureOptionSelectionScreen IsVisible="{Binding IsOptionsSelectionStepActive}" />
+    <gestures-views:GestureBindingSelectionScreen IsVisible="{Binding IsBindingSelectionStepActive}" />
+    
+    <!-- Tweaks need to either have the same content, or need their own namespace -->
+    <Grid RowDefinitions="Auto, Auto, Auto" IsVisible="{Binding IsSettingsTweakingStepActive}" 
+          HorizontalAlignment="Center" VerticalAlignment="Center">
+
+      <Border Name="VIEW_Area" Grid.Row="0" Margin="0, 12">
+        <containers:AreaEditor DataContext="{Binding AreaDisplay}" Margin="10" />
+      </Border>
+
+      <Border Name="VIEW_Content" Grid.Row="1" Margin="0, 12">
+        <Grid ColumnDefinitions="Auto" RowDefinitions="Auto" Margin="16" HorizontalAlignment="Center">
+
+          <StackPanel Orientation="Horizontal" Grid.Column="0" ToolTip.Tip="The minimum distance that must be moved from the starting point to trigger a gesture.">
+            <TextBlock Text="Distance Threshold:" />
+            <NumericUpDown Value="{Binding DistanceThreshold}" Minimum="0" Maximum="1000" Increment="5" FormatString="{}{0:0}" />
+            <TextBlock Text="Lines" VerticalAlignment="Center" />
+          </StackPanel>
+
+        </Grid>
+      </Border>
+    
+      <controls:SetupNavigationBar  BackCommand="{Binding GoBackCommand}" NextCommand="{Binding DoCompleteCommand}" NextButtonText="Complete"
+                                    Grid.Row="2" HorizontalAlignment="Center" CanGoNext="{Binding AreGestureSettingTweaked}" />
+                                    
+    </Grid>
+
+  </Grid>
+
+</UserControl>

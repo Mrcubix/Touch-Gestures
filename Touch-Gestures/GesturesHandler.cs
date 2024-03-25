@@ -147,12 +147,16 @@ namespace TouchGestures
             _settings.HoldGestures.Sort((x, y) => x.RequiredTouchesCount > y.RequiredTouchesCount ? -1 : 1);
             _settings.SwipeGestures.Sort((x, y) => x.Direction > y.Direction ? -1 : 1);
             _settings.PanGestures.Sort((x, y) => x.Direction > y.Direction ? -1 : 1);
+            _settings.PinchGestures.Sort((x, y) => x.IsInner ? -1 : 1);
+            _settings.RotateGestures.Sort((x, y) => x.IsClockwise ? -1 : 1);
 
             TapGestures.AddRange(_settings.TapGestures);
             HoldGestures.AddRange(_settings.HoldGestures);
 
             NonConflictingGestures.AddRange(_settings.SwipeGestures);
             NonConflictingGestures.AddRange(_settings.PanGestures);
+            NonConflictingGestures.AddRange(_settings.PinchGestures);
+            NonConflictingGestures.AddRange(_settings.RotateGestures);
 
             Log.Debug(PLUGIN_NAME, "Settings updated");
         }

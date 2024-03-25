@@ -20,6 +20,7 @@ using System.Numerics;
 using Avalonia;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Converters;
+using TouchGestures.UX.ViewModels.Controls.Setups;
 
 namespace TouchGestures.UX.ViewModels;
 
@@ -282,6 +283,9 @@ public partial class MainViewModel : NavigableViewModel
             case SerializablePanGesture panGesture:
                 _settings.PanGestures.Add(panGesture);
                 break;
+            case SerializablePinchGesture pinchGesture:
+                AddPinchGesture(pinchGesture);
+                break;
             default:
                 throw new NotImplementedException();
         }
@@ -303,9 +307,28 @@ public partial class MainViewModel : NavigableViewModel
             case SerializablePanGesture panGesture:
                 _settings.PanGestures.Remove(panGesture);
                 break;
+            case SerializablePinchGesture pinchGesture:
+                RemovePinchGesture(pinchGesture);
+                break;
             default:
                 throw new NotImplementedException();
         }
+    }
+
+    private void AddPinchGesture(SerializablePinchGesture pinchGesture)
+    {
+        if (pinchGesture.DistanceThreshold > 0)
+            _settings.PinchGestures.Add(pinchGesture);
+        else
+            _settings.RotateGestures.Add(pinchGesture);
+    }
+
+    private void RemovePinchGesture(SerializablePinchGesture pinchGesture)
+    {
+        if (pinchGesture.DistanceThreshold > 0)
+            _settings.PinchGestures.Remove(pinchGesture);
+        else
+            _settings.RotateGestures.Remove(pinchGesture);
     }
 
     #endregion

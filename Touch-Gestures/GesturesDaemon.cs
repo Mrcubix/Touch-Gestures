@@ -124,7 +124,8 @@ namespace TouchGestures
                 for (var i = 0; i < plugin.FullName.Length; i++)
                     identifierHash += plugin.FullName[i];
 
-                IdentifierToPluginConversion.Add(identifierHash, plugin);
+                if (!IdentifierToPluginConversion.ContainsKey(identifierHash))
+                    IdentifierToPluginConversion.Add(identifierHash, plugin);
             }
         }
 

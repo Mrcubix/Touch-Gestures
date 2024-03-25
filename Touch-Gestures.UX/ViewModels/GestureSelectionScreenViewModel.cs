@@ -25,6 +25,7 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
         new SwipeTileViewModel(),
         new PanTileViewModel(),
         new PinchTileViewModel(),
+        new RotateTileViewModel(),
         
         /*new RotateTileViewModel(),
           new NodeTileViewModel()*/

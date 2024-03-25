@@ -23,15 +23,15 @@ using static AssetLoaderExtensions;
  Description("A gesture completed by pinching, simillar to how you would zoom in, in various application")]
 public partial class PinchSetupViewModel : GestureSetupViewModel
 {
-    private readonly SerializableTapGesture _gesture;
+    private readonly SerializablePinchGesture _gesture;
 
     #region Observable Fields
 
     [ObservableProperty]
-    protected int _threshold;
+    protected double _distanceThreshold;
 
     [ObservableProperty]
-    protected double _deadline;
+    protected bool _isInner;
 
     #endregion
 
@@ -51,7 +51,7 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
         CanGoNext = true;
 
         GestureSetupPickText = "Direction of pinch:";
-        GestureSetupPickItems = new ObservableCollection<object>(Enumerable.Range(1, 2).Cast<object>());
+        GestureSetupPickItems = new ObservableCollection<object>(new string[] { "Inner", "Outer" });
 
         Bitmap?[] images = LoadBitmaps(
             "Assets/Setups/Pinch/pinch_inner.png",
@@ -61,13 +61,17 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
         GestureSetupPickPreviews = new ObservableCollection<Bitmap?>(images);
 
         SelectedGestureSetupPickIndex = 0;
+        AreGestureSettingTweaked = DistanceThreshold > 0;
 
         // A 80ms deadline is the minimum required for taps for work properly and about consistently
         //Deadline = 80;
 
+        DistanceThreshold = 20;
+        IsInner = false;
+
         BindingDisplay = new BindingDisplayViewModel();
         AreaDisplay = new AreaDisplayViewModel();
-        _gesture = new SerializableTapGesture();
+        _gesture = new SerializablePinchGesture();
 
         SubscribeToSettingsChanges();
     }
@@ -75,18 +79,15 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
     /// Constructor used when editing a gesture
     public PinchSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
-        if (gesture is not SerializableTapGesture serializedTapGesture)
+        if (gesture is not SerializablePinchGesture serializedTapGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
 
         _gesture = serializedTapGesture;
 
-        //Threshold = (int)serializedTapGesture.Threshold.X;
-        //Deadline = serializedTapGesture.Deadline;
+        DistanceThreshold = serializedTapGesture.DistanceThreshold;
+        IsInner = serializedTapGesture.IsInner;
 
-        if (serializedTapGesture.RequiredTouchesCount > GestureSetupPickItems!.Count)
-            throw new IndexOutOfRangeException("Gesture required touches count is greater than the number of available options");
-
-        SelectedGestureSetupPickIndex = serializedTapGesture.RequiredTouchesCount - 1;
+        AreGestureSettingTweaked = DistanceThreshold > 0;
 
         BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
 
@@ -140,16 +141,25 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
 
     protected override void DoComplete()
     {
-        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not int option)
+        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not string option)
             return;
 
         OnSetupCompleted(this);
     }
 
-    /*public override Gesture? BuildGesture()
+    public override Gesture? BuildGesture()
     {
-        
-    }*/
+        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not string option)
+            return null;
+
+        _gesture.DistanceThreshold = DistanceThreshold;
+        _gesture.IsInner = option == "Inner";
+
+        _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
+        _gesture.PluginProperty = BindingDisplay.PluginProperty;
+
+        return _gesture;
+    }
 
     #endregion
 
@@ -157,9 +167,9 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
 
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Deadline))
+        if (e.PropertyName == nameof(DistanceThreshold) || e.PropertyName == nameof(IsInner))
         {
-            AreGestureSettingTweaked = Deadline > 0;
+            AreGestureSettingTweaked = DistanceThreshold > 0;
         }
     }
 

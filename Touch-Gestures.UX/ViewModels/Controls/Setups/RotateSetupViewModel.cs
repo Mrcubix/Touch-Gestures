@@ -1,97 +1,96 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Numerics;
+using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using TouchGestures.Lib.Entities.Gestures.Bases;
-using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Attributes;
 using TouchGestures.UX.Extentions;
-using Rect = Avalonia.Rect;
-using DescriptionAttribute = TouchGestures.UX.Attributes.DescriptionAttribute;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
+using DescriptionAttribute = TouchGestures.UX.Attributes.DescriptionAttribute;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
 using static AssetLoaderExtensions;
 
+#nullable enable
 
-[Name("Swipe"), Icon("Assets/Setups/Swipe/swipe_up.png"),
-Description("A gesture completed by swiping in a specified direction, then releasing the touch point.")]
-public partial class SwipeSetupViewModel : GestureSetupViewModel
+[Name("Rotation"), Icon("Assets/Setups/Rotation/rotation_clockwise.png"),
+ Description("A gesture completed by pinching & rotating 2 fingers, simillar to how you would rotate a map in various application")]
+public partial class RotateSetupViewModel : PinchSetupViewModel
 {
-    private readonly SerializableSwipeGesture _gesture;
+    private readonly SerializablePinchGesture _gesture;
 
     #region Observable Fields
 
     [ObservableProperty]
-    private int _threshold;
+    protected double _angleThreshold;
 
     [ObservableProperty]
-    private double _deadline;
+    protected bool _isClockwise;
 
     #endregion
 
     #region Constructors
 
     /// Design-time constructor
-    public SwipeSetupViewModel() : this(false) 
+    public RotateSetupViewModel() : this(false) 
     { 
         IsOptionsSelectionStepActive = true;
     }
 
-    public SwipeSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
-    {
-        if (gesture is not SerializableSwipeGesture serializedSwipeGesture)
-            throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
-
-        _gesture = serializedSwipeGesture;
-
-        Threshold = (int)serializedSwipeGesture.Threshold.X;
-        Deadline = serializedSwipeGesture.Deadline;
-
-        SelectedGestureSetupPickIndex = (int)serializedSwipeGesture.Direction;
-
-        BindingDisplay.PluginProperty = serializedSwipeGesture.PluginProperty;
-
-        SetupArea(fullArea, serializedSwipeGesture.Bounds);
-    }
-
-    public SwipeSetupViewModel(bool isEditing = false)
+    public RotateSetupViewModel(bool isEditing = false)
     {
         IsEditing = isEditing;
 
         CanGoBack = true;
         CanGoNext = true;
 
-        GestureSetupPickText = "Direction of the Swipe:";
-
-        GestureSetupPickItems = new ObservableCollection<object>(Enum.GetValues<SwipeDirection>().Cast<object>());
+        GestureSetupPickText = "Direction the rotation:";
+        GestureSetupPickItems = new ObservableCollection<object>(new string[] { "Clockwise", "Counter-Clockwise" });
 
         Bitmap?[] images = LoadBitmaps(
-            "Assets/Setups/Swipe/swipe_up.png",
-            "Assets/Setups/Swipe/swipe_down.png",
-            "Assets/Setups/Swipe/swipe_left.png",
-            "Assets/Setups/Swipe/swipe_right.png",
-            "Assets/Setups/Swipe/swipe_up_left.png",
-            "Assets/Setups/Swipe/swipe_up_right.png",
-            "Assets/Setups/Swipe/swipe_down_left.png",
-            "Assets/Setups/Swipe/swipe_down_right.png"
+            "Assets/Setups/Rotation/rotation_clockwise.png",
+            "Assets/Setups/Rotation/rotation_anti-clockwise.png"
         );
 
         GestureSetupPickPreviews = new ObservableCollection<Bitmap?>(images);
 
         SelectedGestureSetupPickIndex = 0;
 
+        // A 80ms deadline is the minimum required for taps for work properly and about consistently
+        //Deadline = 80;
+
+        AngleThreshold = 20;
+        IsClockwise = false;
+        AreGestureSettingTweaked = AngleThreshold > 0;
+
         BindingDisplay = new BindingDisplayViewModel();
-        _gesture = new SerializableSwipeGesture();
+        AreaDisplay = new AreaDisplayViewModel();
+        _gesture = new SerializablePinchGesture();
 
         SubscribeToSettingsChanges();
+    }
+
+    /// Constructor used when editing a gesture
+    public RotateSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
+    {
+        if (gesture is not SerializablePinchGesture serializedTapGesture)
+            throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
+
+        _gesture = serializedTapGesture;
+
+        AngleThreshold = serializedTapGesture.AngleThreshold;
+        IsClockwise = serializedTapGesture.IsClockwise;
+        AreGestureSettingTweaked = AngleThreshold > 0;
+
+        BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
+
+        SetupArea(fullArea, serializedTapGesture.Bounds);
     }
 
     protected override void SubscribeToSettingsChanges()
@@ -130,7 +129,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
 
             var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
 
-            BindingDisplay.Description = $"{value} Swipe";
+            BindingDisplay.Description = $"{value} Rotation";
         }
         else if (IsBindingSelectionStepActive)
         {
@@ -141,7 +140,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
 
     protected override void DoComplete()
     {
-        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not SwipeDirection option)
+        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not string option)
             return;
 
         OnSetupCompleted(this);
@@ -149,13 +148,13 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
 
     public override Gesture? BuildGesture()
     {
-        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not SwipeDirection option)
+        if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not string option)
             return null;
 
-        _gesture.Threshold = new Vector2(Threshold, Threshold);
+        _gesture.AngleThreshold = AngleThreshold;
+        _gesture.IsClockwise = option == "Clockwise";
+
         _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
-        _gesture.Deadline = Deadline;
-        _gesture.Direction = option;
         _gesture.PluginProperty = BindingDisplay.PluginProperty;
 
         return _gesture;
@@ -167,10 +166,9 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
 
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Threshold) ||
-            e.PropertyName == nameof(Deadline))
+        if (e.PropertyName == nameof(DistanceThreshold) || e.PropertyName == nameof(IsInner))
         {
-            AreGestureSettingTweaked = Threshold > 0 && Deadline > 0;
+            AreGestureSettingTweaked = DistanceThreshold > 0;
         }
     }
 
@@ -190,4 +188,4 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
     #endregion
 }
 
-public class SwipeTileViewModel : GestureTileViewModel<SwipeSetupViewModel> {}
+public class RotateTileViewModel : GestureTileViewModel<RotateSetupViewModel> {}

@@ -32,6 +32,14 @@
       <DataTemplate x:DataType="setupsvm:SwipeSetupViewModel">
         <setups:SwipeSetup />
       </DataTemplate>
+      <!-- Need to be placed before Pinch as Rotate is a subset of a pinch -->
+      <DataTemplate x:DataType="setupsvm:RotateSetupViewModel">
+        <setups:RotateSetup />
+      </DataTemplate>
+      <!-- Pinch Setup -->
+      <DataTemplate x:DataType="setupsvm:PinchSetupViewModel">
+        <setups:PinchSetup />
+      </DataTemplate>
       <!-- No Implementation exist for the selected gesture -->
       <DataTemplate x:DataType="setupsvm:GestureSetupViewModel">
         <setups:GestureSetup />

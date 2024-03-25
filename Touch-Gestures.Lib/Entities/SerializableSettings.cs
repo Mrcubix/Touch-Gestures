@@ -31,6 +31,16 @@ namespace TouchGestures.Lib.Entities
         [JsonProperty]
         public List<SerializablePanGesture> PanGestures { get; set; } = new();
 
+        [JsonProperty]
+        public List<SerializablePinchGesture> PinchGestures { get; set; } = new();
+
+        [JsonProperty]
+        public List<SerializablePinchGesture> RotateGestures { get; set; } = new();
+
+        #endregion
+
+        #region IEnumerable Implementation
+
         public IEnumerator<Gesture> GetEnumerator()
         {
             foreach (var tapGesture in TapGestures)
@@ -51,6 +61,16 @@ namespace TouchGestures.Lib.Entities
             foreach (var panGesture in PanGestures)
             {
                 yield return panGesture;
+            }
+
+            foreach (var pinchGesture in PinchGestures)
+            {
+                yield return pinchGesture;
+            }
+
+            foreach (var rotateGesture in RotateGestures)
+            {
+                yield return rotateGesture;
             }
 
             // do the same for other gestures

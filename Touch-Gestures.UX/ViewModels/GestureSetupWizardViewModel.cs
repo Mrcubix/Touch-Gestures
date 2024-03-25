@@ -90,6 +90,8 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
             SerializableHoldGesture => new HoldSetupViewModel(_editedGesture, _bounds),
             SerializableSwipeGesture => new SwipeSetupViewModel(_editedGesture, _bounds),
             SerializablePanGesture => new PanSetupViewModel(_editedGesture, _bounds),
+            SerializablePinchGesture pinchGesture => DifferentiatePinchFromRotation(pinchGesture, _bounds),
+
             _ => new GestureSetupViewModel()
         };
 
@@ -167,6 +169,17 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     {
         if (e.PropertyName == nameof(NextViewModel) && NextViewModel != null)
             NextViewModel.BackRequested += OnBackRequestedAhead;
+    }
+
+    #endregion
+
+    #region static Methods
+
+    public static GestureSetupViewModel DifferentiatePinchFromRotation(SerializablePinchGesture gesture, Rect bounds)
+    {
+        return gesture.DistanceThreshold > 0
+            ? new PinchSetupViewModel(gesture, bounds)
+            : new RotateSetupViewModel(gesture, bounds);
     }
 
     #endregion

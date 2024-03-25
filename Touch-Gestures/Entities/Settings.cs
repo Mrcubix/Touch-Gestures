@@ -57,6 +57,12 @@ namespace TouchGestures.Entities
         [JsonProperty]
         public List<BindablePanGesture> PanGestures { get; set; } = new();
 
+        [JsonProperty]
+        public List<BindablePinchGesture> PinchGestures { get; set; } = new();
+
+        [JsonProperty]
+        public List<BindablePinchGesture> RotateGestures { get; set; } = new();
+
         #endregion
 
         #region Methods
@@ -99,6 +105,12 @@ namespace TouchGestures.Entities
                 gesture.Binding = gesture.Store?.Construct<IBinding>();
 
             foreach (var gesture in PanGestures)
+                gesture.Binding = gesture.Store?.Construct<IBinding>();
+
+            foreach (var gesture in PinchGestures)
+                gesture.Binding = gesture.Store?.Construct<IBinding>();
+
+            foreach (var gesture in RotateGestures)
                 gesture.Binding = gesture.Store?.Construct<IBinding>();
         }
 
@@ -165,6 +177,28 @@ namespace TouchGestures.Entities
                     result.PanGestures.Add(panGesture);
             }
 
+            foreach (var gesture in settings.PinchGestures)
+            {
+                if (gesture.PluginProperty == null)
+                    continue;
+
+                var pinchGesture = BindablePinchGesture.FromSerializable(gesture, identifierToPlugin);
+
+                if (pinchGesture != null)
+                    result.PinchGestures.Add(pinchGesture);
+            }
+
+            foreach (var gesture in settings.RotateGestures)
+            {
+                if (gesture.PluginProperty == null)
+                    continue;
+
+                var rotateGesture = BindablePinchGesture.FromSerializable(gesture, identifierToPlugin);
+
+                if (rotateGesture != null)
+                    result.RotateGestures.Add(rotateGesture);
+            }
+
             // TODO: Implement the rest of the gestures conversions
 
             return result;
@@ -204,6 +238,22 @@ namespace TouchGestures.Entities
 
                 if (panGesture != null)
                     result.PanGestures.Add(panGesture);
+            }
+
+            foreach (var gesture in settings.PinchGestures)
+            {
+                var pinchGesture = BindablePinchGesture.ToSerializable(gesture, identifierToPlugin);
+
+                if (pinchGesture != null)
+                    result.PinchGestures.Add(pinchGesture);
+            }
+
+            foreach (var gesture in settings.RotateGestures)
+            {
+                var rotateGesture = BindablePinchGesture.ToSerializable(gesture, identifierToPlugin);
+
+                if (rotateGesture != null)
+                    result.RotateGestures.Add(rotateGesture);
             }
 
             return result;
