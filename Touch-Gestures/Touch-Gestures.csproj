@@ -7,6 +7,11 @@
     <DebugType>embedded</DebugType>
   </PropertyGroup>
 
+  <!-- Only Embed debug symbols for the Release configuration -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="../Touch-Gestures.Lib/Touch-Gestures.Lib.csproj" />
     <!--<ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" />-->
