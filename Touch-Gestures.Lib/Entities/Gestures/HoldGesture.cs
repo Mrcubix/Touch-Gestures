@@ -142,6 +142,13 @@ namespace TouchGestures.Lib.Entities.Gestures
         [JsonProperty]
         public override double Deadline { get; set; }
 
+        /// <inheritdoc/>
+        /// <remarks>
+        ///   Used for HoldGesture to check if the touch point is within the threshold.
+        /// </remarks>
+        [JsonProperty]
+        public override Vector2 Threshold { get; set; }
+
         #endregion
 
         public bool IsPressing { get; private set; }
@@ -191,8 +198,9 @@ namespace TouchGestures.Lib.Entities.Gestures
                 Press();
 
             // 4.2 // 4.1.2 Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release
-            if (_currentPoints.Count == 0)
-                Release();
+            if (_releasedPoints.All(released => released))
+                if (_currentPoints.Count == 0)
+                    Release();
         }
 
         /// <inheritdoc/>
