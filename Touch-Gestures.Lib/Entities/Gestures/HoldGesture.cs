@@ -191,9 +191,8 @@ namespace TouchGestures.Lib.Entities.Gestures
                 Press();
 
             // 4.2 // 4.1.2 Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release
-            if (_releasedPoints.All(released => released))
-                if (_currentPoints.Count == 0)
-                    Release();
+            if (_currentPoints.Count == 0)
+                Release();
         }
 
         /// <inheritdoc/>

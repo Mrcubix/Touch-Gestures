@@ -251,11 +251,8 @@ namespace TouchGestures.Lib.Entities.Gestures
             // a tap is only triggered on release
             if (points.Length > 0)
             {
-                // 1. Check the currently active points
-                bool res = CheckActivePoints(points, out int currentIndex);
-
-                // Gesture has already been invalidated
-                if (res == false)
+                // 1. Check the currently active points, gesture may have been invalidated
+                if(CheckActivePoints(points, out int currentIndex) == false)
                     return;
 
                 // 2. Has the gesture started?
