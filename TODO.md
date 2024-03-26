@@ -6,8 +6,8 @@
 
 ## Un-ordered List
 
-- [ ] Absolute Position based gestures (Need to start at a specific point)
-- [ ] Relative Position based gestures (Can be started from anywhere)
+- [x] Absolute Position based gestures (Need to start at a specific point)
+- [x] Relative Position based gestures (Can be started from anywhere)
 
 ### Node-Based Gestures
 
@@ -35,13 +35,13 @@
 
 #### Gestures
 
-- [-] Tap (Any)
+- [x] Tap (Any)
     - [x] Relative
     - [x] Absolute
 
-- [?] Hold (Any)
-    - [?] Relative
-    - [?] Absolute
+- [x] Hold (Any)
+    - [x] Relative
+    - [x] Absolute
 
 - [x] Swipe (Single)
     - [x] Relative
@@ -51,12 +51,13 @@
     - [x] Relative
     - [x] Absolute
 
-- [ ] Pinch (Single)
-    - [ ] Relative
-    - [ ] Absolute
-- [ ] Rotate (Single)
-    - [ ] Relative
-    - [ ] Absolute
+- [x] Pinch (Single)
+    - [x] Relative
+    - [x] Absolute
+
+- [x] Rotate (Single)
+    - [x] Relative
+    - [x] Absolute
 
 #### Gestures Unit Tests
 
@@ -64,9 +65,9 @@
     - [x] Relative
     - [x] Absolute
 
-- [ ] Hold (Any)
-    - [ ] Relative
-    - [ ] Absolute
+- [x] Hold (Any)
+    - [x] Relative
+    - [x] Absolute
 
 - [x] Swipe (Single)
     - [x] Relative
@@ -76,13 +77,13 @@
     - [x] Relative
     - [x] Absolute
 
-- [ ] Pinch (Single)
-    - [ ] Relative
-    - [ ] Absolute
+- [x] Pinch (Single)
+    - [x] Relative
+    - [x] Absolute
 
-- [ ] Rotate (Single)
-    - [ ] Relative
-    - [ ] Absolute
+- [x] Rotate (Single)
+    - [x] Relative
+    - [x] Absolute
 
 #### Gestures Setup
 
@@ -90,9 +91,9 @@
     - [x] Relative
     - [x] Absolute
 
-- [?] Hold (Any)
-    - [?] Relative
-    - [?] Absolute
+- [x] Hold (Any)
+    - [x] Relative
+    - [x] Absolute
 
 - [x] Swipe (Single)
     - [x] Relative
@@ -102,20 +103,46 @@
     - [x] Relative
     - [x] Absolute
 
-- [ ] Pinch (Single)
-    - [ ] Relative
-    - [ ] Absolute
+- [x] Pinch (Single)
+    - [x] Relative
+    - [x] Absolute
 
-- [ ] Rotate (Single)
-    - [ ] Relative
-    - [ ] Absolute
-    
-## TODO
+- [x] Rotate (Single)
+    - [x] Relative
+    - [x] Absolute
 
-- Complete the rest of gestures (functionality + tests + setup)
+### Dev Documentation (Github Wiki)
 
-## HOW TO DETECTED IF TOUCH INPUT IS INSIDE A ROTATED RECTANGLE
+For each of these topics, indicates in which way such systems could be improved, and what the current limitations are.
 
-- Rotate the rectangle back to 0 degrees
-- rotate the input point by the same amount
-- check if the rotated point is inside the rectangle
+- [ ] Architecture Overview
+    - [ ] Gesture Handler
+    - [ ] Gesture Daemon
+    - [ ] Gesture Tiles
+    - [ ] Gesture Setup
+    - [ ] Gesture Unit Tests
+
+### User Documentation (Github Pages)
+
+- [ ] A download link for the current platform & another to the github releases page
+
+- [ ] Installation Guide
+    - [ ] Dependencies
+    - [ ] Installation
+
+- [ ] Supported Gestures
+
+- [ ] Getting Started
+    - [ ] Binding Overview Screen
+    - [ ] Adding Gestures
+    - [ ] Editing Gestures
+    - [ ] Deleting Gestures
+
+- [ ] Advanced
+    - [ ] Node-Based Gestures
+    - [ ] Gesture Recording
+    - [ ] Gesture Recognition
+
+- [ ] FAQ
+    - [ ] Basic
+    - [ ] Troubleshooting
