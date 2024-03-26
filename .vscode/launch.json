@@ -5,12 +5,12 @@
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
             // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md
-            "name": ".NET Core Launch (console)",
+            "name": "Launch UX",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Touch-Gestures.UX.Desktop/bin/Debug/net7.0/Touch-Gestures.UX.Desktop.dll",
+            "program": "${workspaceFolder}/Touch-Gestures.UX.Desktop/bin/Debug/net8.0/Touch-Gestures.UX.Desktop.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Touch-Gestures.UX.Desktop",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -28,7 +28,7 @@
             },
         },
         {
-            "name": ".NET Core Launch Tests",
+            "name": "Launch Tests",
             "type": "coreclr",
             "request": "attach",
             "preLaunchTask": "test",
