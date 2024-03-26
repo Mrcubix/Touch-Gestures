@@ -68,6 +68,16 @@ namespace TouchGestures.Lib.Entities.Gestures
             RequiredTouchesCount = requiredTouchesCount;
         }
 
+        public HoldGesture(Rectangle bounds, Vector2 threshold, double deadline, int requiredTouchesCount) : this(bounds, deadline, requiredTouchesCount)
+        {
+            Threshold = threshold;
+        }
+
+        public HoldGesture(SharedArea? bounds, Vector2 threshold, double deadline, int requiredTouchesCount) : this(bounds, deadline, requiredTouchesCount)
+        {
+            Threshold = threshold;
+        }
+
         #endregion
 
         #region Events

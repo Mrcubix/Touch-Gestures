@@ -27,7 +27,7 @@ namespace TouchGestures.Lib.Serializables.Gestures
         {
         }
 
-        public SerializableHoldGesture(TapGesture gesture) : base(gesture.Bounds, gesture.Deadline, gesture.RequiredTouchesCount)
+        public SerializableHoldGesture(TapGesture gesture) : base(gesture.Bounds, gesture.Threshold, gesture.Deadline, gesture.RequiredTouchesCount)
         {
         }
 

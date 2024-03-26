@@ -35,22 +35,22 @@ public partial class HoldSetupViewModel : TapSetupViewModel
 
     public HoldSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
-        if (gesture is not SerializableHoldGesture serializedTapGesture)
+        if (gesture is not SerializableHoldGesture serializedHoldGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
 
-        _gesture = serializedTapGesture;
+        _gesture = serializedHoldGesture;
 
-        //Threshold = (int)serializedTapGesture.Threshold.X;
-        Deadline = serializedTapGesture.Deadline;
+        Threshold = (int)serializedHoldGesture.Threshold.X;
+        Deadline = serializedHoldGesture.Deadline;
 
-        if (serializedTapGesture.RequiredTouchesCount > GestureSetupPickItems!.Count)
+        if (serializedHoldGesture.RequiredTouchesCount > GestureSetupPickItems!.Count)
             throw new IndexOutOfRangeException("Gesture required touches count is greater than the number of available options");
 
-        SelectedGestureSetupPickIndex = serializedTapGesture.RequiredTouchesCount - 1;
+        SelectedGestureSetupPickIndex = serializedHoldGesture.RequiredTouchesCount - 1;
 
-        BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
+        BindingDisplay.PluginProperty = serializedHoldGesture.PluginProperty;
 
-        SetupArea(fullArea, serializedTapGesture.Bounds);
+        SetupArea(fullArea, serializedHoldGesture.Bounds);
     }
 
     public HoldSetupViewModel(bool isEditing = false)
