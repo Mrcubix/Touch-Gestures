@@ -26,7 +26,7 @@
       <Setter Property="BorderBrush" Value="Transparent" />
       <Setter Property="Margin" Value="0" />
       <Setter Property="Padding" Value="9,11,12,12" />
-      <Setter Property="IsEnabled" Value="{Binding IsConnected}" />
+      <Setter Property="IsEnabled" Value="{Binding IsReady}" />
     </Style>
     <Style Selector="Button#VIEW_Adder:disabled > ContentPresenter">
       <Setter Property="Background" Value="Transparent" />
@@ -42,24 +42,39 @@
     <Style Selector="#VIEW_Body > ContentPresenter:nth-last-child(1)">
       <Setter Property="Margin" Value="0, 0, 0, 0" />
     </Style>
+    <Style Selector="ScrollViewer#VIEW_Body">
+      <Setter Property="IsVisible" Value="{Binding !IsEmpty}" />
+      <Setter Property="IsEnabled" Value="{Binding !IsEmpty}" />
+    </Style>
+    <Style Selector="Grid#VIEW_BodyNoElements">
+      <Setter Property="IsVisible" Value="{Binding IsEmpty}" />
+      <Setter Property="IsEnabled" Value="{Binding IsEmpty}" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0, 0, 0, 32" />
+    </Style>
   </UserControl.Styles>
 
   <ContentControl Content="{Binding NextViewModel}">
     <ContentControl.DataTemplates>
       <DataTemplate DataType="vm:BindingsOverviewViewModel">
         <Grid RowDefinitions="Auto, *, Auto">
+
           <Grid Name="VIEW_Header" ColumnDefinitions="Auto, *, Auto" Grid.Row="0" Margin="0, 32">
+
             <Button Name="VIEW_Adder" Command="{Binding StartSetupWizardCommand}" Grid.Column="0" ToolTip.Tip="Setup a new gesture">
               <Grid>
-                <Image Source="/Assets/Icons/Add.png" Margin="1, 1, 0, 0" IsVisible="{Binding IsConnected}" />
-                <Image Source="/Assets/Icons/Add_disabled.png" Margin="1, 1, 0, 0" IsVisible="{Binding !IsConnected}" />
+                <Image Source="/Assets/Icons/Add.png" Margin="1, 1, 0, 0" IsVisible="{Binding IsReady}" />
+                <Image Source="/Assets/Icons/Add_disabled.png" Margin="1, 1, 0, 0" IsVisible="{Binding !IsReady}" />
               </Grid>
             </Button>
             <TextBox Name="VIEW_SearchBar" Watermark="Search..." Text="{Binding SearchText}" Grid.Column="1" />
             <TextBlock Text="" Width="35" Height="36" Grid.Column="2"/>
+
           </Grid>
+
           <ScrollViewer Grid.Row="1" Margin="23, 0" Grid.IsSharedSizeScope="True">
-            <ItemsControl Name="VIEW_Body" ItemsSource="{Binding GestureBindings}" Padding="32, 0">
+            <ItemsControl Name="VIEW_Body" ItemsSource="{Binding CurrentGestureBindings}" Padding="32, 0">
               <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="vm:GestureBindingDisplayViewModel">
                   <containers:GestureBindingDisplay />
@@ -67,9 +82,18 @@
               </ItemsControl.ItemTemplate>
             </ItemsControl>
           </ScrollViewer>
+
+          <Grid Name="VIEW_BodyNoElements" RowDefinitions="Auto, Auto" Grid.Row="1">
+
+            <TextBlock Text="No Gestures Added" FontSize="16" FontWeight="Bold" Grid.Row="0" Margin="0, 0, 0, 16" />
+            <Button Command="{Binding StartSetupWizardCommand}" Content="Add Gesture" Grid.Row="1" HorizontalAlignment="Center" />
+
+          </Grid>
+
           <Border Background="{StaticResource AccentColorBrush}" BorderThickness="0,2,0,0" Grid.Row="2" Padding="4">
-            <Button Command="{Binding RequestSave}" Content="Save" IsEnabled="{Binding IsConnected}" HorizontalAlignment="Right" />
+            <Button Command="{Binding RequestSave}" Content="Save" IsEnabled="{Binding IsReady}" HorizontalAlignment="Right" />
           </Border>
+
         </Grid>
       </DataTemplate>
       <DataTemplate DataType="vm:GestureSetupWizardViewModel">

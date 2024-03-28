@@ -14,22 +14,27 @@
   </Design.DataContext>
 
   <Grid>
-    <ContentControl Content="{Binding NextViewModel}">
-      <ContentControl.DataTemplates>
+    <TransitioningContentControl Content="{Binding NextViewModel}">
+
+      <TransitioningContentControl.PageTransition>
+        <CrossFade Duration="00:00:01" />
+      </TransitioningContentControl.PageTransition>
+
+      <TransitioningContentControl.DataTemplates>
         <!-- Home Menu -->
         <DataTemplate DataType="vm:MainViewModel">
-          <views:HomeView />
+          <views:ConnectionScreen />
         </DataTemplate>
         <!-- Bindings Overview -->
         <DataTemplate DataType="vm:BindingsOverviewViewModel">
           <views:BindingsOverview />
         </DataTemplate>
-            <!-- + Button to Move to the GestureSetupWizard -->
         <!-- Node Gesture Editor -->
         <DataTemplate DataType="vm:NodeGestureEditorViewModel">
           <views:NodeGestureEditor />
         </DataTemplate>
-      </ContentControl.DataTemplates>
-    </ContentControl>
+      </TransitioningContentControl.DataTemplates>
+
+    </TransitioningContentControl >
   </Grid>
 </UserControl>

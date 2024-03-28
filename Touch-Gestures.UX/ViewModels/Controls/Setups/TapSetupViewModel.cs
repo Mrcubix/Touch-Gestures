@@ -70,14 +70,14 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
         SelectedGestureSetupPickIndex = 0;
 
-        // A 80ms deadline is the minimum required for taps for work properly and about consistently
-        Deadline = 80;
-
         BindingDisplay = new BindingDisplayViewModel();
         AreaDisplay = new AreaDisplayViewModel();
         _gesture = new SerializableTapGesture();
 
         SubscribeToSettingsChanges();
+
+        // A 80ms deadline is the minimum required for taps for work properly and about consistently
+        Deadline = 80;
     }
 
     public TapSetupViewModel(Gesture gesture, Rect fullArea) : this(true)

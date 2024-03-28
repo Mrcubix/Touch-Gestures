@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Threading;
+using Microsoft.VisualBasic.FileIO;
 using OpenTabletDriver.External.Avalonia.Dialogs;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using OpenTabletDriver.External.Avalonia.Views;

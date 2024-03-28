@@ -16,6 +16,7 @@
   <UserControl.Styles>
     <Style Selector="Button">
       <Setter Property="Height" Value="33" />
+      <Setter Property="IsEnabled" Value="{Binding IsReady}" />
     </Style>
     <Style Selector="Button#VIEW_EditButton">
       <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -32,7 +33,7 @@
     <!-- Gesture Icon -->
     <Image Name="VIEW_Icon" Source="" Grid.Column="0" />
     <otdextcontrols:BindingDisplay Name="VIEW_Binding" Grid.Column="1" />
-    <Button Name="VIEW_EditButton" Content="Edit" Command="{Binding EditGestureCommand}" IsEnabled="{Binding IsConnected}" Grid.Column="2" />
+    <Button Name="VIEW_EditButton" Content="Edit" Command="{Binding EditGestureCommand}" Grid.Column="2" />
     <Button Name="VIEW_DeleteButton" Content="-" Command="{Binding DeleteGestureCommand}" Grid.Column="3" />
   </Grid>
 

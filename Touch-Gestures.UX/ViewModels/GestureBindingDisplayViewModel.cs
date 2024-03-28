@@ -11,12 +11,12 @@ namespace TouchGestures.UX.ViewModels;
 
 #nullable enable
 
-public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel
+public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel, IDisposable
 {
     #region Fields
 
     [ObservableProperty]
-    private bool _isConnected = false;
+    private bool _isReady = false;
 
     [ObservableProperty]
     private Gesture _associatedGesture;
@@ -42,8 +42,7 @@ public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel
 
     public GestureBindingDisplayViewModel(GestureAddedEventArgs e)
     {
-        if (e.Gesture == null)
-            throw new ArgumentNullException(nameof(e.Gesture));
+        ArgumentNullException.ThrowIfNull(e.Gesture);
 
         if (e.Gesture is not ISerializable)
             throw new ArgumentException("Gesture must implement ISerializable");
@@ -76,10 +75,10 @@ public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel
 
     #region Commands
 
-    [RelayCommand(CanExecute = nameof(IsConnected))]
+    [RelayCommand(CanExecute = nameof(IsReady))]
     public void EditGesture() => EditRequested?.Invoke(this, EventArgs.Empty);
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(IsReady))]
     public void DeleteGesture() => DeletionRequested?.Invoke(this, EventArgs.Empty);
 
     #endregion
@@ -99,6 +98,17 @@ public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel
 
             BindingChanged?.Invoke(this, args);
         }
+    }
+
+    public void Dispose()
+    {
+        PropertyChanged -= OnPropertyChanged;
+
+        EditRequested = null;
+        DeletionRequested = null;
+        BindingChanged = null;
+
+        GC.SuppressFinalize(this);
     }
 
     #endregion

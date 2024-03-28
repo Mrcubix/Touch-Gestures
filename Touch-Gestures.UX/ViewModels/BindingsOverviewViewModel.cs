@@ -1,29 +1,36 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TouchGestures.Lib.Entities;
+using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.UX.Events;
+using TouchGestures.UX.Extentions;
 using Rect = Avalonia.Rect;
 
 namespace TouchGestures.UX.ViewModels
 {
-    public partial class BindingsOverviewViewModel : NavigableViewModel
+    public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     {
         #region Fields
 
         private readonly MainViewModel _parentViewModel;
 
         [ObservableProperty]
-        private bool _isConnected;
+        private bool _isReady = false;
 
         [ObservableProperty]
+        private bool _isEmpty = true;
+
         private string _searchText = "";
 
-        [ObservableProperty]
         private ObservableCollection<GestureBindingDisplayViewModel> _gestureBindings = new();
+
+        [ObservableProperty]
+        private ObservableCollection<GestureBindingDisplayViewModel> _currentGestureBindings = new();
 
         #endregion
 
@@ -33,7 +40,9 @@ namespace TouchGestures.UX.ViewModels
         public BindingsOverviewViewModel()
         {
             _parentViewModel = new MainViewModel();
-            IsConnected = false;
+            IsReady = false;
+
+            _gestureBindings.CollectionChanged += OnGestureCollectionChanged;
 
             NextViewModel = this;
             BackRequested = null!;
@@ -42,41 +51,19 @@ namespace TouchGestures.UX.ViewModels
         public BindingsOverviewViewModel(MainViewModel mainViewModel)
         {
             _parentViewModel = mainViewModel;
+            IsReady = false;
 
-            _parentViewModel.Connected += OnConnected;
+            _parentViewModel.Ready += OnReady;
             _parentViewModel.Disconnected += OnDisconnected;
 
-            IsConnected = false;
+            _gestureBindings.CollectionChanged += OnGestureCollectionChanged;
 
             NextViewModel = this;
             BackRequested = null!;
         }
 
         public BindingsOverviewViewModel(MainViewModel mainViewModel, SerializableSettings settings) : this(mainViewModel)
-        {
-            foreach (var gesture in settings)
-            {
-                var bindingDisplay = new GestureBindingDisplayViewModel(gesture);
-
-                bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
-
-                bindingDisplay.IsConnected = _parentViewModel.IsConnected;
-                bindingDisplay.EditRequested += OnEditRequested;
-                bindingDisplay.DeletionRequested += OnDeletionRequested;
-
-                GestureBindings.Add(bindingDisplay);
-            }
-
-            IsConnected = _parentViewModel.IsConnected;
-
-            SubscribeToEvents();
-        }
-
-        public void SubscribeToEvents()
-        {
-            foreach (var binding in GestureBindings)
-                binding.BindingChanged += OnGestureBindingsChanged;
-        }
+            => SetSettings(settings);
 
         #endregion
 
@@ -92,19 +79,58 @@ namespace TouchGestures.UX.ViewModels
 
         public Rect Bounds { get; set; }
 
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                SetProperty(ref _searchText, value);
+                OnSearchTextChanged(value);
+            }
+        }
+
         #endregion
 
         #region Methods
 
-        protected override void GoBack()
+        /// <summary>
+        ///   Set the settings of the view model.
+        /// </summary>
+        /// <param name="settings">The settings to set.</param>
+        public void SetSettings(SerializableSettings settings)
         {
-            throw new InvalidOperationException();
+            // Dispose of previous bindings beforehand
+            DisposeCurrent();
+
+            foreach (var gesture in settings)
+            {
+                var bindingDisplay = SetupNewBindingDisplay(gesture);
+
+                _gestureBindings.Add(bindingDisplay);
+            }
+
+            IsReady = _parentViewModel.IsReady;
+            IsEmpty = _gestureBindings.Count == 0;
+        }
+
+        private GestureBindingDisplayViewModel SetupNewBindingDisplay(Gesture gesture)
+        {
+            var bindingDisplay = new GestureBindingDisplayViewModel(gesture);
+
+            bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
+
+            bindingDisplay.IsReady = _parentViewModel.IsReady;
+            bindingDisplay.EditRequested += OnEditRequested;
+            bindingDisplay.DeletionRequested += OnDeletionRequested;
+            bindingDisplay.BindingChanged += OnGestureBindingsChanged;
+
+            return bindingDisplay;
         }
 
         /// <summary>
         ///   Start the gesture setup process of a new gesture.
         /// </summary>
-        [RelayCommand(CanExecute = nameof(IsConnected))]
+        [RelayCommand(CanExecute = nameof(IsReady))]
         public void StartSetupWizard()
         {
             var setupWizard = new GestureSetupWizardViewModel(Bounds);
@@ -118,12 +144,28 @@ namespace TouchGestures.UX.ViewModels
         /// <summary>
         ///   Request the save of the current bindings.
         /// </summary>
-        [RelayCommand(CanExecute = nameof(IsConnected))]
+        [RelayCommand(CanExecute = nameof(IsReady))]
         public void RequestSave() => SaveRequested?.Invoke(this, EventArgs.Empty);
+
+        protected override void GoBack() => throw new InvalidOperationException();
 
         #endregion
 
         #region Event Handlers
+
+        /// <summary>
+        ///   Filter the gestures based on the search text.
+        /// </summary>
+        /// <param name="text">The search text.</param>
+        private void OnSearchTextChanged(string text)
+        {
+            CurrentGestureBindings.Clear();
+
+            if (string.IsNullOrWhiteSpace(text))
+                CurrentGestureBindings.AddRange(_gestureBindings);
+            else
+                CurrentGestureBindings.AddRange(_gestureBindings.Where(x => GestureNameStartsWith(x, text)));
+        }
 
         //
         // Navigation
@@ -138,6 +180,8 @@ namespace TouchGestures.UX.ViewModels
             NextViewModel = this;
         }
 
+        #region Gesture Changes
+
         //
         // Additions
         //
@@ -151,16 +195,15 @@ namespace TouchGestures.UX.ViewModels
             NextViewModel = this;
 
             // We build the binding display using content from the plugin property & returned data from the binding dialog
-            var bindingDisplay = new GestureBindingDisplayViewModel(e);
-            bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
+            var bindingDisplay = SetupNewBindingDisplay(e.Gesture!);
 
-            bindingDisplay.IsConnected = _parentViewModel.IsConnected;
-            bindingDisplay.EditRequested += OnEditRequested;
-            bindingDisplay.DeletionRequested += OnDeletionRequested;
-            bindingDisplay.BindingChanged += OnGestureBindingsChanged;
+            //bindingDisplay.Description = e.BindingDisplay.Description;    
+            //bindingDisplay.PluginProperty = e.BindingDisplay.PluginProperty;       
 
             // We add the binding to the list of bindings, we may need to insert it instead to avoid having to re-sort the list
-            GestureBindings.Add(bindingDisplay);
+            _gestureBindings.Add(bindingDisplay);
+
+            IsEmpty = _gestureBindings.Count == 0;
 
             GesturesChanged?.Invoke(this, new GestureChangedEventArgs(null, e.Gesture!));
         }
@@ -233,35 +276,75 @@ namespace TouchGestures.UX.ViewModels
             if (sender is not GestureBindingDisplayViewModel bindingDisplay)
                 throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
 
-            GestureBindings.Remove(bindingDisplay);
+            _gestureBindings.Remove(bindingDisplay);
+
+            IsEmpty = _gestureBindings.Count == 0;
 
             GesturesChanged?.Invoke(this, new GestureChangedEventArgs(bindingDisplay.AssociatedGesture, null));
         }
+
+        private void OnGestureCollectionChanged(object? sender, EventArgs e)
+            => Dispatcher.UIThread.InvokeAsync(() => OnSearchTextChanged(SearchText));
+
+        #endregion
+
+        #region Connection related events
 
         //
         // Some Actions need to be disabled / enabled depending on the connection state
         //
 
-        private void OnConnected(object? sender, EventArgs e)
+        private void OnReady(object? sender, EventArgs e)
         {
-            Dispatcher.UIThread.Post(() =>
-            {
-                IsConnected = true;
+            IsReady = true;
 
-                foreach (var binding in GestureBindings)
-                    binding.IsConnected = true;
-            });
+            foreach (var binding in _gestureBindings)
+                binding.IsReady = true;
         }
 
         private void OnDisconnected(object? sender, EventArgs e)
         {
-            Dispatcher.UIThread.Post(() =>
-            {
-                IsConnected = false;
+            IsReady = false;
 
-                foreach (var binding in GestureBindings)
-                    binding.IsConnected = false;
-            });
+            foreach (var binding in _gestureBindings)
+                binding.IsReady = false;
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Static Methods
+
+        private static bool GestureNameStartsWith(GestureBindingDisplayViewModel gestureTileViewModel, string text)
+        {
+            return gestureTileViewModel.Description?.StartsWith(text, StringComparison.CurrentCultureIgnoreCase) ?? false;
+        }
+
+        #endregion
+
+        #region Disposal
+
+        public void DisposeCurrent()
+        {
+            foreach (var binding in _gestureBindings)
+                binding.Dispose();
+
+            _gestureBindings.Clear();
+        }
+
+        public void Dispose()
+        {
+            DisposeCurrent();
+
+            _parentViewModel.Ready -= OnReady;
+            _parentViewModel.Disconnected -= OnDisconnected;
+
+            SaveRequested = null;
+            GesturesChanged = null;
+            BackRequested = null;
+
+            GC.SuppressFinalize(this);
         }
 
         #endregion

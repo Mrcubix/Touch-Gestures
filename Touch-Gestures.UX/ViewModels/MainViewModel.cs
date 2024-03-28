@@ -61,7 +61,7 @@ public partial class MainViewModel : NavigableViewModel
     private string _connectionStateText = "Not connected";
 
     [ObservableProperty]
-    private bool _isConnected = false;
+    private bool _isReady = false;
 
     #region VMs
 
@@ -92,7 +92,7 @@ public partial class MainViewModel : NavigableViewModel
         CanGoBack = false;
         // TODO: Change in production to the home view
         //NextViewModel = _gestureSetupWizardViewModel;
-        NextViewModel = _bindingsOverviewViewModel;
+        NextViewModel = this;
 
         NextViewModel!.PropertyChanged += OnCurrentViewChanged;
         NextViewModel!.PropertyChanging += OnCurrentViewChanging;
@@ -128,7 +128,7 @@ public partial class MainViewModel : NavigableViewModel
 
     public override event EventHandler? BackRequested;
 
-    public event EventHandler? Connected;
+    public event EventHandler? Ready;
 
     public event EventHandler? Disconnected;
 
@@ -342,7 +342,6 @@ public partial class MainViewModel : NavigableViewModel
     private void OnClientConnected(object? sender, EventArgs e)
     {
         ConnectionStateText = "Connected";
-        Connected?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnClientConnecting(object? sender, EventArgs e)
@@ -353,7 +352,7 @@ public partial class MainViewModel : NavigableViewModel
     private void OnClientDisconnected(object? sender, EventArgs e)
     {
         ConnectionStateText = "Disconnected";
-        IsConnected = false;
+        IsReady = false;
         Disconnected?.Invoke(this, EventArgs.Empty);
 
         _ = Task.Run(() => AttemptReconnectionIndefinitelyAsync());
@@ -361,6 +360,8 @@ public partial class MainViewModel : NavigableViewModel
 
     private async Task OnClientAttached(object? sender, EventArgs e)
     {
+        ConnectionStateText = "Connected, Fetching Plugins & Settings ...";
+
         var tempPlugins = await FetchPluginsAsync();
 
         if (tempPlugins != null)
@@ -392,11 +393,13 @@ public partial class MainViewModel : NavigableViewModel
             {
                 double x = Math.Round(tempTabletSize.Value.X, 5), y = Math.Round(tempTabletSize.Value.Y, 5);
                 _tabletRect = new Rect(0, 0, x, y);
-                Dispatcher.UIThread.Post(() => OnTabletRectChanged(_tabletRect, _LinesPerMM));
+                Dispatcher.UIThread.Invoke(() => OnTabletRectChanged(_tabletRect, _LinesPerMM));
             }
         }
 
-        IsConnected = true;
+        IsReady = true;
+        Ready?.Invoke(this, EventArgs.Empty);
+        NextViewModel = BindingsOverviewViewModel;
     }
 
     //
@@ -435,10 +438,15 @@ public partial class MainViewModel : NavigableViewModel
     {
         bool isOverviewNextViewModel = NextViewModel is BindingsOverviewViewModel;
 
-        BindingsOverviewViewModel = new(this, e);
+        if (BindingsOverviewViewModel == null)
+        {
+            BindingsOverviewViewModel = new(this);
 
-        BindingsOverviewViewModel.SaveRequested += OnSaveRequested;
-        BindingsOverviewViewModel.GesturesChanged += OnGestureChanged;
+            BindingsOverviewViewModel.SaveRequested += OnSaveRequested;
+            BindingsOverviewViewModel.GesturesChanged += OnGestureChanged;
+        }
+
+        BindingsOverviewViewModel.SetSettings(e);
 
         if (isOverviewNextViewModel)
             NextViewModel = BindingsOverviewViewModel;

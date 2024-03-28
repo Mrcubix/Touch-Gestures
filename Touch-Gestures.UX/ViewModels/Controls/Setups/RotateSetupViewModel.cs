@@ -62,18 +62,14 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
 
         SelectedGestureSetupPickIndex = 0;
 
-        // A 80ms deadline is the minimum required for taps for work properly and about consistently
-        //Deadline = 80;
-
-        AngleThreshold = 20;
-        IsClockwise = false;
-        AreGestureSettingTweaked = AngleThreshold > 0;
-
         BindingDisplay = new BindingDisplayViewModel();
         AreaDisplay = new AreaDisplayViewModel();
         _gesture = new SerializablePinchGesture();
 
         SubscribeToSettingsChanges();
+
+        AngleThreshold = 20;
+        IsClockwise = false;
     }
 
     /// Constructor used when editing a gesture
@@ -86,7 +82,6 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
 
         AngleThreshold = serializedTapGesture.AngleThreshold;
         IsClockwise = serializedTapGesture.IsClockwise;
-        AreGestureSettingTweaked = AngleThreshold > 0;
 
         BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
 
@@ -169,11 +164,11 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
     /// <inheritdoc/>
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(DistanceThreshold) || e.PropertyName == nameof(IsInner))
-        {
-            AreGestureSettingTweaked = DistanceThreshold > 0;
-        }
+        if (e.PropertyName == nameof(AngleThreshold))
+            AreGestureSettingTweaked = AngleThreshold > 0;
     }
+
+
 
     #endregion
 

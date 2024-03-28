@@ -80,17 +80,17 @@ public partial class HoldSetupViewModel : TapSetupViewModel
 
         SelectedGestureSetupPickIndex = 0;
 
-        // A 1s time threshold to trigger the hold
-        Deadline = 1000;
-
-        // Moving outside of the 20px radius of the touch will invalidate the hold
-        Threshold = 20;
-
         BindingDisplay = new BindingDisplayViewModel();
         AreaDisplay = new AreaDisplayViewModel();
         _gesture = new SerializableHoldGesture();
 
         SubscribeToSettingsChanges();
+
+        // A 1s time threshold to trigger the hold
+        Deadline = 1000;
+
+        // Moving outside of the 20px radius of the touch will invalidate the hold
+        Threshold = 20;
     }
 
     #endregion
@@ -139,9 +139,7 @@ public partial class HoldSetupViewModel : TapSetupViewModel
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Deadline) || e.PropertyName == nameof(Threshold))
-        {
             AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
-        }
     }
 
     #endregion

@@ -91,6 +91,9 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
         _gesture = new SerializableSwipeGesture();
 
         SubscribeToSettingsChanges();
+
+        Deadline = 150;
+        Threshold = 40;
     }
 
     protected override void SubscribeToSettingsChanges()
@@ -169,11 +172,8 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
     /// <inheritdoc/>
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Threshold) ||
-            e.PropertyName == nameof(Deadline))
-        {
+        if (e.PropertyName == nameof(Threshold) || e.PropertyName == nameof(Deadline))
             AreGestureSettingTweaked = Threshold > 0 && Deadline > 0;
-        }
     }
 
     #endregion

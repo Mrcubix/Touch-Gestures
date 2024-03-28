@@ -61,6 +61,9 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
         _gesture = new SerializablePanGesture();
 
         SubscribeToSettingsChanges();
+
+        Deadline = 150;
+        Threshold = 20;
     }
 
     public PanSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
@@ -122,10 +125,8 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
     /// <inheritdoc/>
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Deadline))
-        {
+        if (e.PropertyName == nameof(Deadline) || e.PropertyName == nameof(Threshold))
             AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
-        }
     }
 
     #endregion

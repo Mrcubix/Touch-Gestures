@@ -61,19 +61,15 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
         GestureSetupPickPreviews = new ObservableCollection<Bitmap?>(images);
 
         SelectedGestureSetupPickIndex = 0;
-        AreGestureSettingTweaked = DistanceThreshold > 0;
-
-        // A 80ms deadline is the minimum required for taps for work properly and about consistently
-        //Deadline = 80;
-
-        DistanceThreshold = 20;
-        IsInner = false;
 
         BindingDisplay = new BindingDisplayViewModel();
         AreaDisplay = new AreaDisplayViewModel();
         _gesture = new SerializablePinchGesture();
 
         SubscribeToSettingsChanges();
+
+        DistanceThreshold = 20;
+        IsInner = false;
     }
 
     /// Constructor used when editing a gesture
@@ -86,8 +82,6 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
 
         DistanceThreshold = serializedTapGesture.DistanceThreshold;
         IsInner = serializedTapGesture.IsInner;
-
-        AreGestureSettingTweaked = DistanceThreshold > 0;
 
         BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
 
@@ -170,10 +164,8 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
     /// <inheritdoc/>
     protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(DistanceThreshold) || e.PropertyName == nameof(IsInner))
-        {
+        if (e.PropertyName == nameof(DistanceThreshold))
             AreGestureSettingTweaked = DistanceThreshold > 0;
-        }
     }
 
     #endregion
