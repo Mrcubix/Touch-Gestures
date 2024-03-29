@@ -1,0 +1,31 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:TouchGestures.UX.ViewModels.Dialogs"
+        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="200"
+        Width="450" Height="200" CanResize="False"
+        x:Class="TouchGestures.UX.Views.TwoChoiceDialog"
+        WindowStartupLocation="CenterScreen"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="{Binding Title}"
+        Background="{StaticResource BodyColorBrush}"
+        x:DataType="vm:TwoChoiceDialogViewModel">
+
+    <Grid ColumnDefinitions="*, Auto, *" RowDefinitions="*, Auto, 50, Auto, *">
+      <TextBlock Text="{Binding Content}" Foreground="White" TextWrapping="Wrap"
+                 HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" />
+
+      <Button Content="{Binding PositiveChoice}" Command="{Binding ReturnResult}" CommandParameter="true"
+              Foreground="White" Width="100"
+              HorizontalAlignment="Right" VerticalAlignment="Center"
+              HorizontalContentAlignment="Center" Grid.Column="0" Grid.Row="3" />
+      <Rectangle Width="50" Grid.Column="1" Grid.Row="3" />
+      <Button Content="{Binding NegativeChoice}" Command="{Binding ReturnResult}" CommandParameter="false"
+              Foreground="White" Width="100"
+              HorizontalAlignment="Left" VerticalAlignment="Center"
+              HorizontalContentAlignment="Center" Grid.Column="2" Grid.Row="3" />
+    </Grid>
+
+</Window>

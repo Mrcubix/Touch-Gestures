@@ -85,7 +85,10 @@ public partial class MainViewModel : NavigableViewModel
     public MainViewModel()
     {
         _settings = new();
+
         BindingsOverviewViewModel = new(this);
+        BindingsOverviewViewModel.SaveRequested += OnSaveRequested;
+        BindingsOverviewViewModel.GesturesChanged += OnGestureChanged;
 
         BackRequested = null!;
 
@@ -97,9 +100,6 @@ public partial class MainViewModel : NavigableViewModel
         NextViewModel!.PropertyChanged += OnCurrentViewChanged;
         NextViewModel!.PropertyChanging += OnCurrentViewChanging;
         NextViewModel!.BackRequested += OnBackRequestedAhead;
-
-        BindingsOverviewViewModel.SaveRequested += OnSaveRequested;
-        BindingsOverviewViewModel.GesturesChanged += OnGestureChanged;
 
         _client = new("GesturesDaemon");
 
@@ -437,14 +437,6 @@ public partial class MainViewModel : NavigableViewModel
     private void OnSettingsChanged(SerializableSettings e)
     {
         bool isOverviewNextViewModel = NextViewModel is BindingsOverviewViewModel;
-
-        if (BindingsOverviewViewModel == null)
-        {
-            BindingsOverviewViewModel = new(this);
-
-            BindingsOverviewViewModel.SaveRequested += OnSaveRequested;
-            BindingsOverviewViewModel.GesturesChanged += OnGestureChanged;
-        }
 
         BindingsOverviewViewModel.SetSettings(e);
 

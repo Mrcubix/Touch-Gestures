@@ -1,14 +1,15 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Threading;
-using Microsoft.VisualBasic.FileIO;
 using OpenTabletDriver.External.Avalonia.Dialogs;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using OpenTabletDriver.External.Avalonia.Views;
 using OpenTabletDriver.External.Common.Serializables;
+using ReactiveUI;
 using TouchGestures.UX.ViewModels;
+using TouchGestures.UX.ViewModels.Dialogs;
 
 namespace TouchGestures.UX.Views;
 
@@ -18,9 +19,46 @@ public partial class MainWindow : AppMainWindow
     private static readonly AdvancedBindingEditorDialogViewModel _advancedBindingEditorDialogViewModel = new();
     private static bool _isEditorDialogOpen = false;
 
+    private BindingsOverviewViewModel? _bindingsOverviewViewModel;
+    private bool _registeredHandlers = false;
+
     public MainWindow()
     {
         InitializeComponent();
+    }
+
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        if (DataContext is MainViewModel vm)
+        {
+            if (_bindingsOverviewViewModel != vm.BindingsOverviewViewModel)
+            {
+                _registeredHandlers = false;
+                _bindingsOverviewViewModel = vm.BindingsOverviewViewModel;
+            }
+
+
+            if (_registeredHandlers == false)
+                _bindingsOverviewViewModel?.ConfirmationDialog.RegisterHandler(ShowConfirmationDialogAsync);
+        }
+
+        base.OnDataContextChanged(e);
+    }
+
+    public async Task ShowConfirmationDialogAsync(InteractionContext<TwoChoiceDialogViewModel, bool> interaction)
+    {
+        await Dispatcher.UIThread.Invoke(async () => await ShowConfirmationDialogCoreAsync(interaction));
+    }
+
+    private async Task ShowConfirmationDialogCoreAsync(InteractionContext<TwoChoiceDialogViewModel, bool> interaction)
+    {
+        var dialog = new TwoChoiceDialog()
+        {
+            DataContext = interaction.Input
+        };
+
+        var res = await dialog.ShowDialog<bool>(this);
+        interaction.SetOutput(res);
     }
 
     public override void ShowBindingEditorDialog(object? sender, BindingDisplayViewModel e)
