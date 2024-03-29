@@ -6,9 +6,14 @@
              xmlns:views="clr-namespace:TouchGestures.UX.Views"
              xmlns:gestures-views="clr-namespace:TouchGestures.UX.Views.Gestures"
              xmlns:containers="clr-namespace:TouchGestures.UX.Controls.Containers"
+             xmlns:converters="clr-namespace:TouchGestures.UX.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:BindingsOverviewViewModel"
              x:Class="TouchGestures.UX.Views.BindingsOverview">
+
+  <UserControl.Resources>
+    <converters:TogglableMarginConverter x:Key="TogglableMarginConverter" />
+  </UserControl.Resources>
 
   <!-- Currently, applying a background from here cause a wall of a stacktrace to appear -->
   <!--<Design.PreviewWith>
@@ -83,10 +88,23 @@
             </ItemsControl>
           </ScrollViewer>
 
-          <Grid Name="VIEW_BodyNoElements" RowDefinitions="Auto, Auto" Grid.Row="1">
+          <Grid Name="VIEW_BodyNoElements" RowDefinitions="Auto, Auto, Auto" Grid.Row="1">
 
-            <TextBlock Text="No Gestures Added" FontSize="16" FontWeight="Bold" Grid.Row="0" Margin="0, 0, 0, 16" />
-            <Button Command="{Binding StartSetupWizardCommand}" Content="Add Gesture" Grid.Row="1" HorizontalAlignment="Center" />
+            <!-- Margin of 0, 0, 0, 16 if IsReady is true -->
+            <TextBlock Text="You don't have any gestures set up yet." FontSize="16" FontWeight="Bold" Grid.Row="0">
+              <TextBlock.Margin>
+                <MultiBinding Converter="{StaticResource TogglableMarginConverter}">
+                  <Binding Source="0, 0, 0, 16" />
+                  <Binding Path="IsReady" />
+                </MultiBinding>
+              </TextBlock.Margin>
+            </TextBlock>
+
+            <TextBlock Text="The daemon is currently not running." Foreground="Red" Grid.Row="1" 
+                       IsVisible="{Binding !IsReady}" IsEnabled="{Binding !IsReady}" 
+                       HorizontalAlignment="Center" Margin="0, 0, 0, 16"/>
+            <Button Command="{Binding StartSetupWizardCommand}" Content="Setup a new Gesture" Grid.Row="2" 
+                    IsEnabled="{Binding IsReady}" HorizontalAlignment="Center" />
 
           </Grid>
 

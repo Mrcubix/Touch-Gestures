@@ -13,7 +13,7 @@
   </Design.DataContext>
 
   <Grid Grid.RowDefinitions="Auto, Auto" HorizontalAlignment="Center" VerticalAlignment="Center">
-    <TextBlock Text="{Binding ConnectionStateText}" Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+    <TextBlock Text="{Binding ConnectionStateText}" FontSize="16" FontWeight="Bold" Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,16"/>
     <TextBlock Text="A friendly reminder that this is an early version of Touch Gestures, things will probably break." FontSize="10" 
                Grid.Row="1" HorizontalAlignment="Center"/>
   </Grid>
