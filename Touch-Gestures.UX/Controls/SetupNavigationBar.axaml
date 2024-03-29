@@ -28,7 +28,7 @@
               <ColumnDefinition SharedSizeGroup="Buttons" />
             </Grid.ColumnDefinitions>
 
-            <Button Name="BackButton" Content="Back" Command="{TemplateBinding BackCommand}" IsEnabled="{TemplateBinding CanGoBack}" Grid.Column="0" />
+            <Button Name="BackButton" Command="{TemplateBinding BackCommand}" Content="{TemplateBinding BackButtonText}" IsEnabled="{TemplateBinding CanGoBack}" Grid.Column="0" />
             <Separator Background="Transparent" Grid.Column="1" />
             <Button Name="NextButton" Command="{TemplateBinding NextCommand}" Content="{TemplateBinding NextButtonText}" IsEnabled="{TemplateBinding CanGoNext}" Grid.Column="2" />
           </Grid>

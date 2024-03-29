@@ -8,20 +8,22 @@ namespace TouchGestures.UX.Controls;
 
 public partial class SetupNavigationBar : TemplatedControl
 {
-    public static readonly StyledProperty<string> NextButtonTextProperty = AvaloniaProperty.Register<SetupNavigationBar, string>(nameof(NextButtonText), "Next");
+    public static readonly StyledProperty<string> BackButtonTextProperty = AvaloniaProperty.Register<SetupNavigationBar, string>(nameof(BackButtonText), "Back");
 
     public static readonly StyledProperty<ICommand?> BackCommandProperty = AvaloniaProperty.Register<SetupNavigationBar, ICommand?>(nameof(BackCommand), null);
 
     public static readonly StyledProperty<bool> CanGoBackProperty = AvaloniaProperty.Register<SetupNavigationBar, bool>(nameof(CanGoBack), true);
 
+    public static readonly StyledProperty<string> NextButtonTextProperty = AvaloniaProperty.Register<SetupNavigationBar, string>(nameof(NextButtonText), "Next");
+
     public static readonly StyledProperty<ICommand?> NextCommandProperty = AvaloniaProperty.Register<SetupNavigationBar, ICommand?>(nameof(NextCommand), null);
 
     public static readonly StyledProperty<bool> CanGoNextProperty = AvaloniaProperty.Register<SetupNavigationBar, bool>(nameof(CanGoNext), true);
 
-    public string NextButtonText
+    public string BackButtonText
     {
-        get => GetValue(NextButtonTextProperty);
-        set => SetValue(NextButtonTextProperty, value);
+        get => GetValue(BackButtonTextProperty);
+        set => SetValue(BackButtonTextProperty, value);
     }
 
     public ICommand? BackCommand
@@ -34,6 +36,12 @@ public partial class SetupNavigationBar : TemplatedControl
     {
         get => GetValue(CanGoBackProperty);
         set => SetValue(CanGoBackProperty, value);
+    }
+
+    public string NextButtonText
+    {
+        get => GetValue(NextButtonTextProperty);
+        set => SetValue(NextButtonTextProperty, value);
     }
 
     public ICommand? NextCommand
