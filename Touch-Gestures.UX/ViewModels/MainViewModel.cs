@@ -36,7 +36,7 @@ public partial class MainViewModel : NavigableViewModel
     private RpcClient<IGesturesDaemon> _client;
     private SerializableSettings _settings;
     private Rect _tabletRect;
-    private float _LinesPerMM = 0;
+    private Vector2 _LinesPerMM = Vector2.Zero;
     
     #endregion
 
@@ -380,7 +380,7 @@ public partial class MainViewModel : NavigableViewModel
 
         if (await _client.Instance.IsTabletConnected())
         {
-            float? tempLinesPerMM = await _client.Instance.GetTabletLinesPerMM();
+            Vector2? tempLinesPerMM = await _client.Instance.GetTabletLinesPerMM();
 
             if (tempLinesPerMM != null)
             {
@@ -454,7 +454,7 @@ public partial class MainViewModel : NavigableViewModel
         SettingsChanged?.Invoke(this, e);
     }
 
-    private void OnTabletRectChanged(Rect bounds, float linesPerMM)
+    private void OnTabletRectChanged(Rect bounds, Vector2 linesPerMM)
     {
         // TODO: set it in the appropriates Node Canvases
 

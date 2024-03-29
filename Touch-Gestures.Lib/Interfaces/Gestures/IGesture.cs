@@ -1,3 +1,4 @@
+using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 
@@ -31,7 +32,7 @@ namespace TouchGestures.Lib.Interfaces
         /// <summary>
         ///   The number of lines per millimeter.
         /// </summary>
-        float LinesPerMM { get; }
+        Vector2 LinesPerMM { get; }
 
         #endregion
 

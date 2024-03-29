@@ -1,5 +1,7 @@
+using System;
 using System.Numerics;
 using Newtonsoft.Json;
+using TouchGestures.Lib.Extensions;
 
 namespace TouchGestures.Lib.Entities
 {
@@ -71,6 +73,17 @@ namespace TouchGestures.Lib.Entities
             };
         }
 
+        public SharedArea Multiply(Vector2 factor, int posDecimals = 3, int sizeDecimals = 3)
+        {
+            return new SharedArea
+            {
+                Position = (Position * factor).Round(posDecimals),
+                Width = Math.Round(Width * factor.X, sizeDecimals),
+                Height = Math.Round(Height * factor.Y, sizeDecimals),
+                Rotation = Rotation
+            };
+        }
+
         public SharedArea Divide(float factor)
         {
             return new SharedArea
@@ -78,6 +91,17 @@ namespace TouchGestures.Lib.Entities
                 Position = Position / factor,
                 Width = Width / factor,
                 Height = Height / factor,
+                Rotation = Rotation
+            };
+        }
+
+        public SharedArea Divide(Vector2 factor, int posDecimals = 3, int sizeDecimals = 4)
+        {
+            return new SharedArea
+            {
+                Position = (Position / factor).Round(posDecimals),
+                Width = Math.Round(Width / factor.X, sizeDecimals),
+                Height = Math.Round(Height / factor.Y, sizeDecimals),
                 Rotation = Rotation
             };
         }

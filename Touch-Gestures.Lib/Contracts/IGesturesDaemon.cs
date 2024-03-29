@@ -9,7 +9,7 @@ namespace TouchGestures.Lib.Contracts
     {
         public Task<bool> IsTabletConnected();
         public Task<Vector2> GetTabletSize();
-        public Task<float> GetTabletLinesPerMM();
+        public Task<Vector2> GetTabletLinesPerMM();
         public Task<SerializableSettings> GetSettings();
         public Task<bool> SaveSettings();
         public Task<bool> UpdateSettings(SerializableSettings settings);

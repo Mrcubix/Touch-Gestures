@@ -97,7 +97,7 @@ namespace TouchGestures
 
         public Vector2 TabletSize { get; private set; } = new(-1, -1);
 
-        public float LinesPerMM = -1;
+        public Vector2 LinesPerMM = Vector2.One * -1;
 
         public bool IsReady { get; private set; }
 
@@ -202,7 +202,7 @@ namespace TouchGestures
             return Task.FromResult(TabletSize);
         }
 
-        public Task<float> GetTabletLinesPerMM()
+        public Task<Vector2> GetTabletLinesPerMM()
         {
             Log.Write("Gestures Daemon", "Acquiring Tablet...");
 

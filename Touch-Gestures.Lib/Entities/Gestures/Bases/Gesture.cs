@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
@@ -51,7 +52,7 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
         public abstract bool IsRestrained { get; }
 
         /// <inheritdoc />
-        public virtual float LinesPerMM { get; protected set; } = 1;
+        public virtual Vector2 LinesPerMM { get; protected set; } = Vector2.One;
 
         #endregion
 
