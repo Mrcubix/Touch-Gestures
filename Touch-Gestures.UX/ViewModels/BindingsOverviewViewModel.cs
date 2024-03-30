@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Entities.Tablet;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.UX.Events;
 using TouchGestures.UX.Extentions;
@@ -27,7 +28,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
     private readonly TwoChoiceDialogViewModel _confirmationDialogData = new()
     {
-        Title = "Confirmation",
+        Title = "Deleting a Gesture...",
         Content = "Are you sure you want to delete this gesture?",
         PositiveChoice = "Yes",
         NegativeChoice = "No"
@@ -40,6 +41,11 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     private bool _isEmpty = true;
 
     private string _searchText = "";
+
+    [ObservableProperty]
+    private ObservableCollection<SharedTabletReference> _tablets = new();
+
+    private SharedTabletReference? _selectedTablet;
 
     private ObservableCollection<GestureBindingDisplayViewModel> _gestureBindings = new();
 
@@ -83,6 +89,8 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
     #region Events
 
+    private event EventHandler? TabletChanged;
+
     public override event EventHandler? BackRequested;
     public event EventHandler<EventArgs>? SaveRequested;
     public event EventHandler<GestureChangedEventArgs>? GesturesChanged;
@@ -92,6 +100,16 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     #region Properties
 
     public Interaction<TwoChoiceDialogViewModel, bool> ConfirmationDialog { get; } = new();
+
+    public SharedTabletReference? SelectedTablet
+    {
+        get => _selectedTablet;
+        set
+        {
+            SetProperty(ref _selectedTablet, value);
+            TabletChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
 
     public Rect Bounds { get; set; }
 
@@ -127,6 +145,18 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
         IsReady = _parentViewModel.IsReady;
         IsEmpty = _gestureBindings.Count == 0;
+    }
+
+    /// <summary>
+    ///   Set the tablets of the view model.
+    /// </summary>
+    /// <param name="tablets">The tablets to set.</param>
+    public void SetTablets(SharedTabletReference[] tablets)
+    {
+        Tablets.Clear();
+        Tablets.AddRange(tablets);
+
+        SelectedTablet = tablets.FirstOrDefault();
     }
 
     private GestureBindingDisplayViewModel SetupNewBindingDisplay(Gesture gesture)
