@@ -1,6 +1,15 @@
 [submodule ".modules/OpenTabletDriver.External"]
 	path = .modules/OpenTabletDriver.External
 	url = git@github.com:Mrcubix/OpenTabletDriver.External.git
+	branch = master
 [submodule ".modules/OTD.EnhancedOutputMode"]
 	path = .modules/OTD.EnhancedOutputMode
 	url = git@github.com:Mrcubix/OTD.EnhancedOutputMode.git
+[submodule "bulletproof"]
+	path = .modules/OpenTabletDriver.External.Bulletproof
+	url = https://github.com/Mrcubix/OpenTabletDriver.External.git
+	branch = 0.6.x
+[submodule ".modules/OTD.EnhancedOutputMode.Bulletproof"]
+	path = .modules/OTD.EnhancedOutputMode.Bulletproof
+	url = https://github.com/Mrcubix/OTD.EnhancedOutputMode.git
+	branch = 0.6.x
