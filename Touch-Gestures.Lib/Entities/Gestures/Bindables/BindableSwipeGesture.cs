@@ -24,38 +24,31 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         public BindableSwipeGesture() : base()
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableSwipeGesture(SerializableSwipeGesture swipeGesture) 
             : base(swipeGesture.Threshold, swipeGesture.Deadline, swipeGesture.Direction, swipeGesture.Bounds)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableSwipeGesture(Vector2 threshold) : base(threshold)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableSwipeGesture(double deadline) : base(deadline)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableSwipeGesture(SwipeDirection direction) : base(direction)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableSwipeGesture(Vector2 threshold, double deadline) : base(threshold, deadline)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableSwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction) : base(threshold, deadline, direction)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableSwipeGesture(Vector2 threshold, double deadline, IBinding binding) : this(threshold, deadline)

@@ -8,7 +8,6 @@ using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using TouchGestures.Lib.Enums;
-using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.Lib.Serializables.Gestures;
 
@@ -24,17 +23,14 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         public BindablePinchGesture() : base()
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindablePinchGesture(SharedArea? bounds) : base(bounds)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindablePinchGesture(Rectangle bounds) : base(bounds)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindablePinchGesture(SerializablePinchGesture pinchGesture) : this(pinchGesture.Bounds)

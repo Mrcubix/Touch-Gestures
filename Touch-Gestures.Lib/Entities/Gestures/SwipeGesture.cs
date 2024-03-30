@@ -15,7 +15,7 @@ namespace TouchGestures.Lib.Entities.Gestures
     ///   Represent a swipe gesture in any of the 8 directions in <see cref="SwipeDirection"/>.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public class SwipeGesture : MixedBasedGesture, IAbsolutePositionable
+    public class SwipeGesture : MixedBasedGesture
     {
         #region Fields
 
@@ -142,23 +142,11 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
-        public override bool IsRestrained { get; }
-
-        /// <inheritdoc/>
-        [JsonProperty]
         public override Vector2 Threshold { get; set; }
 
         /// <inheritdoc/>
         [JsonProperty]
         public override double Deadline { get; set; }
-
-        /// <inheritdoc/>
-        [JsonProperty]
-        public SharedArea? Bounds
-        {
-            get => _bounds?.Divide(LinesPerMM);
-            set => _bounds = value?.Multiply(LinesPerMM);
-        }
 
         #endregion
 

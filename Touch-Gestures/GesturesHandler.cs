@@ -2,38 +2,36 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime;
 using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using OpenTabletDriver.External.Common.RPC;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using OTD.EnhancedOutputMode.Lib.Interface;
 using OTD.EnhancedOutputMode.Lib.Tools;
-using TouchGestures.Entities;
-using TouchGestures.Lib.Converters;
+using TouchGestures.Extensions;
+using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Entities.Tablet;
 
 namespace TouchGestures
 {
     [PluginName(PLUGIN_NAME)]
-    public class GesturesHandler : IFilter, IGateFilter, IInitialize, IDisposable
+    public class GesturesHandler : IFilter, IInitialize, IGateFilter, IDisposable
     {
         #region Constants
 
         public const string PLUGIN_NAME = "Touch Gestures";
 
-        private static readonly List<JsonConverter> Converters = new() { new SharedAreaConverter() };
-        private readonly RpcServer<GesturesDaemon> rpcServer;
-
         #endregion
 
         #region Fields
 
-        private Settings _settings = Settings.Default;
+        private GesturesDaemon? _daemon;
+        private BindableProfile? _profile;
+        private SharedTabletReference? _tablet;
         private bool _hasPreviousGestureStarted;
 
         #endregion
@@ -43,30 +41,44 @@ namespace TouchGestures
         public GesturesHandler()
         {
 #if DEBUG
+            WaitForDebugger();
+#endif
+        }
 
+        public void Initialize()
+        {
+            _daemon = GesturesDaemon.Instance;
+
+            if (Info.Driver.Tablet != null)
+            {
+                _tablet = Info.Driver.Tablet.ToShared();
+                _daemon.AddTablet(_tablet);
+                _profile = _daemon.GetSettingsForTablet(_tablet.Name);
+
+                Log.Write(PLUGIN_NAME, "Now handling touch gesture for: " + _tablet.Name);
+            }
+
+            if (_profile != null)
+            {
+                _profile.ProfileChanged += OnProfileChanged;
+                OnProfileChanged(this, EventArgs.Empty);
+            }
+
+            if (_daemon == null)
+            {
+                Log.Write(PLUGIN_NAME, "Touch Gestures Daemon has not been enabled, please enable it in the 'Tools' tab", LogLevel.Error);
+                return;
+            }
+        }
+
+        private void WaitForDebugger()
+        {
             Console.WriteLine("Waiting for debugger to attach...");
 
             while (!Debugger.IsAttached)
             {
                 Thread.Sleep(100);
             }
-
-#endif
-
-            // start the RPC server
-            rpcServer = new RpcServer<GesturesDaemon>("GesturesDaemon");
-            rpcServer.Converters.AddRange(Converters);
-
-            rpcServer.Instance.OnSettingsChanged += OnSettingsChanged;
-        }
-
-        public void Initialize()
-        {
-            rpcServer.Instance.Initialize();
-
-            _ = Task.Run(() => rpcServer.MainAsync());
-
-            Log.Write(PLUGIN_NAME, "Initialized");
         }
 
         #endregion
@@ -75,8 +87,9 @@ namespace TouchGestures
 
         public List<TapGesture> TapGestures { get; set; } = new();
         public List<HoldGesture> HoldGestures { get; set; } = new();
-
         public List<Gesture> NonConflictingGestures { get; set; } = new();
+
+        public FilterStage FilterStage => FilterStage.PreTranspose;
 
         #endregion
 
@@ -88,7 +101,7 @@ namespace TouchGestures
         {
             if (report is ITouchReport touchReport)
             {
-                if (rpcServer.Instance.IsReady && TouchToggle.istouchToggled)
+                if (_daemon != null && _daemon.IsReady && TouchToggle.istouchToggled)
                 {
                     // Iterate through all conflicting gestures
                     HandleConflictingGestures(TapGestures, touchReport);
@@ -129,36 +142,45 @@ namespace TouchGestures
 
         #region Events Handlers
 
-        public void OnSettingsChanged(object? sender, Settings? s)
+        public void OnProfileChanged(object? sender, EventArgs e)
         {
-            if (s == null)
+            if (_profile == null)
             {
                 Log.Write(PLUGIN_NAME, "Settings are null", LogLevel.Error);
                 return;
             }
 
-            _settings = s;
+            if (_tablet != null)
+                _profile.UpdateLPMM(_tablet);
 
             TapGestures.Clear();
             HoldGestures.Clear();
             NonConflictingGestures.Clear();
 
-            _settings.TapGestures.Sort((x, y) => x.RequiredTouchesCount > y.RequiredTouchesCount ? -1 : 1);
-            _settings.HoldGestures.Sort((x, y) => x.RequiredTouchesCount > y.RequiredTouchesCount ? -1 : 1);
-            _settings.SwipeGestures.Sort((x, y) => x.Direction > y.Direction ? -1 : 1);
-            _settings.PanGestures.Sort((x, y) => x.Direction > y.Direction ? -1 : 1);
-            _settings.PinchGestures.Sort((x, y) => x.IsInner ? -1 : 1);
-            _settings.RotateGestures.Sort((x, y) => x.IsClockwise ? -1 : 1);
+            SortGestures();
 
-            TapGestures.AddRange(_settings.TapGestures);
-            HoldGestures.AddRange(_settings.HoldGestures);
+            TapGestures.AddRange(_profile.TapGestures);
+            HoldGestures.AddRange(_profile.HoldGestures);
 
-            NonConflictingGestures.AddRange(_settings.SwipeGestures);
-            NonConflictingGestures.AddRange(_settings.PanGestures);
-            NonConflictingGestures.AddRange(_settings.PinchGestures);
-            NonConflictingGestures.AddRange(_settings.RotateGestures);
+            NonConflictingGestures.AddRange(_profile.SwipeGestures);
+            NonConflictingGestures.AddRange(_profile.PanGestures);
+            NonConflictingGestures.AddRange(_profile.PinchGestures);
+            NonConflictingGestures.AddRange(_profile.RotateGestures);
 
             Log.Debug(PLUGIN_NAME, "Settings updated");
+        }
+
+        private void SortGestures()
+        {
+            if (_profile == null)
+                return;
+
+            _profile.TapGestures.Sort((x, y) => x.RequiredTouchesCount > y.RequiredTouchesCount ? -1 : 1);
+            _profile.HoldGestures.Sort((x, y) => x.RequiredTouchesCount > y.RequiredTouchesCount ? -1 : 1);
+            _profile.SwipeGestures.Sort((x, y) => x.Direction > y.Direction ? -1 : 1);
+            _profile.PanGestures.Sort((x, y) => x.Direction > y.Direction ? -1 : 1);
+            _profile.PinchGestures.Sort((x, y) => x.IsInner ? -1 : 1);
+            _profile.RotateGestures.Sort((x, y) => x.IsClockwise ? -1 : 1);
         }
 
         #endregion
@@ -167,24 +189,10 @@ namespace TouchGestures
 
         public void Dispose()
         {
-            // dispose of the settings
-            _settings = null!;
-
-            rpcServer.Instance.OnSettingsChanged -= OnSettingsChanged;
-
-            // dispose of the rpc server
-            rpcServer?.Dispose();
+            // Unsubscribe from events
+            if (_profile != null)
+                _profile.ProfileChanged -= OnProfileChanged;
         }
-
-        #endregion
-
-        #region Parent Class Implementations
-
-        public FilterStage FilterStage => FilterStage.PreTranspose;
-
-        #endregion
-
-        #region Plugin Properties
 
         #endregion
     }

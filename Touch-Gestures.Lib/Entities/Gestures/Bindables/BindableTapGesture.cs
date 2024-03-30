@@ -23,12 +23,10 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         public BindableTapGesture() : base()
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableTapGesture(Rectangle bounds) : base(bounds)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableTapGesture(SerializableTapGesture tapGesture) : this()
@@ -40,7 +38,6 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         public BindableTapGesture(Rectangle bounds, double deadline) : this(bounds)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
             Deadline = deadline;
         }
             

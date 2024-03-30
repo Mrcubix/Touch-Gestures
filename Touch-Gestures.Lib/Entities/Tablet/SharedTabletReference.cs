@@ -1,3 +1,6 @@
+using System.Drawing;
+using System.Numerics;
+
 namespace TouchGestures.Lib.Entities.Tablet
 {
     public class SharedTabletReference
@@ -40,5 +43,7 @@ namespace TouchGestures.Lib.Entities.Tablet
         ///   The Touch digitizer specifications of the tablet.
         /// </summary>
         public SharedTabletDigitizer? TouchDigitizer { set; get; } = null;
+
+        public Vector2 Size => new(PenDigitizer!.Width, PenDigitizer!.Height);
     }
 }

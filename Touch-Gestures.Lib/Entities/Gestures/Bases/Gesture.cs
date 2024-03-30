@@ -13,6 +13,7 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
         #region Fields
 
         protected SharedArea? _bounds = SharedArea.Zero;
+        protected Vector2 _linesPerMM = Vector2.One;
 
         #endregion
 
@@ -46,11 +47,33 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
         /// <inheritdoc />
         public abstract bool HasCompleted { get; protected set; }
 
-        /// <inheritdoc />
-        public abstract bool IsRestrained { get; }
+        /// <summary>
+        ///    Check whether a situation needs to start in a specific area.
+        /// </summary>
+        public virtual bool IsRestrained { get; protected set; }
+
+        /// <summary>
+        ///   The absolute bounds of the situation.
+        /// </summary>
+        [JsonProperty]
+        public virtual SharedArea? Bounds
+        {
+            get => _bounds?.Divide(LinesPerMM);
+            set => _bounds = value?.Multiply(LinesPerMM);
+        }
 
         /// <inheritdoc />
-        public virtual Vector2 LinesPerMM { get; protected set; } = Vector2.One;
+        public virtual Vector2 LinesPerMM
+        {
+            get => _linesPerMM;
+            set
+            {
+                var oldBounds = Bounds;
+                _linesPerMM = value;
+                // Update the bounds
+                Bounds = oldBounds;
+            }
+        }
 
         #endregion
 

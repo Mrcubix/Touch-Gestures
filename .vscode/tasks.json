@@ -46,6 +46,7 @@
             "isBackground": true,
             "args": [
                 "test",
+                "${workspaceFolder}/Touch-Gestures.sln",
                 "-p:nowarn=\"NETSDK1138;VSTHRD200;CS0414\"",
                 "--logger",
                 "console;verbosity=detailed"

@@ -8,7 +8,6 @@ using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Input;
-using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -18,7 +17,7 @@ namespace TouchGestures.Lib.Entities.Gestures
     ///   A rotation can also be detected if the fingers move in a circular motion.
     ///   The gesture can be inner or outer (Simple Pinch), clockwise or counter-clockwise (Rotation). 
     /// </summary>
-    public class PinchGesture : Gesture, IAbsolutePositionable
+    public class PinchGesture : Gesture
     {
         private const double RadToDeg = 180 / Math.PI;
         private const int REQUIRED_TOUCHES_COUNT = 2;
@@ -53,6 +52,8 @@ namespace TouchGestures.Lib.Entities.Gestures
             _currentPoints = new List<TouchPoint>(REQUIRED_TOUCHES_COUNT);
             _activatingPoints = new TouchPoint[REQUIRED_TOUCHES_COUNT];
             _releasedPoints = new bool[REQUIRED_TOUCHES_COUNT];
+
+            IsRestrained = true;
         }
 
         public PinchGesture(SharedArea? bounds) : this()
@@ -167,18 +168,6 @@ namespace TouchGestures.Lib.Entities.Gestures
                     GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasEnded, value));
             }
         }
-
-        /// <inheritdoc/>
-        [JsonProperty]
-        public SharedArea? Bounds
-        {
-            get => _bounds?.Divide(LinesPerMM);
-            set => _bounds = value?.Multiply(LinesPerMM);
-        }
-
-        /// <inheritdoc/>
-        [JsonProperty]
-        public override bool IsRestrained { get; } = true;
 
         #endregion
 

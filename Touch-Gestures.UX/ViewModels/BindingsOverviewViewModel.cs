@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Threading.Tasks;
@@ -13,6 +14,7 @@ using TouchGestures.Lib.Entities.Tablet;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.UX.Events;
 using TouchGestures.UX.Extentions;
+using TouchGestures.UX.Models;
 using TouchGestures.UX.ViewModels.Dialogs;
 using Rect = Avalonia.Rect;
 
@@ -34,6 +36,8 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         NegativeChoice = "No"
     };
 
+    private SerializableSettings _settings = new();
+
     [ObservableProperty]
     private bool _isReady = false;
 
@@ -43,11 +47,12 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     private string _searchText = "";
 
     [ObservableProperty]
-    private ObservableCollection<SharedTabletReference> _tablets = new();
+    private ObservableCollection<TabletGesturesOverview> _tablets = new();
 
-    private SharedTabletReference? _selectedTablet;
+    private TabletGesturesOverview? _selectedTablet;
 
-    private ObservableCollection<GestureBindingDisplayViewModel> _gestureBindings = new();
+    [ObservableProperty]
+    private int _selectedTabletIndex = -1;
 
     [ObservableProperty]
     private ObservableCollection<GestureBindingDisplayViewModel> _currentGestureBindings = new();
@@ -62,8 +67,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         _parentViewModel = new MainViewModel();
         IsReady = false;
 
-        _gestureBindings.CollectionChanged += OnGestureCollectionChanged;
-
         NextViewModel = this;
         BackRequested = null!;
     }
@@ -75,8 +78,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
         _parentViewModel.Ready += OnReady;
         _parentViewModel.Disconnected += OnDisconnected;
-
-        _gestureBindings.CollectionChanged += OnGestureCollectionChanged;
 
         NextViewModel = this;
         BackRequested = null!;
@@ -93,7 +94,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
     public override event EventHandler? BackRequested;
     public event EventHandler<EventArgs>? SaveRequested;
-    public event EventHandler<GestureChangedEventArgs>? GesturesChanged;
+    public event EventHandler<SerializableProfile>? ProfileChanged;
 
     #endregion
 
@@ -101,7 +102,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
     public Interaction<TwoChoiceDialogViewModel, bool> ConfirmationDialog { get; } = new();
 
-    public SharedTabletReference? SelectedTablet
+    public TabletGesturesOverview? SelectedTablet
     {
         get => _selectedTablet;
         set
@@ -110,8 +111,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
             TabletChanged?.Invoke(this, EventArgs.Empty);
         }
     }
-
-    public Rect Bounds { get; set; }
 
     public string SearchText
     {
@@ -134,29 +133,48 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     public void SetSettings(SerializableSettings settings)
     {
         // Dispose of previous bindings beforehand
-        DisposeCurrent();
+        DisposeCurrentContext();
 
-        foreach (var gesture in settings)
-        {
-            var bindingDisplay = SetupNewBindingDisplay(gesture);
-
-            _gestureBindings.Add(bindingDisplay);
-        }
-
-        IsReady = _parentViewModel.IsReady;
-        IsEmpty = _gestureBindings.Count == 0;
+        _settings = settings;
     }
 
     /// <summary>
     ///   Set the tablets of the view model.
     /// </summary>
     /// <param name="tablets">The tablets to set.</param>
-    public void SetTablets(SharedTabletReference[] tablets)
+    public void SetTablets(IEnumerable<SharedTabletReference> tablets)
     {
         Tablets.Clear();
-        Tablets.AddRange(tablets);
 
-        SelectedTablet = tablets.FirstOrDefault();
+        foreach (var profile in _settings.Profiles)
+        {
+            var tablet = tablets.FirstOrDefault(x => x.Name == profile.Name);
+
+            if (tablet == null)
+                continue;
+
+            // Start building a new tablet overview && build the gesture binsing displays
+            TabletGesturesOverview overview = new(tablet, profile);
+
+            overview.Gestures.CollectionChanged += OnGestureCollectionChanged;
+
+            foreach (var gesture in profile)
+            {
+                var bindingDisplay = SetupNewBindingDisplay(gesture);
+
+                overview.Gestures.Add(bindingDisplay);
+            }
+
+            Tablets.Add(overview);
+        }
+
+        SelectedTablet = Tablets.FirstOrDefault();
+
+        if (SelectedTablet != null)
+            SelectedTabletIndex = Tablets.IndexOf(SelectedTablet);
+
+        IsReady = _parentViewModel.IsReady;
+        IsEmpty = !SelectedTablet?.Gestures.Any() ?? true;
     }
 
     private GestureBindingDisplayViewModel SetupNewBindingDisplay(Gesture gesture)
@@ -179,7 +197,13 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     [RelayCommand(CanExecute = nameof(IsReady))]
     public void StartSetupWizard()
     {
-        var setupWizard = new GestureSetupWizardViewModel(Bounds);
+        if (SelectedTablet == null)
+            throw new InvalidOperationException("No tablet selected.");
+
+        var x = Math.Round(SelectedTablet.Reference.Size.X, 5);
+        var y = Math.Round(SelectedTablet.Reference.Size.Y, 5);
+
+        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y));
 
         setupWizard.SetupCompleted += OnSetupCompleted;
         setupWizard.BackRequested += OnBackRequestedAhead;
@@ -205,12 +229,15 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     /// <param name="text">The search text.</param>
     private void OnSearchTextChanged(string text)
     {
+        if (SelectedTablet == null)
+            return;
+
         CurrentGestureBindings.Clear();
 
         if (string.IsNullOrWhiteSpace(text))
-            CurrentGestureBindings.AddRange(_gestureBindings);
+            CurrentGestureBindings.AddRange(SelectedTablet.Gestures);
         else
-            CurrentGestureBindings.AddRange(_gestureBindings.Where(x => GestureNameStartsWith(x, text)));
+            CurrentGestureBindings.AddRange(SelectedTablet.Gestures.Where(x => GestureNameStartsWith(x, text)));
     }
 
     //
@@ -237,6 +264,9 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         if (NextViewModel is not GestureSetupWizardViewModel)
             throw new InvalidOperationException();
 
+        if (SelectedTablet == null)
+            return;
+
         NextViewModel.BackRequested -= OnBackRequestedAhead;
         NextViewModel = this;
 
@@ -247,11 +277,11 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         //bindingDisplay.PluginProperty = e.BindingDisplay.PluginProperty;       
 
         // We add the binding to the list of bindings, we may need to insert it instead to avoid having to re-sort the list
-        _gestureBindings.Add(bindingDisplay);
+        SelectedTablet.Add(bindingDisplay);
 
-        IsEmpty = _gestureBindings.Count == 0;
+        IsEmpty = !SelectedTablet.Gestures.Any();
 
-        GesturesChanged?.Invoke(this, new GestureChangedEventArgs(null, e.Gesture!));
+        ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }
 
     //
@@ -263,7 +293,13 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         if (sender is not GestureBindingDisplayViewModel bindingDisplay)
             throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
 
-        var setupWizard = new GestureSetupWizardViewModel(Bounds);
+        if (SelectedTablet == null)
+            return;
+
+        var x = Math.Round(SelectedTablet.Reference.Size.X, 5);
+        var y = Math.Round(SelectedTablet.Reference.Size.Y, 5);
+
+        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y));
 
         // We need to check whenever the edit is completed & when te user goes back
         setupWizard.EditCompleted += (s, args) => OnEditCompleted(s, bindingDisplay, args);
@@ -285,6 +321,9 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         if (args.NewValue is not INamed named)
             throw new ArgumentException("The edited gesture must be named.");
 
+        if (SelectedTablet == null)
+            return;
+
         // The edit was completed, we need to update the binding display
         bindingDisplay.AssociatedGesture = args.NewValue;
         bindingDisplay.PluginProperty = serialized.PluginProperty;
@@ -297,7 +336,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
         NextViewModel = this;
 
-        GesturesChanged?.Invoke(this, args);
+        ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }
 
     // TODO: Ideally it should OnEditCompleted & OnGestureBindingsChanged should be merged into one event handler
@@ -306,11 +345,14 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         if (sender is not GestureBindingDisplayViewModel bindingDisplay)
             throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
 
+        if (SelectedTablet == null)
+            return;
+
         // We need to update the content of the binding display
         var args = new GestureChangedEventArgs(bindingDisplay.AssociatedGesture, bindingDisplay.AssociatedGesture);
         bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
 
-        GesturesChanged?.Invoke(this, args);
+        ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }
 
     //
@@ -322,16 +364,21 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         if (sender is not GestureBindingDisplayViewModel bindingDisplay)
             throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
 
+        IsEmpty = !SelectedTablet?.Gestures.Any() ?? true;
+
+        if (SelectedTablet == null)
+            return;
+
         var res = await ConfirmationDialog.Handle(_confirmationDialogData).ToTask();
 
         if (!res)
             return;
 
-        _gestureBindings.Remove(bindingDisplay);
+        SelectedTabletIndex = Math.Min(SelectedTabletIndex, Tablets.Count - 2);
+        
+        SelectedTablet.Remove(bindingDisplay);
 
-        IsEmpty = _gestureBindings.Count == 0;
-
-        GesturesChanged?.Invoke(this, new GestureChangedEventArgs(bindingDisplay.AssociatedGesture, null));
+        ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }
 
     private void OnGestureCollectionChanged(object? sender, EventArgs e)
@@ -349,16 +396,20 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     {
         IsReady = true;
 
-        foreach (var binding in _gestureBindings)
-            binding.IsReady = true;
+        foreach (var tablet in Tablets)
+            foreach (var binding in tablet.Gestures)
+                binding.IsReady = true;
     }
 
     private void OnDisconnected(object? sender, EventArgs e)
     {
         IsReady = false;
 
-        foreach (var binding in _gestureBindings)
-            binding.IsReady = false;
+        DisposeCurrentContext();
+
+        foreach (var tablet in Tablets)
+            foreach (var binding in tablet.Gestures)
+                binding.IsReady = false;
     }
 
     #endregion
@@ -376,23 +427,24 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
     #region Disposal
 
-    public void DisposeCurrent()
+    public void DisposeCurrentContext()
     {
-        foreach (var binding in _gestureBindings)
-            binding.Dispose();
+        foreach (var tablet in Tablets)
+            tablet.Dispose();
 
-        _gestureBindings.Clear();
+        Tablets.Clear();
+        IsEmpty = true;
     }
 
     public void Dispose()
     {
-        DisposeCurrent();
+        DisposeCurrentContext();
 
         _parentViewModel.Ready -= OnReady;
         _parentViewModel.Disconnected -= OnDisconnected;
 
         SaveRequested = null;
-        GesturesChanged = null;
+        ProfileChanged = null;
         BackRequested = null;
 
         GC.SuppressFinalize(this);

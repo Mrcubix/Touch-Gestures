@@ -142,10 +142,6 @@ namespace TouchGestures.Lib.Entities.Gestures
             }
         }
 
-        /// <inheritdoc/>
-        [JsonProperty]
-        public override bool IsRestrained { get; }
-
         /// <summary>
         ///   The amount of time the user has to keep the touch points pressed to trigger the hold.
         /// </summary>

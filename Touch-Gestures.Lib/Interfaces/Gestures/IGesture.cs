@@ -1,6 +1,7 @@
 using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib.Entities;
 
 namespace TouchGestures.Lib.Interfaces
 {
@@ -28,6 +29,11 @@ namespace TouchGestures.Lib.Interfaces
         ///   Whether the gesture is relative or absolute.
         /// </summary>
         bool IsRestrained { get; }
+
+        /// <summary>
+        ///   The absolute bounds of the situation.
+        /// </summary>
+        SharedArea? Bounds { get; }
 
         /// <summary>
         ///   The number of lines per millimeter.

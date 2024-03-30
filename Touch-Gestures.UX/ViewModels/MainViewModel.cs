@@ -10,9 +10,7 @@ using StreamJsonRpc;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Entities;
-using TouchGestures.Lib.Serializables.Gestures;
 using System.Threading;
 using TouchGestures.UX.Events;
 using Avalonia.Threading;
@@ -20,7 +18,7 @@ using System.Numerics;
 using Avalonia;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Converters;
-using TouchGestures.UX.ViewModels.Controls.Setups;
+using TouchGestures.Lib.Entities.Tablet;
 
 namespace TouchGestures.UX.ViewModels;
 
@@ -35,9 +33,7 @@ public partial class MainViewModel : NavigableViewModel
     private CancellationTokenSource _reconnectionTokenSource = new();
     private RpcClient<IGesturesDaemon> _client;
     private SerializableSettings _settings;
-    private Rect _tabletRect;
-    private Vector2 _LinesPerMM = Vector2.Zero;
-    
+
     #endregion
 
     #region Observable Fields
@@ -45,12 +41,12 @@ public partial class MainViewModel : NavigableViewModel
     // Home Menu
 
     // Bindings Overview
-      // Add Button
-        // -> GestureSetupWizard
-          // Gesture Selection
-          // Gesture Option Selection
-          // Gesture Binding Selection
-          // Gesture Settings Tweaking
+    // Add Button
+    // -> GestureSetupWizard
+    // Gesture Selection
+    // Gesture Option Selection
+    // Gesture Binding Selection
+    // Gesture Settings Tweaking
 
     // Settings
 
@@ -88,7 +84,7 @@ public partial class MainViewModel : NavigableViewModel
 
         BindingsOverviewViewModel = new(this);
         BindingsOverviewViewModel.SaveRequested += OnSaveRequested;
-        BindingsOverviewViewModel.GesturesChanged += OnGestureChanged;
+        BindingsOverviewViewModel.ProfileChanged += OnProfileChanged;
 
         BackRequested = null!;
 
@@ -157,7 +153,7 @@ public partial class MainViewModel : NavigableViewModel
         _reconnectionTokenSource = new();
         var token = _reconnectionTokenSource.Token;
 
-        while(!_client.IsConnected && !token.IsCancellationRequested)
+        while (!_client.IsConnected && !token.IsCancellationRequested)
         {
             await Task.Delay(500, token);
             await ConnectRpcAsync();
@@ -184,9 +180,9 @@ public partial class MainViewModel : NavigableViewModel
         if (!_client.IsConnected)
             return null;
 
-        try 
-        { 
-            return await _client.Instance.GetPlugins(); 
+        try
+        {
+            return await _client.Instance.GetPlugins();
         }
         catch (Exception e)
         {
@@ -228,14 +224,14 @@ public partial class MainViewModel : NavigableViewModel
         }
     }
 
-    private async Task UploadSettingsAsync()
+    private async Task UpdateProfileAsync(SerializableProfile profile)
     {
         if (!_client.IsConnected)
             return;
 
         try
         {
-            await _client.Instance.UpdateSettings(_settings);
+            await _client.Instance.UpdateProfile(profile);
         }
         catch (Exception e)
         {
@@ -263,74 +259,6 @@ public partial class MainViewModel : NavigableViewModel
         return Plugins.FirstOrDefault(x => x.Identifier == identifier)?.PluginName ?? "Unknown";
     }
 
-    //
-    // Adding / Changing / Removing Gestures
-    //
-
-    private void AddGesture(Gesture gesture)
-    {
-        switch (gesture)
-        {
-            case SerializableTapGesture tapGesture:
-                _settings.TapGestures.Add(tapGesture);
-                break;
-            case SerializableHoldGesture holdGesture:
-                _settings.HoldGestures.Add(holdGesture);
-                break;
-            case SerializableSwipeGesture swipeGesture:
-                _settings.SwipeGestures.Add(swipeGesture);
-                break;
-            case SerializablePanGesture panGesture:
-                _settings.PanGestures.Add(panGesture);
-                break;
-            case SerializablePinchGesture pinchGesture:
-                AddPinchGesture(pinchGesture);
-                break;
-            default:
-                throw new NotImplementedException();
-        }
-    }
-
-    private void RemoveGesture(Gesture gesture)
-    {
-        switch (gesture)
-        {
-            case SerializableTapGesture tapGesture:
-                _settings.TapGestures.Remove(tapGesture);
-                break;
-            case SerializableHoldGesture holdGesture:
-                _settings.HoldGestures.Remove(holdGesture);
-                break;
-            case SerializableSwipeGesture swipeGesture:
-                _settings.SwipeGestures.Remove(swipeGesture);
-                break;
-            case SerializablePanGesture panGesture:
-                _settings.PanGestures.Remove(panGesture);
-                break;
-            case SerializablePinchGesture pinchGesture:
-                RemovePinchGesture(pinchGesture);
-                break;
-            default:
-                throw new NotImplementedException();
-        }
-    }
-
-    private void AddPinchGesture(SerializablePinchGesture pinchGesture)
-    {
-        if (pinchGesture.DistanceThreshold > 0)
-            _settings.PinchGestures.Add(pinchGesture);
-        else
-            _settings.RotateGestures.Add(pinchGesture);
-    }
-
-    private void RemovePinchGesture(SerializablePinchGesture pinchGesture)
-    {
-        if (pinchGesture.DistanceThreshold > 0)
-            _settings.PinchGestures.Remove(pinchGesture);
-        else
-            _settings.RotateGestures.Remove(pinchGesture);
-    }
-
     #endregion
 
     #region Event Handlers
@@ -354,13 +282,17 @@ public partial class MainViewModel : NavigableViewModel
         ConnectionStateText = "Disconnected";
         IsReady = false;
         Disconnected?.Invoke(this, EventArgs.Empty);
+        _client.Instance.TabletsChanged -= OnTabletsChanged;
 
         _ = Task.Run(() => AttemptReconnectionIndefinitelyAsync());
+        NextViewModel = this;
     }
 
     private async Task OnClientAttached(object? sender, EventArgs e)
     {
         ConnectionStateText = "Connected, Fetching Plugins & Settings ...";
+
+        _client.Instance.TabletsChanged += OnTabletsChanged;
 
         var tempPlugins = await FetchPluginsAsync();
 
@@ -370,36 +302,37 @@ public partial class MainViewModel : NavigableViewModel
             PluginChanged?.Invoke(this, Plugins);
         }
 
-        SerializableSettings? tempSettings = await FetchSettingsAsync();
+        var tablets = await _client.Instance.GetTablets();
 
-        if (tempSettings != null)
-        {
-            _settings = tempSettings;
-            Dispatcher.UIThread.Post(() => OnSettingsChanged(_settings));
-        }
-
-        if (await _client.Instance.IsTabletConnected())
-        {
-            Vector2? tempLinesPerMM = await _client.Instance.GetTabletLinesPerMM();
-
-            if (tempLinesPerMM != null)
-            {
-                _LinesPerMM = tempLinesPerMM.Value;
-            }
-
-            Vector2? tempTabletSize = await _client.Instance.GetTabletSize();
-
-            if (tempTabletSize != null)
-            {
-                double x = Math.Round(tempTabletSize.Value.X, 5), y = Math.Round(tempTabletSize.Value.Y, 5);
-                _tabletRect = new Rect(0, 0, x, y);
-                Dispatcher.UIThread.Invoke(() => OnTabletRectChanged(_tabletRect, _LinesPerMM));
-            }
-        }
+        if (tablets != null)
+            OnTabletsChanged(this, tablets);
 
         IsReady = true;
         Ready?.Invoke(this, EventArgs.Empty);
         NextViewModel = BindingsOverviewViewModel;
+    }
+
+    public void OnTabletsChanged(object? sender, IEnumerable<SharedTabletReference> tablets)
+    {
+        if (tablets == null || !tablets.Any())
+            return;
+
+        _ = OnTabletsChangedCore(sender, tablets);
+    }
+
+    private async Task OnTabletsChangedCore(object? sender, IEnumerable<SharedTabletReference> tablets)
+    {
+        if (tablets == null || !tablets.Any())
+            return;
+
+        SerializableSettings? tempSettings = await FetchSettingsAsync();
+
+        if (tempSettings != null && tablets != null)
+        {
+            _settings = tempSettings;
+            Dispatcher.UIThread.Post(() => OnSettingsChanged(_settings));
+            Dispatcher.UIThread.Post(() => BindingsOverviewViewModel.SetTablets(tablets));
+        } 
     }
 
     //
@@ -446,26 +379,13 @@ public partial class MainViewModel : NavigableViewModel
         SettingsChanged?.Invoke(this, e);
     }
 
-    private void OnTabletRectChanged(Rect bounds, Vector2 linesPerMM)
-    {
-        // TODO: set it in the appropriates Node Canvases
-
-        // TODO: set it in the GestureSetupWizard
-        BindingsOverviewViewModel.Bounds = bounds;
-    }
-
     //
     // Handling whenever gestures are added / changed / deleted
     //
 
-    private void OnGestureChanged(object? sender, GestureChangedEventArgs e)
+    private void OnProfileChanged(object? sender, SerializableProfile e)
     {
-        if (e.OldValue == null && e.NewValue != null)
-            AddGesture(e.NewValue);
-        else if (e.OldValue != null && e.NewValue == null)
-            RemoveGesture(e.OldValue);
-
-        _ = UploadSettingsAsync();
+        _ = UpdateProfileAsync(e);
     }
 
     #endregion
@@ -474,9 +394,9 @@ public partial class MainViewModel : NavigableViewModel
 
     private void HandleException(Exception e)
     {
-        switch(e)
+        switch (e)
         {
-            case RemoteRpcException re: 
+            case RemoteRpcException re:
                 Console.WriteLine($"An Error occured while attempting to connect to the RPC server: {re.Message}");
                 Console.WriteLine("----------------------------------------");
                 Console.WriteLine("This error could have occured due to an different version of WheelAddon being used with this Interface.");

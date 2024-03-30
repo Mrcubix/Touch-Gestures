@@ -20,7 +20,7 @@ namespace TouchGestures.Lib.Entities.Gestures
     ///   A tap gesture is triggered when a <see cref="RequiredTouchesCount"/> number of fingers are pressed and released within a specified deadline.
     /// </remarks>
     [JsonObject(MemberSerialization.OptIn)]
-    public class TapGesture : MixedBasedGesture, IAbsolutePositionable
+    public class TapGesture : MixedBasedGesture
     {
         #region Fields
 
@@ -153,10 +153,6 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
-        public override bool IsRestrained { get; }
-
-        /// <inheritdoc/>
-        [JsonProperty]
         public override double Deadline { get; set; }
 
         /// <inheritdoc/>
@@ -201,14 +197,6 @@ namespace TouchGestures.Lib.Entities.Gestures
 
                 //_currentTouches = new List<int>(value);
             }
-        }
-
-        /// <inheritdoc/>
-        [JsonProperty]
-        public SharedArea? Bounds
-        {
-            get => _bounds?.Divide(LinesPerMM);
-            set => _bounds = value?.Multiply(LinesPerMM);
         }
 
         #endregion

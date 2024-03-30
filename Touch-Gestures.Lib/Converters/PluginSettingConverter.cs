@@ -40,7 +40,9 @@ namespace TouchGestures.Converters
             {
                 ["Property"] = value.Property,
                 ["Value"] = value.GetValue<string?>(),
+#if !OTD06
                 ["HasValue"] = value.HasValue
+#endif
             };
 
             obj.WriteTo(writer);

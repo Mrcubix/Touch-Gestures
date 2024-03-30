@@ -125,9 +125,6 @@ namespace TouchGestures.Lib.Entities.Gestures
         }
 
         /// <inheritdoc/>
-        public override bool IsRestrained { get; }
-
-        /// <inheritdoc/>
         [JsonProperty]
         public override Vector2 Threshold { get; set; }
 

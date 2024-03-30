@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using OpenTabletDriver.Desktop.Reflection;
+using OpenTabletDriver.External.Common.RPC;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
@@ -16,15 +20,21 @@ using TouchGestures.Lib.Contracts;
 using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
-using TouchGestures.Lib.Extensions;
 
 namespace TouchGestures
 {
-    public class GesturesDaemon : IGesturesDaemon
+    /// <summary>
+    ///   Manages settings for each tablets as well as the RPC server.
+    /// </summary>
+    [PluginName(PLUGIN_NAME)]
+    public sealed class GesturesDaemon : ITool, IGesturesDaemon
     {
+        private static RpcServer<GesturesDaemon> _rpcServer = null!;
         public static GesturesDaemon Instance { get; private set; } = null!;
 
         #region Constants
+
+        public const string PLUGIN_NAME = "Touch Gestures Daemon";
 
         private readonly string _settingsPath = Path.Combine(OpenTabletDriver.Desktop.AppInfo.Current.AppDataDirectory, "Touch-Gestures.json");
 
@@ -46,12 +56,38 @@ namespace TouchGestures
 
         private List<SharedTabletReference> _tablets = new();
 
+        private Vector2 TabletSize = Vector2.One;
+
+        private Vector2 TouchLPMM = Vector2.One;
+
         #endregion
 
         #region Constructors
 
         public GesturesDaemon()
         {
+#if DEBUG
+            WaitForDebugger();
+#endif
+            if (_rpcServer == null)
+            {
+                _rpcServer = new RpcServer<GesturesDaemon>("GesturesDaemon", this);
+                _rpcServer.Converters.Add(new SharedAreaConverter());
+            }
+
+            Instance ??= this;
+
+            TabletAdded += OnTabletsAdded;
+        }
+
+        private void WaitForDebugger()
+        {
+            Console.WriteLine("Waiting for debugger to attach...");
+
+            while (!Debugger.IsAttached)
+            {
+                Thread.Sleep(100);
+            }
         }
 
         public GesturesDaemon(Settings settings)
@@ -61,7 +97,24 @@ namespace TouchGestures
             Initialize(false);
         }
 
-        public void Initialize(bool doLoadSettings = true)
+        public bool Initialize()
+        {
+            Initialize(true);
+
+            if (HasErrored)
+            {
+                Log.Write("Gestures Daemon", "Failed to Initialize, aborting early.");
+                return false;
+            }
+
+            _ = Task.Run(() => _rpcServer.MainAsync());
+
+            Log.Write(PLUGIN_NAME, "Initialized");
+
+            return true;
+        }
+
+        private void Initialize(bool doLoadSettings = true)
         {
             if (doLoadSettings)
                 LoadSettings(_settingsPath);
@@ -70,12 +123,6 @@ namespace TouchGestures
             {
                 Log.Write("Gestures Daemon", "Failed to load settings, aborting initialization.");
                 return;
-            }
-
-            if (Info.Driver.Tablet != null)
-            {
-                TabletSize = new Vector2(Info.Driver.Tablet.Digitizer.Width, Info.Driver.Tablet.Digitizer.Height);
-                LinesPerMM = Info.Driver.GetTouchLPMM();
             }
 
             // identify plugins
@@ -98,6 +145,9 @@ namespace TouchGestures
         public event EventHandler<Settings?>? OnSettingsChanged;
         public event EventHandler<IEnumerable<SharedTabletReference>>? TabletsChanged;
 
+        private event EventHandler<SharedTabletReference>? TabletAdded;
+        private event EventHandler<SharedTabletReference>? TabletRemoved;
+
         #endregion
 
         #region Properties
@@ -105,10 +155,6 @@ namespace TouchGestures
         public Dictionary<int, TypeInfo> IdentifierToPluginConversion = new();
 
         public Settings? TouchGestureSettings { get; private set; } = Settings.Default;
-
-        public Vector2 TabletSize { get; private set; } = new(-1, -1);
-
-        public Vector2 LinesPerMM = Vector2.One * -1;
 
         public bool IsReady { get; private set; }
 
@@ -118,14 +164,72 @@ namespace TouchGestures
 
         #region Methods
 
+        /// <summary>
+        ///   Gets the settings for a specific tablet.
+        /// </summary>
+        /// <param name="name">The name of the tablet.</param>
+        /// <returns>The settings for the tablet.</returns>
+        public BindableProfile GetSettingsForTablet(string name)
+        {
+            var tablet = _tablets.Find(t => t.Name == name);
+
+            if (tablet == null)
+                return null!;
+
+            return TouchGestureSettings?.Profiles.Find(p => p.Name == tablet.Name) ?? CreateProfileForTablet(tablet);
+        }
+
+        public void AddTablet(SharedTabletReference tablet)
+        {
+            if (_tablets.Any(t => t.Name == tablet.Name))
+                return;
+
+            _tablets.Add(tablet);
+
+            TabletsChanged?.Invoke(this, _tablets);
+            TabletAdded?.Invoke(this, tablet);
+        }
+
+        public void RemoveTablet(SharedTabletReference tablet)
+        {
+            if (!_tablets.Remove(tablet))
+                return;
+
+            TabletsChanged?.Invoke(this, _tablets);
+            TabletRemoved?.Invoke(this, tablet);
+        }
+
+        public void RemoveTablet(string name)
+        {
+            var tablet = _tablets.Find(t => t.Name == name);
+
+            if (tablet != null)
+                RemoveTablet(tablet);
+        }
+
+        private BindableProfile CreateProfileForTablet(SharedTabletReference tablet)
+        {
+            if (TouchGestureSettings == null)
+                return null!;
+
+            var profile = new BindableProfile
+            {
+                Name = tablet.Name
+            };
+
+            TouchGestureSettings.Profiles.Add(profile);
+
+            return profile;
+        }
+
         private void IdentifyPlugins()
         {
-            // obtain all IBinding plugins
+            // Obtain all IBinding plugins
             var plugins = OpenTabletDriver.Desktop.AppInfo.PluginManager.GetChildTypes<IBinding>();
 
             IdentifierToPluginConversion.Clear();
 
-            foreach(var plugin in plugins)
+            foreach (var plugin in plugins)
             {
                 var identifierHash = 0;
 
@@ -142,15 +246,13 @@ namespace TouchGestures
 
         private void LoadSettings(string path)
         {
-            if (!File.Exists(_settingsPath))
+            if (!File.Exists(path))
                 SaveSettingsCore();
 
-            var res = Settings.TryLoadFrom(_settingsPath, out var temp);
+            HasErrored = !Settings.TryLoadFrom(path, out var temp);
 
-            if (res)
+            if (!HasErrored)
                 TouchGestureSettings = temp;
-            else
-                HasErrored = true;
         }
 
         private bool SaveSettingsCore()
@@ -170,30 +272,10 @@ namespace TouchGestures
             return false;
         }
 
-        public void AddTablet(SharedTabletReference tablet)
-        {
-            _tablets.Add(tablet);
-            TabletsChanged?.Invoke(this, _tablets);
-        }
-
-        public void RemoveTablet(SharedTabletReference tablet)
-        {
-            if (_tablets.Remove(tablet))
-                TabletsChanged?.Invoke(this, _tablets);
-        }
-
-        public void RemoveTablet(string name)
-        {
-            var tablet = _tablets.Find(t => t.Name == name);
-
-            if (tablet != null)
-                RemoveTablet(tablet);
-        }
-
         #endregion
 
         #region RPC Methods
-        
+
         public Task<List<SerializablePlugin>> GetPlugins()
         {
             Log.Write("Gestures Daemon", "Getting plugins...");
@@ -208,9 +290,9 @@ namespace TouchGestures
 
                 var validateBinding = store.Construct<IValidateBinding>();
 
-                var serializablePlugin = new SerializablePlugin(plugin.GetCustomAttribute<PluginNameAttribute>()?.Name, 
-                                                                plugin.FullName, 
-                                                                IdentifierPluginPair.Key, 
+                var serializablePlugin = new SerializablePlugin(plugin.GetCustomAttribute<PluginNameAttribute>()?.Name,
+                                                                plugin.FullName,
+                                                                IdentifierPluginPair.Key,
                                                                 validateBinding.ValidProperties);
 
                 plugins.Add(serializablePlugin);
@@ -249,7 +331,7 @@ namespace TouchGestures
         {
             Log.Write("Gestures Daemon", "Acquiring Tablet...");
 
-            return Task.FromResult(LinesPerMM);
+            return Task.FromResult(TouchLPMM);
         }
 
         public Task<SerializableSettings> GetSettings()
@@ -279,6 +361,24 @@ namespace TouchGestures
             return Task.FromResult(true);
         }
 
+        public Task<bool> UpdateProfile(SerializableProfile profile)
+        {
+            Log.Write("Gestures Daemon", "Updating profile...");
+
+            if (profile == null)
+                return Task.FromResult(false);
+
+            var bindableProfile = TouchGestureSettings?.Profiles.Find(p => p.Name == profile.Name);
+            var tablet = _tablets.Find(t => t.Name == profile.Name);
+
+            if (bindableProfile == null || tablet == null)
+                return Task.FromResult(false);
+
+            bindableProfile.Update(profile, tablet, IdentifierToPluginConversion);
+
+            return Task.FromResult(true);
+        }
+
         public Task<bool> StartRecording()
         {
             return Task.FromResult(true);
@@ -287,6 +387,40 @@ namespace TouchGestures
         public Task<bool> StopRecording()
         {
             return Task.FromResult(true);
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void OnTabletsAdded(object? sender, SharedTabletReference tablet)
+        {
+            TabletSize = _tablets[0].Size;
+            TouchLPMM = _tablets[0].TouchDigitizer?.GetLPMM() ?? Vector2.One;
+
+            if (TouchGestureSettings == null)
+                return;
+
+            var profile = TouchGestureSettings.Profiles.Find(p => p.Name == _tablets[0].Name);
+
+            if (profile == null)
+                return;
+
+            // Update gestures in profile with new LPMM
+            foreach (var gesture in profile)
+            {
+                gesture.LinesPerMM = TouchLPMM;
+            }
+        }
+
+        #endregion
+
+        #region Disposal
+
+        public void Dispose()
+        {
+            _tablets.Clear();
+            _rpcServer.Dispose();
         }
 
         #endregion

@@ -109,7 +109,11 @@
           </Grid>
 
           <Border Background="{StaticResource AccentColorBrush}" BorderThickness="0,2,0,0" Grid.Row="2" Padding="4">
-            <Button Command="{Binding RequestSave}" Content="Save" IsEnabled="{Binding IsReady}" HorizontalAlignment="Right" />
+            <Grid>
+              <ComboBox ItemsSource="{Binding Tablets}" SelectedIndex="{Binding SelectedTabletIndex}" 
+                        IsEnabled="{Binding IsReady}" HorizontalAlignment="Left" />
+              <Button Command="{Binding RequestSave}" Content="Save" IsEnabled="{Binding IsReady}" HorizontalAlignment="Right" />
+            </Grid>
           </Border>
 
         </Grid>

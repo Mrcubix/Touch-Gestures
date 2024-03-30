@@ -24,17 +24,14 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         public BindableHoldGesture() : base()
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableHoldGesture(Rectangle bounds) : base(bounds)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableHoldGesture(Rectangle bounds, double deadline) : base(bounds, deadline)
         {
-            LinesPerMM = Info.Driver.GetTouchLPMM();
         }
 
         public BindableHoldGesture(SharedArea? sharedArea, double deadline, int requiredTouchesCount) : this()
