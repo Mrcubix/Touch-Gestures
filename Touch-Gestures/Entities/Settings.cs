@@ -7,7 +7,7 @@ using System.Reflection;
 using TouchGestures.Converters;
 using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities;
-using TouchGestures.Entities.Gestures;
+using TouchGestures.Lib.Entities.Gestures;
 
 namespace TouchGestures.Entities
 {
@@ -44,6 +44,9 @@ namespace TouchGestures.Entities
         #endregion
 
         #region Properties
+
+        [JsonProperty]
+        public int Version { get; set; }
 
         [JsonProperty]
         public List<BindableTapGesture> TapGestures { get; set; } = new();

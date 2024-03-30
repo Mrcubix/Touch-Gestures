@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>TouchGestures.Tests</RootNamespace>
     <NoWarn>$(NoWarn); NETSDK1138; VSTHRD200; NU1902; NU1903;</NoWarn>
 

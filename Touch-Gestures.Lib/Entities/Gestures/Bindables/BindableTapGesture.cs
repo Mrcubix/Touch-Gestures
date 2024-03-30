@@ -9,10 +9,9 @@ using System.Reflection;
 using System.Linq;
 using OpenTabletDriver.External.Common.Serializables;
 using System.Drawing;
-using TouchGestures.Extensions;
-using TouchGestures.Lib.Entities.Gestures;
+using TouchGestures.Lib.Extensions;
 
-namespace TouchGestures.Entities.Gestures
+namespace TouchGestures.Lib.Entities.Gestures
 {
     /// <summary>
     ///   Represent a 1-finger tap gesture.

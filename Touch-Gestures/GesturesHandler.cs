@@ -11,7 +11,7 @@ using OpenTabletDriver.Plugin.Attributes;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using OTD.EnhancedOutputMode.Lib.Interface;
-using OTD.EnhancedOutputMode.Tool;
+using OTD.EnhancedOutputMode.Lib.Tools;
 using TouchGestures.Entities;
 using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities.Gestures;

@@ -1,8 +1,8 @@
 using System.Numerics;
 using OpenTabletDriver.Plugin;
-using OTD.EnhancedOutputMode.Tool;
+using OTD.EnhancedOutputMode.Lib.Tools;
 
-namespace TouchGestures.Extensions
+namespace TouchGestures.Lib.Extensions
 {
     public static class IDriverExtensions
     {

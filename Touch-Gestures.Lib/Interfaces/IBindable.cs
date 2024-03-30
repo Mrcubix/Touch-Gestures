@@ -11,9 +11,16 @@ namespace TouchGestures.Lib.Interfaces
         [JsonProperty]
         PluginSettingStore? Store { get; set; }
 
+#if !OTD06
         /// <summary>
         ///   The binding associated with the gesture.
         /// </summary>
         IBinding? Binding { get; }
+#else
+        /// <summary>
+        ///   The binding associated with the gesture.
+        /// </summary>
+        IStateBinding? Binding { get; }
+#endif
     }
 }

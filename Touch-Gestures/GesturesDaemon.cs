@@ -15,11 +15,15 @@ using TouchGestures.Extensions;
 using TouchGestures.Lib.Contracts;
 using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities;
+using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Extensions;
 
 namespace TouchGestures
 {
     public class GesturesDaemon : IGesturesDaemon
     {
+        public static GesturesDaemon Instance { get; private set; } = null!;
+
         #region Constants
 
         private readonly string _settingsPath = Path.Combine(OpenTabletDriver.Desktop.AppInfo.Current.AppDataDirectory, "Touch-Gestures.json");
@@ -35,6 +39,12 @@ namespace TouchGestures
                 new SharedAreaConverter()
             }
         };
+
+        #endregion
+
+        #region Fields
+
+        private List<SharedTabletReference> _tablets = new();
 
         #endregion
 
@@ -86,6 +96,7 @@ namespace TouchGestures
 
         public event EventHandler? OnReady;
         public event EventHandler<Settings?>? OnSettingsChanged;
+        public event EventHandler<IEnumerable<SharedTabletReference>>? TabletsChanged;
 
         #endregion
 
@@ -159,6 +170,26 @@ namespace TouchGestures
             return false;
         }
 
+        public void AddTablet(SharedTabletReference tablet)
+        {
+            _tablets.Add(tablet);
+            TabletsChanged?.Invoke(this, _tablets);
+        }
+
+        public void RemoveTablet(SharedTabletReference tablet)
+        {
+            if (_tablets.Remove(tablet))
+                TabletsChanged?.Invoke(this, _tablets);
+        }
+
+        public void RemoveTablet(string name)
+        {
+            var tablet = _tablets.Find(t => t.Name == name);
+
+            if (tablet != null)
+                RemoveTablet(tablet);
+        }
+
         #endregion
 
         #region RPC Methods
@@ -193,6 +224,18 @@ namespace TouchGestures
             Log.Write("Gestures Daemon", "Checking if tablet is connected...");
 
             return Task.FromResult(Info.Driver.Tablet != null);
+        }
+
+        public Task<SharedTabletReference[]> GetTablets()
+        {
+            if (Info.Driver.Tablet == null)
+                return Task.FromResult(Array.Empty<SharedTabletReference>());
+
+            Log.Write("Gestures Daemon", "Getting tablets...");
+
+            var tablets = new SharedTabletReference[1] { Info.Driver.Tablet.ToShared() };
+
+            return Task.FromResult(tablets);
         }
 
         public Task<Vector2> GetTabletSize()

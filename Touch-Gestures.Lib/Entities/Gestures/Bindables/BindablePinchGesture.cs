@@ -1,21 +1,18 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
-using TouchGestures.Extensions;
-using TouchGestures.Lib.Entities;
-using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Enums;
+using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Interfaces;
 using TouchGestures.Lib.Serializables.Gestures;
 
-namespace TouchGestures.Entities.Gestures
+namespace TouchGestures.Lib.Entities.Gestures
 {
     /// <summary>
     ///   Represent a swipe gesture in any of the 8 directions in <see cref="SwipeDirection"/>.

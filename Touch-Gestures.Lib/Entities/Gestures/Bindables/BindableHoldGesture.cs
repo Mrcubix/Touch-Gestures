@@ -8,11 +8,9 @@ using System.Reflection;
 using System.Linq;
 using OpenTabletDriver.External.Common.Serializables;
 using System.Drawing;
-using TouchGestures.Lib.Entities;
-using TouchGestures.Extensions;
-using TouchGestures.Lib.Entities.Gestures;
+using TouchGestures.Lib.Extensions;
 
-namespace TouchGestures.Entities.Gestures
+namespace TouchGestures.Lib.Entities.Gestures
 {
     /// <summary>
     ///   Represent a 1-finger tap gesture.
@@ -84,8 +82,13 @@ namespace TouchGestures.Entities.Gestures
         [JsonProperty]
         public PluginSettingStore? Store { get; set; }
 
+#if !OTD06
         /// <inheritdoc/>
         public IBinding? Binding { get; set; }
+#else
+        /// <inheritdoc/>
+        public IStateBinding? Binding { get; set; }
+#endif
 
         #endregion
 
