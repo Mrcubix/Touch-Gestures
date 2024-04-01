@@ -6,9 +6,42 @@ echo ""
 echo "Building Touch-Gestures"
 echo ""
 
+# get current git branch
+branch=$(git branch --show-current)
+
+# Check error code
+if [ $? -ne 0 ];
+then
+    echo "Failed to get current git branch"
+    exit 1
+fi
+
+# Swicth to the master branch (0.5.x)
+git checkout "master"
+
+git submodule update --init --recursive
+
+#Build the plugin, exit on failure
+if ! dotnet publish Touch-Gestures -c Debug -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.5.x;
+then
+    echo "Failed to build Touch-Gestures for 0.5.x"
+    git checkout $branch
+    exit 1
+fi
+
+# Swicth to the 0.6.x branch
+git checkout "0.6.x"
+
+git submodule update --init --recursive
+
 # build the plugin, exit on failure
-dotnet publish Touch-Gestures -c Debug -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.5.x || exit 1
-dotnet publish Touch-Gestures.0.6.x -c Debug -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.6.x || exit 1
+if ! dotnet publish Touch-Gestures -c Debug -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.6.x;
+then
+    # we failed to back to the original branch
+    echo "Failed to build Touch-Gestures for 0.6.x"
+    git checkout $branch
+    exit 1
+fi
 
 echo ""
 echo "Creating build directory structure"
