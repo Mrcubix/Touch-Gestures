@@ -100,7 +100,7 @@ namespace TouchGestures.Lib.Entities
 
         public SharedArea Divide(Vector2 factor, int posDecimals = 3, int sizeDecimals = 4)
         {
-            if (factor == Vector2.Zero)
+            if (factor.X == 0 || factor.Y == 0)
                 return Zero;
 
             return new SharedArea
