@@ -19,6 +19,8 @@ fi
 # Swicth to the master branch (0.5.x)
 git checkout "master"
 
+git submodule update --init --recursive
+
 #Build the plugin, exit on failure
 if ! dotnet publish Touch-Gestures -c Debug -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.5.x;
 then
@@ -29,6 +31,8 @@ fi
 
 # Swicth to the 0.6.x branch
 git checkout "0.6.x"
+
+git submodule update --init --recursive
 
 # build the plugin, exit on failure
 if ! dotnet publish Touch-Gestures -c Debug -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.6.x;
