@@ -86,6 +86,9 @@ namespace TouchGestures.Lib.Entities
 
         public SharedArea Divide(float factor)
         {
+            if (factor == 0)
+                return Zero;
+
             return new SharedArea
             {
                 Position = Position / factor,
@@ -97,6 +100,9 @@ namespace TouchGestures.Lib.Entities
 
         public SharedArea Divide(Vector2 factor, int posDecimals = 3, int sizeDecimals = 4)
         {
+            if (factor == Vector2.Zero)
+                return Zero;
+
             return new SharedArea
             {
                 Position = (Position / factor).Round(posDecimals),

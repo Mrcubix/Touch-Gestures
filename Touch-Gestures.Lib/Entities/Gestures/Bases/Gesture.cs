@@ -70,8 +70,10 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
             {
                 var oldBounds = Bounds;
                 _linesPerMM = value;
+
                 // Update the bounds
-                Bounds = oldBounds;
+                if (_linesPerMM != Vector2.Zero)
+                    Bounds = oldBounds;
             }
         }
 

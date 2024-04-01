@@ -50,6 +50,9 @@ namespace TouchGestures.Lib.Extensions
 
         public static Area Divide(this Area area, float factor)
         {
+            if (factor == 0)
+                return Zero;
+
             return new Area
             {
                 Position = area.Position / factor,
