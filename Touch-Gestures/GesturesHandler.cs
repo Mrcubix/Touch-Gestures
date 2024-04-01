@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using OpenTabletDriver;
 using OpenTabletDriver.Desktop.Reflection;
@@ -195,7 +196,12 @@ namespace TouchGestures
             }
 
             if (_tablet != null)
-                _profile.UpdateLPMM(_tablet);
+            {
+                if (_tablet.TouchDigitizer != null && _tablet.TouchDigitizer.GetLPMM() != Vector2.Zero)
+                    _profile.UpdateLPMM(_tablet);
+                else
+                    Log.Write(PLUGIN_NAME, "LPMM is zero, this usually means that 'Touch Settings' hasn't been enabled or its maxes are set to zero", LogLevel.Error);
+            }
 
             TapGestures.Clear();
             HoldGestures.Clear();
