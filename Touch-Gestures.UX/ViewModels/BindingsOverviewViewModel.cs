@@ -49,9 +49,9 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     [ObservableProperty]
     private ObservableCollection<TabletGesturesOverview> _tablets = new();
 
+    [ObservableProperty]
     private TabletGesturesOverview? _selectedTablet;
 
-    [ObservableProperty]
     private int _selectedTabletIndex = -1;
 
     [ObservableProperty]
@@ -102,12 +102,17 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
     public Interaction<TwoChoiceDialogViewModel, bool> ConfirmationDialog { get; } = new();
 
-    public TabletGesturesOverview? SelectedTablet
+    public int SelectedTabletIndex
     {
-        get => _selectedTablet;
+        get => _selectedTabletIndex;
         set
         {
-            SetProperty(ref _selectedTablet, value);
+            SetProperty(ref _selectedTabletIndex, value);
+
+            if (value < 0 || value >= Tablets.Count)
+                return;
+
+            SelectedTablet = Tablets[value];
             TabletChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -173,8 +178,10 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         if (SelectedTablet != null)
             SelectedTabletIndex = Tablets.IndexOf(SelectedTablet);
 
-        IsReady = _parentViewModel.IsReady;
         IsEmpty = !SelectedTablet?.Gestures.Any() ?? true;
+        
+        IsReady = _parentViewModel.IsReady;
+        TabletChanged += OnTabletChanged;
     }
 
     private GestureBindingDisplayViewModel SetupNewBindingDisplay(Gesture gesture)
@@ -238,6 +245,21 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
             CurrentGestureBindings.AddRange(SelectedTablet.Gestures);
         else
             CurrentGestureBindings.AddRange(SelectedTablet.Gestures.Where(x => GestureNameStartsWith(x, text)));
+    }
+
+    /// <summary>
+    ///   Handle the change of the selected tablet.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void OnTabletChanged(object? sender, EventArgs e)
+    {
+        if (SelectedTablet == null)
+            return;
+
+        IsEmpty = !SelectedTablet.Gestures.Any();
+
+        OnSearchTextChanged(SearchText);
     }
 
     //
@@ -431,6 +453,8 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     {
         foreach (var tablet in Tablets)
             tablet.Dispose();
+
+        TabletChanged -= OnTabletChanged;
 
         Tablets.Clear();
         IsEmpty = true;
