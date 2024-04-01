@@ -43,6 +43,10 @@ then
     exit 1
 fi
 
+git checkout $branch
+
+git submodule update --init --recursive
+
 echo ""
 echo "Creating build directory structure"
 echo ""
