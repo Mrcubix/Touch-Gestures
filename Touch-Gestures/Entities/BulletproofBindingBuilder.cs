@@ -10,8 +10,6 @@ namespace TouchGestures.Entities
     {
         private static object? BuildCore(PluginSettingStore? store, SharedTabletReference? tablet)
         {
-            Console.WriteLine("OTD Updater is bulletproof");
-
             if (tablet is not BulletproofSharedTabletReference btablet)
                 return null;
 
