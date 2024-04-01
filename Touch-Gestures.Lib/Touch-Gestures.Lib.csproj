@@ -1,18 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>net5.0</TargetFrameworks>
+    <LangVersion>preview</LangVersion>
     <RootNamespace>TouchGestures.Lib</RootNamespace>
+    <DefineConstants>$(DefineConstants)</DefineConstants>
     <NoWarn>$(NoWarn); NETSDK1138; VSTHRD200</NoWarn>
     <Nullable>enable</Nullable>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(OTD06)' != 'true'">
-    <TargetFramework>net5.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(OTD06)' == 'true'">
-    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <!-- Only Embed debug symbols for the Release configuration -->
@@ -20,17 +14,17 @@
     <DebugType>embedded</DebugType>
   </PropertyGroup>
 
-  <!-- Only for OTD 0.5.x -->
-  <ItemGroup Condition="'$(OTD06)' != 'true'">
+  <!-- Only for OTD 0.5.x (Running on .NET 5) -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
     <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" />
     <ProjectReference Include="../.modules/OpenTabletDriver.External/OpenTabletDriver.External.Common/OpenTabletDriver.External.Common.csproj" />
     <ProjectReference Include="../.modules/OTD.EnhancedOutputMode/OTD.EnhancedOutputMode.Lib/OTD.EnhancedOutputMode.Lib.csproj" />
   </ItemGroup>
 
   <!-- Only for OTD 0.6.x -->
-  <ItemGroup Condition="'$(OTD06)' == 'true'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <ProjectReference Include="../.modules/OpenTabletDriver.External.Bulletproof/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" />
     <ProjectReference Include="../.modules/OpenTabletDriver.External.Bulletproof/OpenTabletDriver.External.Common/OpenTabletDriver.External.Common.csproj" />
-    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode.Bulletproof/OTD.EnhancedOutputModeLib/OTD.EnhancedOutputModeLib.csproj" />
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode.Bulletproof/OTD.EnhancedOutputMode.Lib/OTD.EnhancedOutputMode.Lib.csproj" />
   </ItemGroup>
 </Project>

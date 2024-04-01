@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="../Touch-Gestures.Lib/Touch-Gestures.Lib.csproj" />
     <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" />
+
     <!--<ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" />-->
   </ItemGroup>
 

@@ -4,11 +4,9 @@ using System.IO;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin;
 using System.Reflection;
-using TouchGestures.Converters;
 using TouchGestures.Lib.Converters;
-using TouchGestures.Lib.Entities;
 
-namespace TouchGestures.Entities
+namespace TouchGestures.Lib.Entities
 {
     public class Settings
     {
@@ -75,6 +73,9 @@ namespace TouchGestures.Entities
             return false;
         }
 
+        /// <summary>
+        ///   Some bindings may not have a pointer provided to them using this method.
+        /// </summary>
         public void ConstructBindings()
         {
             foreach (var profile in Profiles)

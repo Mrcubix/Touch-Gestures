@@ -9,7 +9,9 @@ using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Interfaces;
+using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Serializables.Gestures;
+using TouchGestures.Lib.Entities.Tablet;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -100,27 +102,27 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #region static Methods
 
-        public static BindablePinchGesture? FromSerializable(SerializablePinchGesture? swipeGesture, Dictionary<int, TypeInfo> identifierToPlugin)
+        public static BindablePinchGesture? FromSerializable(SerializablePinchGesture? pinchGesture, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet)
         {
-            if (swipeGesture == null)
+            if (pinchGesture == null)
                 return null;
 
-            if (swipeGesture.PluginProperty == null)
+            if (pinchGesture.PluginProperty == null)
                 return null;
 
-            if (!identifierToPlugin.TryGetValue(swipeGesture.PluginProperty.Identifier, out var plugin))
+            if (!identifierToPlugin.TryGetValue(pinchGesture.PluginProperty.Identifier, out var plugin))
                 return null;
 
             var store = new PluginSettingStore(plugin);
 
             // Set the values of the plugin property
-            store.Settings.Single(s => s.Property == "Property").SetValue(swipeGesture.PluginProperty.Value!);
+            if (store.SetBindingValue(plugin, pinchGesture.PluginProperty.Value) == false)
+                return null;
 
-            return new BindablePinchGesture(swipeGesture)
+            return new BindablePinchGesture(pinchGesture)
             {
                 Store = store,
-                Bounds = swipeGesture.Bounds,
-                Binding = store?.Construct<IBinding>()
+                Binding = BindingBuilder.Build(store, tablet) as IBinding
             };
         }
 
@@ -132,14 +134,14 @@ namespace TouchGestures.Lib.Entities.Gestures
             var store = gesture.Store;
 
             var identifier = identifierToPlugin.FirstOrDefault(x => x.Value.FullName == store?.Path);
-            var value = store?.Settings.FirstOrDefault(x => x.Property == "Property");
+            var value = store?.GetBindingValue(identifier.Value);
 
             return new SerializablePinchGesture(gesture)
             {
                 PluginProperty = new SerializablePluginSettings()
                 {
                     Identifier = identifier.Key,
-                    Value = value?.GetValue<string?>()
+                    Value = value
                 }
             };
         }

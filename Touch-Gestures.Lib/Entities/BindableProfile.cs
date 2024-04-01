@@ -44,25 +44,25 @@ namespace TouchGestures.Lib.Entities
 
         #region Methods
 
-        public void ConstructBindings()
+        public virtual void ConstructBindings(SharedTabletReference? tablet = null)
         {
             foreach (var gesture in TapGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>();
+                gesture.Binding = BindingBuilder.Build(gesture.Store, tablet) as IBinding;
 
             foreach (var gesture in SwipeGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>();
+                gesture.Binding = BindingBuilder.Build(gesture.Store, tablet) as IBinding;
 
             foreach (var gesture in HoldGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>();
+                gesture.Binding = BindingBuilder.Build(gesture.Store, tablet) as IBinding;
 
             foreach (var gesture in PanGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>();
+                gesture.Binding = BindingBuilder.Build(gesture.Store, tablet) as IBinding;
 
             foreach (var gesture in PinchGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>();
+                gesture.Binding = BindingBuilder.Build(gesture.Store, tablet) as IBinding;
 
             foreach (var gesture in RotateGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>();
+                gesture.Binding = BindingBuilder.Build(gesture.Store, tablet) as IBinding;
         }
 
         public void Add(Gesture gesture)
@@ -91,7 +91,7 @@ namespace TouchGestures.Lib.Entities
 
         public void Update(SerializableProfile profile, SharedTabletReference tablet, Dictionary<int, TypeInfo> identifierToPlugin)
         {
-            FromSerializable(profile, identifierToPlugin, this);
+            FromSerializable(profile, identifierToPlugin, tablet, this);
             UpdateLPMM(tablet);
             ProfileChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -126,7 +126,7 @@ namespace TouchGestures.Lib.Entities
 
         #region Static Methods
 
-        public static BindableProfile FromSerializable(SerializableProfile profile, Dictionary<int, TypeInfo> identifierToPlugin, in BindableProfile? existingProfile = null)  
+        public static BindableProfile FromSerializable(SerializableProfile profile, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet = null, in BindableProfile? existingProfile = null)  
         {
             var result = existingProfile ?? new BindableProfile();
             result.Name = profile.Name;
@@ -146,7 +146,7 @@ namespace TouchGestures.Lib.Entities
                 if (gesture.PluginProperty == null)
                     continue;
 
-                if (BindableTapGesture.FromSerializable(gesture, identifierToPlugin) is BindableTapGesture tapGesture)
+                if (BindableTapGesture.FromSerializable(gesture, identifierToPlugin, tablet) is BindableTapGesture tapGesture)
                     result.TapGestures.Add(tapGesture);
             }
 
@@ -155,7 +155,7 @@ namespace TouchGestures.Lib.Entities
                 if (gesture.PluginProperty == null)
                     continue;
 
-                if (BindableHoldGesture.FromSerializable(gesture, identifierToPlugin) is BindableHoldGesture holdGesture)
+                if (BindableHoldGesture.FromSerializable(gesture, identifierToPlugin, tablet) is BindableHoldGesture holdGesture)
                     result.HoldGestures.Add(holdGesture);
             }
 
@@ -164,7 +164,7 @@ namespace TouchGestures.Lib.Entities
                 if (gesture.PluginProperty == null)
                     continue;
 
-                if (BindableSwipeGesture.FromSerializable(gesture, identifierToPlugin) is BindableSwipeGesture swipeGesture)
+                if (BindableSwipeGesture.FromSerializable(gesture, identifierToPlugin, tablet) is BindableSwipeGesture swipeGesture)
                     result.SwipeGestures.Add(swipeGesture);
             }
 
@@ -173,7 +173,7 @@ namespace TouchGestures.Lib.Entities
                 if (gesture.PluginProperty == null)
                     continue;
 
-                if (BindablePanGesture.FromSerializable(gesture, identifierToPlugin) is BindablePanGesture panGesture)
+                if (BindablePanGesture.FromSerializable(gesture, identifierToPlugin, tablet) is BindablePanGesture panGesture)
                     result.PanGestures.Add(panGesture);
             }
 
@@ -182,7 +182,7 @@ namespace TouchGestures.Lib.Entities
                 if (gesture.PluginProperty == null)
                     continue;
 
-                if (BindablePinchGesture.FromSerializable(gesture, identifierToPlugin) is BindablePinchGesture pinchGesture)
+                if (BindablePinchGesture.FromSerializable(gesture, identifierToPlugin, tablet) is BindablePinchGesture pinchGesture)
                     result.PinchGestures.Add(pinchGesture);
             }
 
@@ -191,7 +191,7 @@ namespace TouchGestures.Lib.Entities
                 if (gesture.PluginProperty == null)
                     continue;
 
-                if (BindablePinchGesture.FromSerializable(gesture, identifierToPlugin) is BindablePinchGesture rotateGesture)
+                if (BindablePinchGesture.FromSerializable(gesture, identifierToPlugin, tablet) is BindablePinchGesture rotateGesture)
                     result.RotateGestures.Add(rotateGesture);       
             }
 

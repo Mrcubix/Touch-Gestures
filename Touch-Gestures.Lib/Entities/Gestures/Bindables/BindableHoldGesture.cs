@@ -9,6 +9,8 @@ using System.Linq;
 using OpenTabletDriver.External.Common.Serializables;
 using System.Drawing;
 using TouchGestures.Lib.Extensions;
+using System.Diagnostics;
+using TouchGestures.Lib.Entities.Tablet;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -79,13 +81,8 @@ namespace TouchGestures.Lib.Entities.Gestures
         [JsonProperty]
         public PluginSettingStore? Store { get; set; }
 
-#if !OTD06
         /// <inheritdoc/>
         public IBinding? Binding { get; set; }
-#else
-        /// <inheritdoc/>
-        public IStateBinding? Binding { get; set; }
-#endif
 
         #endregion
 
@@ -94,13 +91,23 @@ namespace TouchGestures.Lib.Entities.Gestures
         protected override void Press()
         {
             base.Press();
+#if NET6_0
+            if (Binding is IStateBinding stateBinding)
+                stateBinding.Press();
+#else
             Binding?.Press();
+#endif
         }
 
         protected override void Release()
         {
+#if NET6_0
+            if (IsPressing && Binding is IStateBinding stateBinding)
+                stateBinding.Release();
+#else
             if (IsPressing)
                 Binding?.Release();
+#endif
 
             base.Release();
         }
@@ -109,45 +116,46 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #region static Methods
 
-        public static BindableHoldGesture? FromSerializable(SerializableHoldGesture? tapGesture, Dictionary<int, TypeInfo> identifierToPlugin)
+        public static BindableHoldGesture? FromSerializable(SerializableHoldGesture? holdGesture, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet)
         {
-            if (tapGesture == null)
+            if (holdGesture == null)
                 return null;
 
-            if (tapGesture.PluginProperty == null)
+            if (holdGesture.PluginProperty == null)
                 return null;
 
-            if (!identifierToPlugin.TryGetValue(tapGesture.PluginProperty.Identifier, out var plugin))
+            if (!identifierToPlugin.TryGetValue(holdGesture.PluginProperty.Identifier, out var plugin))
                 return null;
 
             var store = new PluginSettingStore(plugin);
 
             // Set the values of the plugin property
-            store.Settings.Single(s => s.Property == "Property").SetValue(tapGesture.PluginProperty.Value!);
+            if (store.SetBindingValue(plugin, holdGesture.PluginProperty.Value) == false)
+                return null;
 
-            return new BindableHoldGesture(tapGesture)
+            return new BindableHoldGesture(holdGesture)
             {
                 Store = store,
-                Binding = store?.Construct<IBinding>()
+                Binding = BindingBuilder.Build(store, tablet) as IBinding
             };
         }
 
-        public static SerializableHoldGesture? ToSerializable(BindableHoldGesture? tapGesture, Dictionary<int, TypeInfo> identifierToPlugin)
+        public static SerializableHoldGesture? ToSerializable(BindableHoldGesture? holdGesture, Dictionary<int, TypeInfo> identifierToPlugin)
         {
-            if (tapGesture == null)
+            if (holdGesture == null)
                 return null;
 
-            var store = tapGesture.Store;
+            var store = holdGesture.Store;
 
             var identifier = identifierToPlugin.FirstOrDefault(x => x.Value.FullName == store?.Path);
-            var value = store?.Settings.FirstOrDefault(x => x.Property == "Property");
+            var value = store?.GetBindingValue(identifier.Value);
 
-            return new SerializableHoldGesture(tapGesture)
+            return new SerializableHoldGesture(holdGesture)
             {
                 PluginProperty = new SerializablePluginSettings()
                 {
                     Identifier = identifier.Key,
-                    Value = value?.GetValue<string?>()
+                    Value = value
                 }
             };
         }

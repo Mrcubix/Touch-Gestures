@@ -10,6 +10,7 @@ using System.Linq;
 using OpenTabletDriver.External.Common.Serializables;
 using System.Drawing;
 using TouchGestures.Lib.Extensions;
+using TouchGestures.Lib.Entities.Tablet;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -97,7 +98,7 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #region static Methods
 
-        public static BindableTapGesture? FromSerializable(SerializableTapGesture? tapGesture, Dictionary<int, TypeInfo> identifierToPlugin)
+        public static BindableTapGesture? FromSerializable(SerializableTapGesture? tapGesture, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet)
         {
             if (tapGesture == null)
                 return null;
@@ -110,13 +111,13 @@ namespace TouchGestures.Lib.Entities.Gestures
 
             var store = new PluginSettingStore(plugin);
 
-            // Set the values of the plugin property
-            store.Settings.Single(s => s.Property == "Property").SetValue(tapGesture.PluginProperty.Value!);
+            if (store.SetBindingValue(plugin, tapGesture.PluginProperty.Value) == false)
+                return null;
 
             return new BindableTapGesture(tapGesture)
             {
                 Store = store,
-                Binding = store?.Construct<IBinding>()
+                Binding = BindingBuilder.Build(store, tablet) as IBinding
             };
         }
 
@@ -128,14 +129,14 @@ namespace TouchGestures.Lib.Entities.Gestures
             var store = tapGesture.Store;
 
             var identifier = identifierToPlugin.FirstOrDefault(x => x.Value.FullName == store?.Path);
-            var value = store?.Settings.FirstOrDefault(x => x.Property == "Property");
+            var value = store?.GetBindingValue(identifier.Value);
 
             return new SerializableTapGesture(tapGesture)
             {
                 PluginProperty = new SerializablePluginSettings()
                 {
                     Identifier = identifier.Key,
-                    Value = value?.GetValue<string?>()
+                    Value = value
                 }
             };
         }

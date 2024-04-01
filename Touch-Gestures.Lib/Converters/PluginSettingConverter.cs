@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenTabletDriver.Desktop.Reflection;
 
-namespace TouchGestures.Converters
+namespace TouchGestures.Lib.Converters
 {
     public class PluginSettingConverter : JsonConverter<PluginSetting>
     {
@@ -40,9 +40,7 @@ namespace TouchGestures.Converters
             {
                 ["Property"] = value.Property,
                 ["Value"] = value.GetValue<string?>(),
-#if !OTD06
                 ["HasValue"] = value.HasValue
-#endif
             };
 
             obj.WriteTo(writer);

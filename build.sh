@@ -1,74 +1,113 @@
 #!/bin/sh
 
+versions=("0.5.x" "0.6.x")
+
 echo ""
 echo "Building Touch-Gestures"
 echo ""
 
-# build the plugin
-dotnet publish Touch-Gestures -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/
+# build the plugin, exit on failure
+dotnet publish Touch-Gestures -c Debug -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.5.x || exit 1
+dotnet publish Touch-Gestures.0.6.x -c Debug -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.6.x || exit 1
 
 echo ""
-echo "Moving necessary files to build/plugin"
+echo "Creating build directory structure"
 echo ""
 
-# check if directory exists
-if ! mkdir build;
+# Check if build directory exists
+if [ -d "build" ];
 then
-    if [ ! -d "build" ];
+    # Clear the build directory if it exists
+    echo "Removing all files in build"
+    rm -rf build/*
+else
+    # Attempt to create the build directory if it does not exist
+    if ! mkdir build 2> /dev/null;
     then
-        echo "Failed to create the 'build' directory"
-        exit 1
+        if [ ! -d "build" ];
+        then
+            echo "Failed to create the 'build' directory"
+            exit 1
+        fi
     fi
 fi
 
 (
     cd build
 
-    rm -rf build/*
-
-    # check if directory exists
-    if ! mkdir plugin;
-    then
-        if [ ! -d "plugin" ];
+    #create plugin folder for each version
+    for version in "${versions[@]}"
+    do
+        if ! mkdir -p plugin/$version 2> /dev/null;
         then
-            echo "Failed to create the 'build/plugin' directory"
-            exit 1
+            if [ ! -d "plugin/$version" ];
+            then
+                echo "Failed to create the 'build/plugin/$version' directory"
+                exit 1
+            fi
         fi
-    fi
+    done
 )
+
+echo ""
+echo "Moving necessary files to build/plugin"
+echo ""
 
 main=("Touch-Gestures.dll"
       "Touch-Gestures.Lib.dll" 
       "OpenTabletDriver.External.Common.dll" 
       "Newtonsoft.Json.dll"
+      "StreamJsonRpc.dll"
       "Touch-Gestures.pdb" 
       "Touch-Gestures.Lib.pdb"
       "OpenTabletDriver.External.Common.pdb")
 
-for file in "${main[@]}"
+# Interate throught 0.5.x and 0.6.x
+for version in "${versions[@]}"
 do
-    # If file exist, move it to the build/plugin directory
-    if [ -f "temp/$file" ];
-    then
-        mv temp/$file build/plugin/$file
-    else
-        # If the file extension is not .pdb, then exit
-        if [[ $file != *.pdb ]];
+    (
+        temp=temp/$version
+        build=../../build/plugin/$version
+
+        if [ -d $temp ] && [ -d $build ];
         then
-            echo "Failed to find $file"
+            cd $temp
+
+            # Move specific files to the build/plugin directory
+            for file in "${main[@]}"
+            do
+                # If file exist, move it to the build/plugin directory
+                if [ -f "$file" ];
+                then
+                    mv $file $build/$file
+                else
+                    # If the file extension is not .pdb, then exit
+                    if [[ $file != *.pdb ]];
+                    then
+                        echo "Failed to find $file in $version"
+                        exit 1
+                    fi
+                fi
+            done
+
+            # Zip the files
+            cd $build
+            zip -r Touch-Gestures-$version.zip ./*
+        else
+            echo "Failed to find temp or build folder for $version"
             exit 1
         fi
-    fi
+    )
 done
+
+if [ $? -ne 0 ];
+then
+    echo "Failed to move necessary files to build/plugin"
+    exit 1
+fi
 
 # remove the temp directory
 rm -rf temp
-
-(
-    cd ./build/plugin
-
-    zip -r Touch-Gestures.zip ./*
-)
 
 echo ""
 echo "Building Touch-Gestures.UX.Desktop"
@@ -109,8 +148,12 @@ find ./build/ux -name "OpenTabletDriver*.pdb" -type f -delete
     (
         cd ./plugin
 
-        # Compute Plugin Hash
-        sha256sum Touch-Gestures.zip > $output
+        # Compute all Plugin Hashes
+        for version in "${versions[@]}"
+        do
+            echo "Computing Touch-Gestures-$version.zip"
+            sha256sum $version/Touch-Gestures-$version.zip > $output
+        done
     )
 
     echo "" >> hashes.txt

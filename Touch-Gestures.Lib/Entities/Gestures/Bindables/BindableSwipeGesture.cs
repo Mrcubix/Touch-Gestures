@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
+using TouchGestures.Lib.Entities.Tablet;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Interfaces;
@@ -95,7 +96,7 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #region static Methods
 
-        public static BindableSwipeGesture? FromSerializable(SerializableSwipeGesture? swipeGesture, Dictionary<int, TypeInfo> identifierToPlugin)
+        public static BindableSwipeGesture? FromSerializable(SerializableSwipeGesture? swipeGesture, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet)
         {
             if (swipeGesture == null)
                 return null;
@@ -109,13 +110,13 @@ namespace TouchGestures.Lib.Entities.Gestures
             var store = new PluginSettingStore(plugin);
 
             // Set the values of the plugin property
-            store.Settings.Single(s => s.Property == "Property").SetValue(swipeGesture.PluginProperty.Value!);
+            if (store.SetBindingValue(plugin, swipeGesture.PluginProperty.Value) == false)
+                return null;
 
             return new BindableSwipeGesture(swipeGesture)
             {
                 Store = store,
-                Bounds = swipeGesture.Bounds,
-                Binding = store?.Construct<IBinding>()
+                Binding = BindingBuilder.Build(store, tablet) as IBinding
             };
         }
 
@@ -127,14 +128,14 @@ namespace TouchGestures.Lib.Entities.Gestures
             var store = swipeGesture.Store;
 
             var identifier = identifierToPlugin.FirstOrDefault(x => x.Value.FullName == store?.Path);
-            var value = store?.Settings.FirstOrDefault(x => x.Property == "Property");
+            var value = store?.GetBindingValue(identifier.Value);
 
             return new SerializableSwipeGesture(swipeGesture)
             {
                 PluginProperty = new SerializablePluginSettings()
                 {
                     Identifier = identifier.Key,
-                    Value = value?.GetValue<string?>()
+                    Value = value
                 }
             };
         }
