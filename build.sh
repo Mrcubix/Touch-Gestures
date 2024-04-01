@@ -22,7 +22,7 @@ git checkout "master"
 git submodule update --init --recursive
 
 #Build the plugin, exit on failure
-if ! dotnet publish Touch-Gestures -c Debug -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.5.x;
+if ! dotnet publish Touch-Gestures -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.5.x;
 then
     echo "Failed to build Touch-Gestures for 0.5.x"
     git checkout $branch
@@ -35,7 +35,7 @@ git checkout "0.6.x"
 git submodule update --init --recursive
 
 # build the plugin, exit on failure
-if ! dotnet publish Touch-Gestures -c Debug -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.6.x;
+if ! dotnet publish Touch-Gestures -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/0.6.x;
 then
     # we failed to back to the original branch
     echo "Failed to build Touch-Gestures for 0.6.x"
