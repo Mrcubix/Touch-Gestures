@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Numerics;
-using System.Runtime;
+using System.Linq;
 using System.Threading;
+using OpenTabletDriver;
+using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
+using OpenTabletDriver.Plugin.DependencyInjection;
+using OpenTabletDriver.Plugin.Output;
+using OpenTabletDriver.Plugin.Platform.Pointer;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Touch;
-using OTD.EnhancedOutputMode.Lib.Interface;
 using OTD.EnhancedOutputMode.Lib.Tools;
+using TouchGestures.Entities;
 using TouchGestures.Extensions;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Gestures;
@@ -19,7 +23,7 @@ using TouchGestures.Lib.Entities.Tablet;
 namespace TouchGestures
 {
     [PluginName(PLUGIN_NAME)]
-    public class GesturesHandler : IFilter, IGateFilter, IDisposable
+    public class GesturesHandler : IPositionedPipelineElement<IDeviceReport>, IDisposable
     {
         #region Constants
 
@@ -36,44 +40,20 @@ namespace TouchGestures
 
         #endregion
 
-        #region Constructors
+        #region Initialization
 
         public GesturesHandler()
         {
 #if DEBUG
             WaitForDebugger();
+            Log.Write(PLUGIN_NAME, "Debugger attached", LogLevel.Debug);
 #endif
 
             GesturesDaemonBase.DaemonLoaded += OnDaemonLoaded;
+            BulletproofBindingBuilder.ChooseAsBuilder();
         }
 
-        public void Initialize()
-        {
-            _daemon = GesturesDaemonBase.Instance;
-
-            if (Info.Driver.Tablet != null && _daemon != null)
-            {
-                _tablet = Info.Driver.Tablet.ToShared();
-                _daemon.AddTablet(_tablet);
-                _profile = _daemon.GetSettingsForTablet(_tablet.Name);
-
-                if (_profile != null)
-                {
-                    _profile.ProfileChanged += OnProfileChanged;
-                    OnProfileChanged(this, EventArgs.Empty);
-                }
-
-                Log.Write(PLUGIN_NAME, "Now handling touch gesture for: " + _tablet.Name);
-            }
-
-            if (_daemon == null)
-            {
-                Log.Write(PLUGIN_NAME, "Touch Gestures Daemon has not been enabled, please enable it in the 'Tools' tab", LogLevel.Error);
-                return;
-            }
-        }
-
-        private void WaitForDebugger()
+        private static void WaitForDebugger()
         {
             Console.WriteLine("Waiting for debugger to attach...");
 
@@ -83,23 +63,80 @@ namespace TouchGestures
             }
         }
 
+        public void Initialize()
+        {
+            // Filters are loaded before tools for some reasons, so we have to wait for the daemon to be loaded
+            _daemon = GesturesDaemonBase.Instance;
+
+            if (Tablet != null && _Driver != null)
+            {
+                _tablet = Tablet.ToShared();
+
+                if (_Driver is Driver driver && _tablet is BulletproofSharedTabletReference btablet)
+                {
+                    var device = driver.InputDevices.Where(x => x.Properties.Name == _tablet.Name).FirstOrDefault();
+                    
+                    object? pointer = device?.OutputMode switch
+                    {
+                        AbsoluteOutputMode absoluteOutputMode => absoluteOutputMode.Pointer,
+                        RelativeOutputMode relativeOutputMode => relativeOutputMode.Pointer,
+                        _ => null
+                    };
+
+                    if (pointer is IMouseButtonHandler mouseButtonHandler)
+                        btablet.ServiceProvider.AddService(() => mouseButtonHandler);
+                }
+
+                if (_daemon != null)
+                {
+                    _daemon.AddTablet(_tablet);
+                    _profile = _daemon.GetSettingsForTablet(_tablet.Name);
+
+                    if (_profile != null)
+                    {
+                        _profile.ProfileChanged += OnProfileChanged;
+                        OnProfileChanged(this, EventArgs.Empty);
+                    }
+
+                    Log.Write(PLUGIN_NAME, "Now handling touch gesture for: " + _tablet.Name);
+                }
+            }
+
+            if (_daemon == null)
+            {
+                Log.Write(PLUGIN_NAME, "Touch Gestures Daemon has not been enabled, please enable it in the 'Tools' tab", LogLevel.Error);
+                return;
+            }
+        }
+
         #endregion
 
         #region Properties
 
         public List<TapGesture> TapGestures { get; set; } = new();
         public List<HoldGesture> HoldGestures { get; set; } = new();
+
         public List<Gesture> NonConflictingGestures { get; set; } = new();
 
-        public FilterStage FilterStage => FilterStage.PreTranspose;
+        [TabletReference]
+        public TabletReference? Tablet { get; set; }
+
+        [Resolved]
+        public IDriver? _Driver { set; get; }
+
+        public PipelinePosition Position => PipelinePosition.PreTransform;
+
+        #endregion
+
+        #region Events
+
+        public event Action<IDeviceReport>? Emit;
 
         #endregion
 
         #region Methods
 
-        public Vector2 Filter(Vector2 input) => input;
-
-        public bool Pass(IDeviceReport report, ref ITabletReport tabletreport)
+        public void Consume(IDeviceReport report)
         {
             if (report is ITouchReport touchReport)
             {
@@ -115,7 +152,7 @@ namespace TouchGestures
                 }
             }
 
-            return true;
+            Emit?.Invoke(report);
         }
 
         public void HandleConflictingGestures(IEnumerable<Gesture> gestures, ITouchReport touchReport)

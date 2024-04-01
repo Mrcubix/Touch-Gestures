@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <NoWarn>$(NoWarn); NETSDK1138</NoWarn>
     <RootNamespace>TouchGestures</RootNamespace>
     <DebugType>embedded</DebugType>
@@ -13,10 +13,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Touch-Gestures.Lib/Touch-Gestures.Lib.csproj" />
-    <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" />
-
-    <!--<ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" />-->
+    <ProjectReference Include="../Touch-Gestures.Lib/Touch-Gestures.Lib.csproj" AdditionalProperties="TargetFramework=net6.0" />
+    <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" />
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode/OTD.EnhancedOutputMode/OTD.EnhancedOutputMode.csproj" />
   </ItemGroup>
 
 </Project>
