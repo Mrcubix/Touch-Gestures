@@ -49,6 +49,9 @@ namespace TouchGestures
 
         public void Initialize()
         {
+            if (!TouchSettings.istouchToggled)
+                return;
+
             _daemon = GesturesDaemonBase.Instance;
 
             if (Info.Driver.Tablet != null && _daemon != null)
