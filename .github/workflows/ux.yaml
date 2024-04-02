@@ -43,6 +43,10 @@ jobs:
         platform: ${{ matrix.runtime }}
       run: dotnet publish Touch-Gestures.UX.Desktop -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -r ${{ matrix.runtime }} -o build/ux/${{ matrix.runtime }}
 
+    - name: Remove PDB files
+      run: |
+        find ./build/ux/${{ matrix.runtime }} -name '*.pdb' -type f -delete
+
     - name: Generate artifact name
       env:
         platform: ${{ matrix.runtime }}

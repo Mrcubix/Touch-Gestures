@@ -20,7 +20,7 @@ do
     dotnet publish Touch-Gestures.UX.Desktop -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -r $platform -o build/ux/$platform
 done
 
-find ./build/ux -name "OpenTabletDriver*.pdb" -type f -delete
+find ./build/ux -name "*.pdb" -type f -delete
 
 if [ $donotzip == true ];
 then
