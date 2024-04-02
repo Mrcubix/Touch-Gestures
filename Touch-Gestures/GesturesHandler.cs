@@ -103,7 +103,7 @@ namespace TouchGestures
         {
             if (report is ITouchReport touchReport)
             {
-                if (_daemon != null && _daemon.IsReady && TouchToggle.istouchToggled)
+                if (_daemon != null && _daemon.IsReady && TouchSettings.istouchToggled)
                 {
                     // Iterate through all conflicting gestures
                     HandleConflictingGestures(TapGestures, touchReport);
