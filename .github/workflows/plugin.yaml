@@ -36,6 +36,11 @@ jobs:
     - name: Build
       run: bash ./build-plugin.sh --no-zip
 
+    - name: Remove PDB files
+      run: |
+        find ./build/plugin/0.5.x -name "*.pdb" -type f -delete
+        find ./build/plugin/0.6.x -name "*.pdb" -type f -delete
+
     - uses: actions/upload-artifact@main
       with:
         name: "Touch-Gestures-0.5.x"
