@@ -4,7 +4,6 @@
     <TargetFramework>net5.0</TargetFramework>
     <NoWarn>$(NoWarn); NETSDK1138</NoWarn>
     <RootNamespace>TouchGestures</RootNamespace>
-    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <!-- Only Embed debug symbols for the Release configuration -->

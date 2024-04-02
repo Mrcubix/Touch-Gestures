@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <NoWarn>NETSDK1138</NoWarn>
+    <AssemblyName>Touch-Gestures.Installer</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- OpenTabletDriver.Plugin -->
+    <ProjectReference Include="../../../0.6.x/Touch-Gestures/.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- embed ressource /build/plugin/Wheel-Addon.zip -->
+  <ItemGroup>
+    <EmbeddedResource Include="../build/plugin/0.6.x/Touch-Gestures-0.6.x.zip" />
+  </ItemGroup>
+
+</Project>

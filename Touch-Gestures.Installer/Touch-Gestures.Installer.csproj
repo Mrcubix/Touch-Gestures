@@ -5,6 +5,7 @@
     <NoWarn>NETSDK1138</NoWarn>
   </PropertyGroup>
 
+  <!-- NET 5 Only -->
   <ItemGroup>
     <!-- OpenTabletDriver.Plugin -->
     <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" />

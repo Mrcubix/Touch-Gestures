@@ -14,15 +14,24 @@ namespace TouchGestures.Installer
     public class TouchGesturesInstaller : ITool
     {
         public const string PLUGIN_NAME = "Touch Gestures Installer";
+#if NET6_0
+        public const string OTD_VERSION = "0.6.x";
+#elif NET5_0
+        public const string OTD_VERSION = "0.5.x";
+#else
+        public const string OTD_VERSION = "";
+#endif
 
         private static readonly Assembly assembly = Assembly.GetExecutingAssembly();
 
         private static readonly FileInfo location = new(assembly.Location);
         private static readonly DirectoryInfo? pluginsDirectory = location.Directory?.Parent;
+        private static readonly string AssemblySuffix = OTD_VERSION == "0.5.x" ? "" : $"-{OTD_VERSION}";
 
         private readonly DirectoryInfo OTDEnhancedOutputModeDirectory = null!;
 
-        private const string dependenciesResourcePath = "Touch-Gestures.Installer.Wheel-Addon.zip";
+
+        private readonly string dependenciesResourcePath = $"Touch-Gestures.Installer{AssemblySuffix}.Touch-Gestures-{OTD_VERSION}.zip";
 
         public TouchGesturesInstaller()
         {
@@ -48,7 +57,7 @@ namespace TouchGestures.Installer
 
         public bool Initialize()
         {
-            _ = Task.Run(() => Install(assembly, group, dependenciesResourcePath, OTDEnhancedOutputModeDirectory, ForceInstall));
+            _ = Task.Run(() => Install(assembly, PLUGIN_NAME, dependenciesResourcePath, OTDEnhancedOutputModeDirectory, ForceInstall));
             return true;
         }
 
@@ -56,13 +65,13 @@ namespace TouchGestures.Installer
         {
             if (pluginsDirectory == null || !pluginsDirectory.Exists)
             {
-                Log.Write(PLUGIN_NAME, "Failed to get plugins directory.", LogLevel.Error);
+                Log.Write(group, "Failed to get plugins directory.", LogLevel.Error);
                 return false;
             }
 
             if (!OTDEnhancedOutputModeDirectory.Exists)
             {
-                Log.Write(PLUGIN_NAME, "OTD.EnhancedOutputMode is not installed.", LogLevel.Error);
+                Log.Write(group, "OTD.EnhancedOutputMode is not installed.", LogLevel.Error);
                 return false;
             }
 
@@ -70,7 +79,7 @@ namespace TouchGestures.Installer
 
             if (dependencies == null)
             {
-                Log.Write(PLUGIN_NAME, "Failed to open embedded dependencies.", LogLevel.Error);
+                Log.Write(group, "Failed to open embedded dependencies.", LogLevel.Error);
                 return false;
             }
 
@@ -104,8 +113,8 @@ namespace TouchGestures.Installer
 
                 if (parserDll.Exists)
                 {
-                    Log.Write(PLUGIN_NAME, $"Unable to remove the duplicate dll '{parserDll.FullName}'.", LogLevel.Warning);
-                    Log.Write(PLUGIN_NAME, "It is required to remove this dll for this plugin to work.", LogLevel.Warning);
+                    Log.Write(group, $"Unable to remove the duplicate dll '{parserDll.FullName}'.", LogLevel.Warning);
+                    Log.Write(group, "It is required to remove this dll for this plugin to work.", LogLevel.Warning);
                 }
             }*/
 
@@ -114,10 +123,10 @@ namespace TouchGestures.Installer
                 string successMessage = $"Successfully installed {installed} of {entriesCount} dependencies.";
                 string spacer = new('-', successMessage.Length);
                 
-                Log.Write(PLUGIN_NAME, spacer, LogLevel.Info);
-                Log.Write(PLUGIN_NAME, $"Installed {installed} of {entriesCount} dependencies.", LogLevel.Info);
-                Log.Write(PLUGIN_NAME, $"You may need to restart OpenTabletDriver before the plugin can be enabled.", LogLevel.Info);
-                Log.Write(PLUGIN_NAME, spacer, LogLevel.Info);
+                Log.Write(group, spacer, LogLevel.Info);
+                Log.Write(group, $"Installed {installed} of {entriesCount} dependencies.", LogLevel.Info);
+                Log.Write(group, $"You may need to restart OpenTabletDriver before the plugin can be enabled.", LogLevel.Info);
+                Log.Write(group, spacer, LogLevel.Info);
             }
 
             return true;

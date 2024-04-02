@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <RootNamespace>TouchGestures.Lib</RootNamespace>
-    <DefineConstants>$(DefineConstants)</DefineConstants>
     <NoWarn>$(NoWarn); NETSDK1138; VSTHRD200</NoWarn>
     <Nullable>enable</Nullable>
+    <!-- TODO: Change obj path to obj/0.5.x to avoid conflicts with 0.6.x (.NET bug) -->
   </PropertyGroup>
 
   <!-- Only Embed debug symbols for the Release configuration -->

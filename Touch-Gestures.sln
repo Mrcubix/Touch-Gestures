@@ -5,9 +5,15 @@ VisualStudioVersion = 17.3.32811.315
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures", "Touch-Gestures\Touch-Gestures.csproj", "{CA78AF77-9510-49A2-95B1-1DEEC3942DA6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures-0.6.x", "Touch-Gestures-0.6.x\Touch-Gestures.csproj", "{E1DF9541-A7CC-4557-B3BC-D8969C67C0F6}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures.Installer", "Touch-Gestures.Installer\Touch-Gestures.Installer.csproj", "{C0D3603B-06B8-4B88-9122-EB1B9D401E85}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures.Installer-0.6.x", "Touch-Gestures.Installer\Touch-Gestures.Installer-0.6.x.csproj", "{723927FA-2CC1-4944-81F8-42B1F4C9E80D}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures.Lib", "Touch-Gestures.Lib\Touch-Gestures.Lib.csproj", "{D305D418-F65C-4335-8996-140E383894B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures.Lib-0.6.x", "Touch-Gestures.Lib\Touch-Gestures.Lib-0.6.x.csproj", "{8BBE54A7-CF26-414B-AE8E-E34E2D40F654}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures.Tests", "Touch-Gestures.Tests\Touch-Gestures.Tests.csproj", "{FE73A8D2-F3C5-4A5E-98D9-9EFE0F4FAFA3}"
 EndProject
@@ -50,6 +56,10 @@ Global
 		{CA78AF77-9510-49A2-95B1-1DEEC3942DA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA78AF77-9510-49A2-95B1-1DEEC3942DA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA78AF77-9510-49A2-95B1-1DEEC3942DA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1DF9541-A7CC-4557-B3BC-D8969C67C0F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1DF9541-A7CC-4557-B3BC-D8969C67C0F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1DF9541-A7CC-4557-B3BC-D8969C67C0F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1DF9541-A7CC-4557-B3BC-D8969C67C0F6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FE73A8D2-F3C5-4A5E-98D9-9EFE0F4FAFA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FE73A8D2-F3C5-4A5E-98D9-9EFE0F4FAFA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE73A8D2-F3C5-4A5E-98D9-9EFE0F4FAFA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -58,10 +68,18 @@ Global
 		{C0D3603B-06B8-4B88-9122-EB1B9D401E85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0D3603B-06B8-4B88-9122-EB1B9D401E85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0D3603B-06B8-4B88-9122-EB1B9D401E85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{723927FA-2CC1-4944-81F8-42B1F4C9E80D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{723927FA-2CC1-4944-81F8-42B1F4C9E80D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{723927FA-2CC1-4944-81F8-42B1F4C9E80D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{723927FA-2CC1-4944-81F8-42B1F4C9E80D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D305D418-F65C-4335-8996-140E383894B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D305D418-F65C-4335-8996-140E383894B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D305D418-F65C-4335-8996-140E383894B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D305D418-F65C-4335-8996-140E383894B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BBE54A7-CF26-414B-AE8E-E34E2D40F654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BBE54A7-CF26-414B-AE8E-E34E2D40F654}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BBE54A7-CF26-414B-AE8E-E34E2D40F654}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BBE54A7-CF26-414B-AE8E-E34E2D40F654}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
