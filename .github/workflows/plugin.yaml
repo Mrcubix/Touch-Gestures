@@ -9,9 +9,12 @@ on:
       - 'Touch-Gestures.Lib/**'
     branches:
       - master
+
   pull_request:
     branches:
       - master
+
+  workflow_dispatch:
 
 jobs:
 
