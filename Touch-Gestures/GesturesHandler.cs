@@ -19,7 +19,7 @@ using TouchGestures.Lib.Entities.Tablet;
 namespace TouchGestures
 {
     [PluginName(PLUGIN_NAME)]
-    public class GesturesHandler : IFilter, IGateFilter, IDisposable
+    public class GesturesHandler : IFilter, IGateFilter, IInitialize, IDisposable
     {
         #region Constants
 
@@ -43,8 +43,6 @@ namespace TouchGestures
 #if DEBUG
             WaitForDebugger();
 #endif
-
-            GesturesDaemonBase.DaemonLoaded += OnDaemonLoaded;
         }
 
         public void Initialize()
@@ -147,11 +145,6 @@ namespace TouchGestures
 
         #region Events Handlers
 
-        public void OnDaemonLoaded(object? sender, EventArgs e)
-        {
-            Initialize();
-        }
-
         public void OnProfileChanged(object? sender, EventArgs e)
         {
             if (_profile == null)
@@ -207,8 +200,6 @@ namespace TouchGestures
             // Unsubscribe from events
             if (_profile != null)
                 _profile.ProfileChanged -= OnProfileChanged;
-
-            GesturesDaemonBase.DaemonLoaded -= OnDaemonLoaded;
 
             GC.SuppressFinalize(this);
         }
