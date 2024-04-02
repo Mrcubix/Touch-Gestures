@@ -3,13 +3,13 @@
 versions=("0.5.x" "0.6.x")
 
 # run ./build-plugin.sh and check exit code
-if ! (./build-plugin.sh); then
+if ! (bash "./build-plugin.sh"); then
     echo "Failed to build plugin"
     exit 1
 fi
 
 # run ./build-ux.sh and check exit code
-if ! (./build-ux.sh); then
+if ! (bash ./build-ux.sh); then
     echo "Failed to build UX"
     exit 1
 fi
