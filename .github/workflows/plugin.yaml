@@ -1,0 +1,48 @@
+name: Build Plugins
+
+on:
+  push:
+    paths:
+      - '.modules/**'
+      - 'Touch-Gestures/**'
+      - 'Touch-Gestures-0.6.x/**'
+      - 'Touch-Gestures.Lib/**'
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+
+  Build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          5.0.x
+          6.0.x
+
+    - name: Build
+      run: ./build-plugin.sh
+
+    - uses: actions/upload-artifact@main
+      with:
+        name: "Core Plugin 0.5.x"
+        path: |
+          ./build/plugin/0.5.x/*
+          !./build/plugin/0.5.x/*.pdb
+
+    - uses: actions/upload-artifact@main
+      with:
+        name: "Core Plugin 0.6.x"
+        path: |
+          ./build/plugin/0.6.x/*
+          !./build/plugin/0.6.x/*.pdb

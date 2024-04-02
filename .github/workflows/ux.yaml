@@ -1,0 +1,53 @@
+name: Build UX
+
+on:
+  push:
+    paths:
+      - '.modules/OpenTabletDriver.External/**'
+      - '.modules/OpenTabletDriver.External-0.6.x/**'
+      - 'Touch-Gestures.Lib/**'
+      - 'Touch-Gestures.UX/**'
+      - 'Touch-Gestures.UX.Desktop/**'
+    branches:
+      - master
+
+  pull_request:
+    branches:
+      - master
+
+jobs:
+
+  Build:
+
+    strategy:
+      matrix:
+        runtime: [win-x64, win-x86, win-arm64, linux-x64, linux-arm64, linux-arm, osx-x64, osx-arm64]
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+
+    - name: Build
+      env:
+        platform: ${{ matrix.runtime }}
+      run: dotnet publish Touch-Gestures.UX.Desktop -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -r $platform -o build/ux/$platform
+
+    - name: Generate artifact name
+      env:
+        platform: ${{ matrix.runtime }}
+      run: echo "artifact_name=Touch-Gestures.UX-$platform" >> $GITHUB_ENV
+
+    - uses: actions/upload-artifact@main
+      name: Upload artifact
+      with:
+        name: ${{ env.artifact_name }}
+        path: build/ux/$platform

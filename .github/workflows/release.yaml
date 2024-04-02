@@ -1,0 +1,43 @@
+name: Generate Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The tag to create for the release'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: Generate Release
+    env:
+      TAG: ${{ github.event.inputs.tag }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          5.0.x
+          6.0.x
+
+    - name: Build
+      run: ./build.sh
+
+    - name: Create Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        declare -a files
+        # Add Installers
+        files+=("build/Installer/0.5.x/Touch-Gestures.Installer-0.5.x.zip")
+        files+=("build/Installer/0.6.x/Touch-Gestures.Installer-0.6.x.zip")
+        # Add all ux zip files
+        for file in build/ux/*.zip; do
+          files+=("build/ux/$file")
+        done
+        gh release create -d -t "Touch Gestures v$TAG" "$TAG" "${files[@]}"
