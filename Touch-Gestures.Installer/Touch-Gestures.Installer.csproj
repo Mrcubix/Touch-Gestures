@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <NoWarn>NETSDK1138</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- OpenTabletDriver.Plugin -->
+    <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" />
+  </ItemGroup>
+
+  <!-- embed ressource /build/plugin/Wheel-Addon.zip -->
+  <ItemGroup>
+    <EmbeddedResource Include="../build/plugin/0.5.x/Touch-Gestures-0.5.x.zip" />
+  </ItemGroup>
+
+</Project>
