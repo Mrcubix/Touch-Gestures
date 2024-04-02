@@ -7,6 +7,10 @@ then
     donotzip=true
 fi
 
+if [ -d "./build/ux" ]; then
+    rm -rf ./build/ux/*
+fi
+
 echo ""
 echo "Building Touch-Gestures.UX.Desktop"
 echo ""
