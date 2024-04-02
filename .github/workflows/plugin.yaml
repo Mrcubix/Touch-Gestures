@@ -31,7 +31,7 @@ jobs:
           6.0.x
 
     - name: Build
-      run: ./build-plugin.sh
+      run: bash ./build-plugin.sh
 
     - uses: actions/upload-artifact@main
       with:
