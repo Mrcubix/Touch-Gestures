@@ -41,15 +41,15 @@ jobs:
     - name: Build
       env:
         platform: ${{ matrix.runtime }}
-      run: dotnet publish Touch-Gestures.UX.Desktop -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -r $platform -o build/ux/$platform
+      run: dotnet publish Touch-Gestures.UX.Desktop -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -r ${{ matrix.runtime }} -o build/ux/${{ matrix.runtime }}
 
     - name: Generate artifact name
       env:
         platform: ${{ matrix.runtime }}
-      run: echo "artifact_name=Touch-Gestures.UX-$platform" >> $GITHUB_ENV
+      run: echo "artifact_name=Touch-Gestures.UX-${{ matrix.runtime }}" >> $GITHUB_ENV
 
     - uses: actions/upload-artifact@main
       name: Upload artifact
       with:
         name: ${{ env.artifact_name }}
-        path: build/ux/$platform
+        path: build/ux/${{ matrix.runtime }}
