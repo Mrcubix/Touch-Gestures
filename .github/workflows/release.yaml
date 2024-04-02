@@ -40,4 +40,4 @@ jobs:
         for file in build/ux/*.zip; do
           files+=("build/ux/$file")
         done
-        gh release create -d -t "Touch Gestures v$TAG" "$TAG" "${files[@]}"
+        gh release create -d -t "Touch Gestures $TAG" "$TAG" "${files[@]}" -F /build/hashes.txt
