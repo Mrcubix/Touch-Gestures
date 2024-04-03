@@ -37,7 +37,6 @@ public partial class MainWindow : AppMainWindow
                 _bindingsOverviewViewModel = vm.BindingsOverviewViewModel;
             }
 
-
             if (_registeredHandlers == false)
                 _bindingsOverviewViewModel?.ConfirmationDialog.RegisterHandler(ShowConfirmationDialogAsync);
         }

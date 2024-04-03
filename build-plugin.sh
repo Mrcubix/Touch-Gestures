@@ -182,9 +182,8 @@ do
     echo ""
 
     # Move files contained in variable main to build/plugin
-    move_files
-
-    if [ $? -ne 0 ];
+    
+    if ! move_files;
     then
         echo "Failed to move necessary files to build/plugin"
         exit 1

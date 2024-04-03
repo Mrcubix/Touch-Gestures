@@ -124,7 +124,7 @@ namespace TouchGestures.Tests.Samples
                 report[1] = new TouchPoint
                 {
                     TouchID = 1,
-                    Position = GeneratePointInCircle(origin, 50, (i * degreeIncrement + 180) * DegToRad),
+                    Position = GeneratePointInCircle(origin, 50, ((i * degreeIncrement) + 180) * DegToRad),
                 };
 
                 reports[i] = report;

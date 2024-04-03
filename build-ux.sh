@@ -15,7 +15,7 @@ zip_dir_contents () {
     echo "Zipping $f"
     (
         cd $1
-        zip -r $2 *
+        zip -r $2 ./*
     )
 }
 

@@ -86,7 +86,7 @@ namespace TouchGestures.Lib.Entities
                     break;
                 default:
                     throw new ArgumentException("Unknown gesture type.");
-            };
+            }
         }
 
         public void Update(SerializableProfile profile, SharedTabletReference tablet, Dictionary<int, TypeInfo> identifierToPlugin)
