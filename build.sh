@@ -29,8 +29,8 @@ fi
         # Compute all Plugin Hashes
         for version in "${versions[@]}"
         do
-            echo "Computing Touch-Gestures-Installer-$version.zip"
-            sha256sum $version/Touch-Gestures-Installer-$version.zip >> $output
+            echo "Computing Touch-Gestures.Installer-$version.zip"
+            sha256sum $version/Touch-Gestures.Installer-$version.zip >> $output
         done
     )
 
