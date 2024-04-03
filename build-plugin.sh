@@ -150,7 +150,7 @@ do
     project="Touch-Gestures.Installer/Touch-Gestures.Installer$suffix.csproj"
 
     # Build the installer
-    if ! dotnet publish $project -c Debug -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/installer/$version;
+    if ! dotnet publish $project -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/installer/$version;
     then
         echo "Failed to build Touch-Gestures.Installer for $version"
         exit 1
