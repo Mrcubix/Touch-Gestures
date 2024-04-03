@@ -9,10 +9,14 @@ on:
 
 jobs:
   release:
+    permissions:
+      contents: write
+
     runs-on: ubuntu-latest
     name: Generate Release
     env:
       TAG: ${{ github.event.inputs.tag }}
+
     steps:
     - uses: actions/checkout@v4
       with:
