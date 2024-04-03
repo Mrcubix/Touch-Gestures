@@ -54,7 +54,7 @@ namespace TouchGestures.Lib.Entities
                     break;
                 default:
                     throw new ArgumentException("Unknown gesture type.");
-            };
+            }
         }
 
         public void Remove(Gesture gesture)
@@ -78,7 +78,7 @@ namespace TouchGestures.Lib.Entities
                     break;
                 default:
                     throw new ArgumentException("Unknown gesture type.");
-            };
+            }
         }
 
         private void AddPinch(SerializablePinchGesture pinchGesture)

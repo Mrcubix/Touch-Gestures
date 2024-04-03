@@ -30,7 +30,6 @@ namespace TouchGestures.Installer
 
         private readonly DirectoryInfo OTDEnhancedOutputModeDirectory = null!;
 
-
         private readonly string dependenciesResourcePath = $"Touch-Gestures.Installer{AssemblySuffix}.Touch-Gestures-{OTD_VERSION}.zip";
 
         public TouchGesturesInstaller()
@@ -132,10 +131,7 @@ namespace TouchGestures.Installer
             return true;
         }
 
-        public void Dispose()
-        {
-            
-        }
+        public void Dispose() {}
 
         [BooleanProperty("Force Install", ""),
          DefaultPropertyValue(false),

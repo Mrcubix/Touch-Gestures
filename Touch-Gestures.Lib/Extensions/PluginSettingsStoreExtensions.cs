@@ -60,7 +60,6 @@ namespace TouchGestures.Lib.Extensions
 
         public static bool SetBindingValue(this PluginSettingStore store, TypeInfo plugin, string? value)
         {
-
             if (store.Settings.Any())
             {
                 if (store.Settings.Count == 1)

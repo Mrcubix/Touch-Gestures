@@ -20,7 +20,6 @@ namespace TouchGestures.Tests.Lib
         public static readonly Rectangle BOUNDS = new(0, 0, 100, 100);
         public static readonly Vector2 ORIGIN = new(50, 50);
 
-
         #endregion
 
         #region Constructor

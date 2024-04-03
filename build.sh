@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 versions=("0.5.x" "0.6.x")
 

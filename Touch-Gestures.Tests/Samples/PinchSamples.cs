@@ -77,13 +77,13 @@ namespace TouchGestures.Tests.Samples
                 report[0] = new TouchPoint
                 {
                     TouchID = 0,
-                    Position = new Vector2(firstPoint.Position.X + firstXIncrement * i, firstPoint.Position.Y + firstYIncrement * i),
+                    Position = new Vector2(firstPoint.Position.X + (firstXIncrement * i), firstPoint.Position.Y + (firstYIncrement * i)),
                 };
 
                 report[1] = new TouchPoint
                 {
                     TouchID = 1,
-                    Position = new Vector2(secondPoint.Position.X + secondXIncrement * i, secondPoint.Position.Y + secondYIncrement * i),
+                    Position = new Vector2(secondPoint.Position.X + (secondXIncrement * i), secondPoint.Position.Y + (secondYIncrement * i)),
                 };
 
                 reports[i] = report;
