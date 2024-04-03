@@ -162,7 +162,7 @@ do
         cd build/installer/$version
 
         # Zip the installer
-        if ! zip -r "Touch-Gestures-Installer-$version.zip" "Touch-Gestures.Installer.dll"
+        if ! zip -r "Touch-Gestures.Installer-$version.zip" "Touch-Gestures.Installer.dll"
         then
             echo "Failed to zip the installer"
             exit 1
