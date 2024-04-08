@@ -6,7 +6,6 @@
     <NoWarn>$(NoWarn); NETSDK1138; VSTHRD200</NoWarn>
     <Nullable>enable</Nullable>
     <AssemblyName>Touch-Gestures.Lib</AssemblyName>
-    <!-- TODO: Change obj path to obj/0.6.x to avoid conflicts with 0.5.x (.NET bug) -->
   </PropertyGroup>
 
   <!-- Only Embed debug symbols for the Release configuration -->

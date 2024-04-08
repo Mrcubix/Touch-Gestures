@@ -1,18 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk" InitialTargets="EnsureOTDVersion">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <!-- Do not build the solution, it won't work with multi-targetting -->
-
-  <Target Name="EnsureOTDVersion" BeforeTargets="PrepareForBuild">
-    <!-- Default to OTD 0.5.x -->
-    <PropertyGroup Condition="'$(OTDVersion)' == ''">
-      <OTDVersion>OTD05</OTDVersion>
-    </PropertyGroup>
-  </Target>
 
   <PropertyGroup>
     <RootNamespace>TouchGestures.Lib</RootNamespace>
     <NoWarn>$(NoWarn); NETSDK1138; VSTHRD200</NoWarn>
     <Nullable>enable</Nullable>
+    <OTDVersion>$(OTDVersion)</OTDVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OTDVersion)' == ''">
+    <OTDVersion>OTD05</OTDVersion>
   </PropertyGroup>
 
   <!-- Target Frameworks -->

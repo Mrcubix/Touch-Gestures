@@ -13,7 +13,7 @@ existing manufacturer drivers and provide better configurability than most. If a
 ## What is Touch Gestures?
 
 Touch Gesture is one of those plugins, it allows user with touch tablets to use gestures and perform actions.
-A project of such scale would be difficult to integrate & maintain in the main repository, which is one this is part of an extension.
+A project of such scale would be difficult to integrate & maintain in the main repository, which is why this is part of an extension.
 
 ## What Gestures are Supported?
 
@@ -23,11 +23,11 @@ Any of the following gestures are supported:
 
 ## How to Install / Use
 
-Check out the step-by-step guide on how to install & setup everything on the Documentation!
+Check out the step-by-step guide on how to install & setup everything on the User Documentation!
 
 [Install & Setup Guide](https://mrcubix.github.io/Touch-Gestures-Doc/installation_guide/)
 
-Don't also hesitate to check out the FAQ there, and if any of your questions are not answered, feel free to open an issue.
+Don't hesitate to also check out the FAQ there, and if any of your questions are not answered, feel free to open an issue.
 I may be able to help you out & your question may help others in the future by being added to the FAQ.
 
 ## I am a Developer, how can i help?
