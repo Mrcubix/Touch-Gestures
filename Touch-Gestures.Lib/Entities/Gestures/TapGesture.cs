@@ -322,17 +322,17 @@ namespace TouchGestures.Lib.Entities.Gestures
             // If there are still points in the current points, 
             // that means other touch points were pressed after the gesture started, 
             // the state is invalid.
-            if (_currentPoints.Count > 0)
+            if (_currentPoints.Count > 0 && !IsInvalidState)
                 IsInvalidState = true;
 
             // An activating point was released but then it was pressed again
-            if (_previousReleasedCount > _releasedCount)
+            if (_previousReleasedCount > _releasedCount && !IsInvalidState)
                 IsInvalidState = true;
 
             // 4. Deadline & Release checks
 
             // 4.1 Check if the deadline has been reached
-            if ((DateTime.Now - TimeStarted).TotalMilliseconds > Deadline)
+            if ((DateTime.Now - TimeStarted).TotalMilliseconds > Deadline && !IsInvalidState)
                 IsInvalidState = true;
 
             // 4.2 Check if all points have been released

@@ -314,20 +314,17 @@ public partial class MainViewModel : NavigableViewModel
 
     public void OnTabletsChanged(object? sender, IEnumerable<SharedTabletReference> tablets)
     {
-        if (tablets == null || !tablets.Any())
-            return;
-
         _ = OnTabletsChangedCore(sender, tablets);
     }
 
     private async Task OnTabletsChangedCore(object? sender, IEnumerable<SharedTabletReference> tablets)
     {
-        if (tablets == null || !tablets.Any())
+        if (tablets == null)
             return;
 
         SerializableSettings? tempSettings = await FetchSettingsAsync();
 
-        if (tempSettings != null && tablets != null)
+        if (tempSettings != null)
         {
             _settings = tempSettings;
             Dispatcher.UIThread.Post(() => OnSettingsChanged(_settings));

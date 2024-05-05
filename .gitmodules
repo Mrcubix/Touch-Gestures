@@ -1,10 +1,10 @@
 [submodule ".modules/OpenTabletDriver.External"]
 	path = .modules/OpenTabletDriver.External
-	url = git@github.com:Mrcubix/OpenTabletDriver.External.git
+	url = https://github.com/Mrcubix/OpenTabletDriver.External.git
 	branch = master
 [submodule ".modules/OTD.EnhancedOutputMode"]
 	path = .modules/OTD.EnhancedOutputMode
-	url = git@github.com:Mrcubix/OTD.EnhancedOutputMode.git
+	url = https://github.com/Mrcubix/OTD.EnhancedOutputMode.git
 	branch = master
 [submodule ".modules/OpenTabletDriver.External-0.6.x"]
 	path = .modules/OpenTabletDriver.External-0.6.x

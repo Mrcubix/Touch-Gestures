@@ -42,6 +42,9 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     private bool _isReady = false;
 
     [ObservableProperty]
+    private bool _isTabletsEmpty = true;
+
+    [ObservableProperty]
     private bool _isEmpty = true;
 
     private string _searchText = "";
@@ -178,6 +181,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         if (SelectedTablet != null)
             SelectedTabletIndex = Tablets.IndexOf(SelectedTablet);
 
+        IsTabletsEmpty = !Tablets.Any();
         IsEmpty = !SelectedTablet?.Gestures.Any() ?? true;
         
         IsReady = _parentViewModel.IsReady;
@@ -457,6 +461,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         TabletChanged -= OnTabletChanged;
 
         Tablets.Clear();
+        IsTabletsEmpty = true;
         IsEmpty = true;
     }
 

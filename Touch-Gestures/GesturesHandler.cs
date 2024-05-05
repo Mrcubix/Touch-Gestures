@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using System.Runtime;
 using System.Threading;
@@ -29,6 +30,7 @@ namespace TouchGestures
 
         #region Fields
 
+        private TouchSettings _touchSettings => TouchSettings.Instance ?? TouchSettings.Default;
         private GesturesDaemonBase? _daemon;
         private BindableProfile? _profile;
         private SharedTabletReference? _tablet;
@@ -47,14 +49,14 @@ namespace TouchGestures
 
         public void Initialize()
         {
-            if (!TouchSettings.istouchToggled)
+            if (!_touchSettings.IsTouchToggled)
                 return;
 
             _daemon = GesturesDaemonBase.Instance;
 
             if (Info.Driver.Tablet != null && _daemon != null)
             {
-                _tablet = Info.Driver.Tablet.ToShared();
+                _tablet = Info.Driver.Tablet.ToShared(_touchSettings);
                 _daemon.AddTablet(_tablet);
                 _profile = _daemon.GetSettingsForTablet(_tablet.Name);
 
@@ -104,7 +106,7 @@ namespace TouchGestures
         {
             if (report is ITouchReport touchReport)
             {
-                if (_daemon != null && _daemon.IsReady && TouchSettings.istouchToggled)
+                if (_daemon != null && _daemon.IsReady && _touchSettings.IsTouchToggled)
                 {
                     // Iterate through all conflicting gestures
                     HandleConflictingGestures(TapGestures, touchReport);

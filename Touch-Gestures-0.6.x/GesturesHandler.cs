@@ -35,9 +35,13 @@ namespace TouchGestures
         #region Fields
 
         private GesturesDaemonBase? _daemon;
+        private TouchSettings _touchSettings = TouchSettings.Default;
+        private IOutputMode? _outputMode;
         private BindableProfile? _profile;
         private SharedTabletReference? _tablet;
+        private bool _awaitingDaemon;
         private bool _hasPreviousGestureStarted;
+
 
         #endregion
 
@@ -51,6 +55,8 @@ namespace TouchGestures
 #endif
 
             GesturesDaemonBase.DaemonLoaded += OnDaemonLoaded;
+            _awaitingDaemon = true;
+
             BulletproofBindingBuilder.ChooseAsBuilder();
         }
 
@@ -66,50 +72,79 @@ namespace TouchGestures
 
         public void Initialize()
         {
-            if (!TouchSettings.istouchToggled)
+            FetchTouchSettings();
+
+            if (!_touchSettings.IsTouchToggled)
                 return;
 
             // Filters are loaded before tools for some reasons, so we have to wait for the daemon to be loaded
             _daemon = GesturesDaemonBase.Instance;
 
-            if (Tablet != null && _Driver != null)
-            {
-                _tablet = Tablet.ToShared();
+            // OTD 0.6.4.0 doesn't dispose of plugins when detecting tablets, so unsubscribing early is necessary
+            GesturesDaemonBase.DaemonLoaded -= OnDaemonLoaded;
+            _awaitingDaemon = false;
 
-                if (_Driver is Driver driver && _tablet is BulletproofSharedTabletReference btablet)
-                {
-                    var device = driver.InputDevices.Where(x => x.Properties.Name == _tablet.Name).FirstOrDefault();
-                    
-                    object? pointer = device?.OutputMode switch
-                    {
-                        AbsoluteOutputMode absoluteOutputMode => absoluteOutputMode.Pointer,
-                        RelativeOutputMode relativeOutputMode => relativeOutputMode.Pointer,
-                        _ => null
-                    };
-
-                    if (pointer is IMouseButtonHandler mouseButtonHandler)
-                        btablet.ServiceProvider.AddService(() => mouseButtonHandler);
-                }
-
-                if (_daemon != null)
-                {
-                    _daemon.AddTablet(_tablet);
-                    _profile = _daemon.GetSettingsForTablet(_tablet.Name);
-
-                    if (_profile != null)
-                    {
-                        _profile.ProfileChanged += OnProfileChanged;
-                        OnProfileChanged(this, EventArgs.Empty);
-                    }
-
-                    Log.Write(PLUGIN_NAME, "Now handling touch gesture for: " + _tablet.Name);
-                }
-            }
+            if (Tablet != null)
+                InitializeCore(Tablet);
 
             if (_daemon == null)
-            {
                 Log.Write(PLUGIN_NAME, "Touch Gestures Daemon has not been enabled, please enable it in the 'Tools' tab", LogLevel.Error);
-                return;
+        }
+
+        private void InitializeCore(TabletReference tablet)
+        {
+            _tablet = tablet.ToShared(_touchSettings);
+
+            AddServices();
+
+            if (_daemon != null)
+            {
+                _daemon.AddTablet(_tablet);
+                _profile = _daemon.GetSettingsForTablet(_tablet.Name);
+
+                if (_profile != null)
+                {
+                    _profile.ProfileChanged += OnProfileChanged;
+                    OnProfileChanged(this, EventArgs.Empty);
+                }
+
+                Log.Write(PLUGIN_NAME, "Now handling touch gesture for: " + _tablet.Name);
+            }
+        }
+
+        private void FetchTouchSettings()
+        {
+            if (_Driver is Driver driver && Tablet != null)
+            {
+                // fetch the device first
+                var device = driver.InputDevices.Where(x => x.Properties.Name == Tablet.Properties.Name).FirstOrDefault();
+
+                // then fetch the output mode
+                _outputMode = device?.OutputMode;
+
+                // then fetch the touch settings
+                var settings = _outputMode?.Elements.OfType<TouchSettings>().FirstOrDefault();
+
+                if (settings != null)
+                    _touchSettings = settings;
+                else
+                    Log.Write(PLUGIN_NAME, "Touch settings are null, using default values", LogLevel.Warning);
+            }
+        }
+
+        private void AddServices()
+        {
+            if (_tablet is BulletproofSharedTabletReference btablet)
+            {
+                object? pointer = _outputMode switch
+                {
+                    AbsoluteOutputMode absoluteOutputMode => absoluteOutputMode.Pointer,
+                    RelativeOutputMode relativeOutputMode => relativeOutputMode.Pointer,
+                    _ => null
+                };
+
+                if (pointer is IMouseButtonHandler mouseButtonHandler)
+                    btablet.ServiceProvider.AddService(() => mouseButtonHandler);
             }
         }
 
@@ -144,7 +179,7 @@ namespace TouchGestures
         {
             if (report is ITouchReport touchReport)
             {
-                if (_daemon != null && _daemon.IsReady && TouchSettings.istouchToggled)
+                if (_daemon != null && _daemon.IsReady && _touchSettings.IsTouchToggled)
                 {
                     // Iterate through all conflicting gestures
                     HandleConflictingGestures(TapGestures, touchReport);
@@ -186,9 +221,7 @@ namespace TouchGestures
         #region Events Handlers
 
         public void OnDaemonLoaded(object? sender, EventArgs e)
-        {
-            Initialize();
-        }
+            => Initialize();
 
         public void OnProfileChanged(object? sender, EventArgs e)
         {
@@ -246,7 +279,10 @@ namespace TouchGestures
             if (_profile != null)
                 _profile.ProfileChanged -= OnProfileChanged;
 
-            GesturesDaemonBase.DaemonLoaded -= OnDaemonLoaded;
+            if (_awaitingDaemon)
+                GesturesDaemonBase.DaemonLoaded -= OnDaemonLoaded;
+
+            _awaitingDaemon = false;
 
             GC.SuppressFinalize(this);
         }

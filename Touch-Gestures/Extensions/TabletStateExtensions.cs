@@ -7,7 +7,7 @@ namespace TouchGestures.Extensions
 {
     public static class TabletStateExtensions
     {
-        public static SharedTabletReference ToShared(this TabletState tablet)
+        public static SharedTabletReference ToShared(this TabletState tablet, TouchSettings touchSettings)
         {
             var digitizer = new SharedTabletDigitizer
             {
@@ -21,8 +21,8 @@ namespace TouchGestures.Extensions
             {
                 Width = digitizer.Width,
                 Height = digitizer.Height,
-                MaxX = TouchSettings.maxX,
-                MaxY = TouchSettings.maxY
+                MaxX = touchSettings.MaxX,
+                MaxY = touchSettings.MaxY
             };
 
             var featureInitReport = tablet.Auxiliary.FeatureInitReport == null

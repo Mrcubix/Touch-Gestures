@@ -101,10 +101,31 @@
             </TextBlock>
 
             <TextBlock Text="The daemon is currently not running." Foreground="Red" Grid.Row="1" 
-                       IsVisible="{Binding !IsReady}" IsEnabled="{Binding !IsReady}" 
-                       HorizontalAlignment="Center" Margin="0, 0, 0, 16"/>
-            <Button Command="{Binding StartSetupWizardCommand}" Content="Setup a new Gesture" Grid.Row="2" 
-                    IsEnabled="{Binding IsReady}" HorizontalAlignment="Center" />
+                       IsVisible="{Binding !IsReady}" HorizontalAlignment="Center" Margin="0, 0, 0, 16"/>
+            <TextBlock Text="Please plug in a touch tablet." Foreground="Red" Grid.Row="1"  
+                       HorizontalAlignment="Center" Margin="0, 0, 0, 16">
+              <TextBlock.IsVisible>
+                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                  <Binding Path="IsReady" />
+                  <Binding Path="IsTabletsEmpty" />
+                </MultiBinding>
+              </TextBlock.IsVisible>
+            </TextBlock>
+
+            <Button Command="{Binding StartSetupWizardCommand}" Content="Setup a new Gesture" Grid.Row="2" HorizontalAlignment="Center">
+              <Button.IsVisible>
+                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                  <Binding Path="IsReady" />
+                  <Binding Path="!IsTabletsEmpty" />
+                </MultiBinding>
+              </Button.IsVisible>
+              <Button.IsEnabled>
+                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                  <Binding Source="IsReady" />
+                  <Binding Source="!IsTabletsEmpty" />
+                </MultiBinding>
+              </Button.IsEnabled>
+            </Button>
 
           </Grid>
 
