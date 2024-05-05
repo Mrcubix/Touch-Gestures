@@ -400,9 +400,11 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         if (!res)
             return;
 
-        SelectedTabletIndex = Math.Min(SelectedTabletIndex, Tablets.Count - 2);
+        //SelectedTabletIndex = Math.Min(SelectedTabletIndex, Tablets.Count - 2);
         
         SelectedTablet.Remove(bindingDisplay);
+
+        IsEmpty = !SelectedTablet.Gestures.Any();
 
         ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }
