@@ -126,23 +126,27 @@ For each of these topics, indicates in which way such systems could be improved,
 
 - [ ] A download link for the current platform & another to the github releases page
 
-- [ ] Installation Guide
-    - [ ] Dependencies
-    - [ ] Installation
+- [x] Installation Guide
+    - [x] Dependencies
+    - [x] Installation
 
-- [ ] Supported Gestures
+- [x] Supported Gestures
 
-- [ ] Getting Started
-    - [ ] Binding Overview Screen
-    - [ ] Adding Gestures
-    - [ ] Editing Gestures
-    - [ ] Deleting Gestures
+- [x] Getting Started
+    - [x] Binding Overview Screen
+    - [x] Adding Gestures
+    - [x] Editing Gestures
+    - [x] Deleting Gestures
 
 - [ ] Advanced
     - [ ] Node-Based Gestures
     - [ ] Gesture Recording
     - [ ] Gesture Recognition
 
-- [ ] FAQ
-    - [ ] Basic
-    - [ ] Troubleshooting
+- [-] FAQ
+    - [-] Basic
+    - [-] Troubleshooting
+
+### Bindings Rework
+
+- [ ] Wrap different versions of Binding under a single generic interface, with a `Press()` and `Release()` method.
