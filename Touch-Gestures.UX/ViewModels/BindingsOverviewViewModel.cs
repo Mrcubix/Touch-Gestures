@@ -184,7 +184,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         IsTabletsEmpty = !Tablets.Any();
         IsEmpty = !SelectedTablet?.Gestures.Any() ?? true;
         
-        IsReady = _parentViewModel.IsReady;
+        IsReady = _parentViewModel.IsReady && !IsEmpty;
         TabletChanged += OnTabletChanged;
     }
 

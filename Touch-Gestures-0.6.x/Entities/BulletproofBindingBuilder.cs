@@ -1,24 +1,19 @@
-using System;
-using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Interfaces;
+using TouchGestures.Lib.Reflection;
 
 namespace TouchGestures.Entities
 {
     public class BulletproofBindingBuilder : BindingBuilder
     {
-        private static object? BuildCore(PluginSettingStore? store, SharedTabletReference? tablet)
+        public override ISharedBinding? Build(BindingSettingStore? store, SharedTabletReference? tablet)
         {
             if (tablet is not BulletproofSharedTabletReference btablet)
                 return null;
 
-            return store?.Construct<IBinding>(btablet.ServiceProvider);
-        }
-
-        public static void ChooseAsBuilder()
-        {
-            Build = BuildCore;
+            return new BulletproofBinding(store?.Construct<IBinding>(btablet.ServiceProvider));
         }
     }
 }

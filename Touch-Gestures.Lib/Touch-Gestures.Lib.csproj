@@ -4,24 +4,10 @@
 
   <PropertyGroup>
     <RootNamespace>TouchGestures.Lib</RootNamespace>
-    <NoWarn>$(NoWarn); NETSDK1138; VSTHRD200</NoWarn>
-    <Nullable>enable</Nullable>
-    <OTDVersion>$(OTDVersion)</OTDVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(OTDVersion)' == ''">
-    <OTDVersion>OTD05</OTDVersion>
-  </PropertyGroup>
-
-  <!-- Target Frameworks -->
-
-  <PropertyGroup Condition="'$(OTDVersion)' == 'OTD05' Or '$(OTDVersion)' == ''">
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>preview</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(OTDVersion)' == 'OTD06'">
-    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn); VSTHRD200</NoWarn>
   </PropertyGroup>
 
   <!-- Debug Symbols -->
@@ -33,15 +19,22 @@
 
   <!-- Dependencies -->
 
-  <!-- Only for OTD 0.5.x (Running on .NET 5) -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" />
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="../.modules/OpenTabletDriver.External/OpenTabletDriver.External.Common/OpenTabletDriver.External.Common.csproj" />
   </ItemGroup>
 
+  <!-- Only for OTD 0.5.x (Running on .NET 5) -->
+  <!-- <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" Nullable="disable" />
+  </ItemGroup>-->
+
   <!-- Only for OTD 0.6.x (Running on .NET 6) -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <ProjectReference Include="../.modules/OpenTabletDriver.External-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" />
-    <ProjectReference Include="../.modules/OpenTabletDriver.External-0.6.x/OpenTabletDriver.External.Common/OpenTabletDriver.External.Common.csproj" />
-  </ItemGroup>
+  <!-- <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" Nullable="disable" />
+  </ItemGroup>-->
 </Project>

@@ -4,7 +4,7 @@ using TouchGestures.Lib.Input;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Drawing;
-using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib.Entities.Tablet.Touch;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -17,8 +17,6 @@ namespace TouchGestures.Lib.Entities.Gestures
     [JsonObject(MemberSerialization.OptIn)]
     public partial class HoldGesture : TapGesture
     {
-        private bool _deadlineStarted = false;
-
         #region Constructors
 
         public HoldGesture() : base(1000)

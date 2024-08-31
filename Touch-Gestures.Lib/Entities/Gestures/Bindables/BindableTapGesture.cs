@@ -1,16 +1,14 @@
-using OpenTabletDriver.Plugin;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Interfaces;
-using OpenTabletDriver.Desktop.Reflection;
 using TouchGestures.Lib.Serializables.Gestures;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using OpenTabletDriver.External.Common.Serializables;
 using System.Drawing;
-using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Reflection;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -42,7 +40,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             Deadline = deadline;
         }
             
-        public BindableTapGesture(Rectangle bounds, double deadline, IBinding binding) : this(bounds, deadline)
+        public BindableTapGesture(Rectangle bounds, double deadline, ISharedBinding binding) : this(bounds, deadline)
         {
             Binding = binding;
         }
@@ -52,13 +50,13 @@ namespace TouchGestures.Lib.Entities.Gestures
             RequiredTouchesCount = requiredTouchesCount;
         }
 
-        public BindableTapGesture(Rectangle bounds, IBinding binding, int requiredTouchesCount) : this(bounds)
+        public BindableTapGesture(Rectangle bounds, ISharedBinding binding, int requiredTouchesCount) : this(bounds)
         {
             RequiredTouchesCount = requiredTouchesCount;
             Binding = binding;
         }
 
-        public BindableTapGesture(Rectangle bounds, double deadline, IBinding binding, int requiredTouchesCount) : this(bounds, deadline)
+        public BindableTapGesture(Rectangle bounds, double deadline, ISharedBinding binding, int requiredTouchesCount) : this(bounds, deadline)
         {
             RequiredTouchesCount = requiredTouchesCount;
             Binding = binding;
@@ -70,10 +68,10 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
-        public PluginSettingStore? Store { get; set; }
+        public BindingSettingStore? Store { get; set; }
 
         /// <inheritdoc/>
-        public IBinding? Binding { get; set; }
+        public ISharedBinding? Binding { get; set; }
 
         #endregion
 
@@ -98,7 +96,8 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #region static Methods
 
-        public static BindableTapGesture? FromSerializable(SerializableTapGesture? tapGesture, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet)
+        public static BindableTapGesture? FromSerializable<T>(SerializableTapGesture? tapGesture, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet)
+            where T : BindingSettingStore, new()
         {
             if (tapGesture == null)
                 return null;
@@ -109,15 +108,16 @@ namespace TouchGestures.Lib.Entities.Gestures
             if (!identifierToPlugin.TryGetValue(tapGesture.PluginProperty.Identifier, out var plugin))
                 return null;
 
-            var store = new PluginSettingStore(plugin);
+            var store = new T();
+            store.SetTypeInfo(plugin);
 
-            if (store.SetBindingValue(plugin, tapGesture.PluginProperty.Value) == false)
+            if (store.SetValue(plugin, tapGesture.PluginProperty.Value) == false)
                 return null;
 
             return new BindableTapGesture(tapGesture)
             {
                 Store = store,
-                Binding = BindingBuilder.Build(store, tablet) as IBinding
+                Binding = BindingBuilder.Current?.Build(store, tablet)
             };
         }
 
@@ -129,7 +129,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             var store = tapGesture.Store;
 
             var identifier = identifierToPlugin.FirstOrDefault(x => x.Value.FullName == store?.Path);
-            var value = store?.GetBindingValue(identifier.Value);
+            var value = store?.GetValue(identifier.Value);
 
             return new SerializableTapGesture(tapGesture)
             {

@@ -1,5 +1,3 @@
-using OpenTabletDriver.Plugin;
-
 namespace TouchGestures.Lib.Extensions
 {
     public static class IStateBindingExtensions

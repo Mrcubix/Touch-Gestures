@@ -13,8 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures.Installer-0.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures.Lib", "Touch-Gestures.Lib\Touch-Gestures.Lib.csproj", "{D305D418-F65C-4335-8996-140E383894B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures.Lib-0.6.x", "Touch-Gestures.Lib\Touch-Gestures.Lib-0.6.x.csproj", "{8BBE54A7-CF26-414B-AE8E-E34E2D40F654}"
-EndProject
+#Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures.Lib-0.6.x", "Touch-Gestures.Lib\Touch-Gestures.Lib-0.6.x.csproj", "{8BBE54A7-CF26-414B-AE8E-E34E2D40F654}"
+#EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Touch-Gestures.Tests", "Touch-Gestures.Tests\Touch-Gestures.Tests.csproj", "{FE73A8D2-F3C5-4A5E-98D9-9EFE0F4FAFA3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Touch-Gestures.UX", "Touch-Gestures.UX\Touch-Gestures.UX.csproj", "{EBFA8512-1EA5-4D8C-B4AC-AB5B48A6D568}"

@@ -21,6 +21,13 @@
     </PackageReference>
   </ItemGroup>
 
+  <!-- Include the Dumps Directory -->
+  <ItemGroup>
+    <None Update="Dumps\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="../Touch-Gestures.Lib/Touch-Gestures.Lib.csproj" />
     <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" />

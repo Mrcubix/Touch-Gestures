@@ -1,6 +1,6 @@
 using System;
 using System.Numerics;
-using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib.Entities.Tablet.Touch;
 
 namespace TouchGestures.Tests.Samples
 {

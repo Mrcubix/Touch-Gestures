@@ -1,13 +1,13 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using OpenTabletDriver.Desktop.Reflection;
+using TouchGestures.Lib.Reflection;
 
 namespace TouchGestures.Lib.Converters
 {
-    public class PluginSettingConverter : JsonConverter<PluginSetting>
+    public class BindingSettingConverter : JsonConverter<BindingSetting>
     {
-        public override PluginSetting? ReadJson(JsonReader reader, Type objectType, PluginSetting? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override BindingSetting? ReadJson(JsonReader reader, Type objectType, BindingSetting? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             // build a PluginSettingsStore using value.Path as argument
             var value = JObject.Load(reader);
@@ -24,10 +24,10 @@ namespace TouchGestures.Lib.Converters
             if (property == null || settingValue == null)
                 return null!;
 
-            return new PluginSetting(property?.Value<string>()!, settingValue?.Value<string>()!);
+            return new BindingSetting(property?.Value<string>()!, settingValue?.Value<string>()!);
         }
 
-        public override void WriteJson(JsonWriter writer, PluginSetting? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, BindingSetting? value, JsonSerializer serializer)
         {
             // write a JObject with Path, Settings and Enable properties
             if (value == null)

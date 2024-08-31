@@ -4,14 +4,12 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.External.Common.Serializables;
-using OpenTabletDriver.Plugin;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Interfaces;
-using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Reflection;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -44,25 +42,25 @@ namespace TouchGestures.Lib.Entities.Gestures
             AngleThreshold = pinchGesture.AngleThreshold;
         }
 
-        public BindablePinchGesture(SharedArea? bounds, IBinding binding) : base(bounds)
+        public BindablePinchGesture(SharedArea? bounds, ISharedBinding binding) : base(bounds)
         {
             Binding = binding;
         }
 
-        public BindablePinchGesture(Rectangle bounds, IBinding binding) : base(bounds)
+        public BindablePinchGesture(Rectangle bounds, ISharedBinding binding) : base(bounds)
         {
             Binding = binding;
         }
 
         public BindablePinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise,
-                                    SharedArea? bounds, IBinding binding)
+                                    SharedArea? bounds, ISharedBinding binding)
             : base(distanceThreshold, angleThreshold, isInner, isClockwise, bounds)
         {
             Binding = binding;
         }
 
         public BindablePinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise,
-                                    Rectangle bounds, IBinding binding)
+                                    Rectangle bounds, ISharedBinding binding)
             : base(distanceThreshold, angleThreshold, isInner, isClockwise, bounds)
         {
             Binding = binding;
@@ -74,10 +72,10 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
-        public PluginSettingStore? Store { get; set; }
+        public BindingSettingStore? Store { get; set; }
 
         /// <inheritdoc/>
-        public virtual IBinding? Binding { get; set; }
+        public virtual ISharedBinding? Binding { get; set; }
 
         #endregion
 
@@ -102,7 +100,8 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #region static Methods
 
-        public static BindablePinchGesture? FromSerializable(SerializablePinchGesture? pinchGesture, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet)
+        public static BindablePinchGesture? FromSerializable<T>(SerializablePinchGesture? pinchGesture, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet)
+            where T : BindingSettingStore, new()
         {
             if (pinchGesture == null)
                 return null;
@@ -113,16 +112,17 @@ namespace TouchGestures.Lib.Entities.Gestures
             if (!identifierToPlugin.TryGetValue(pinchGesture.PluginProperty.Identifier, out var plugin))
                 return null;
 
-            var store = new PluginSettingStore(plugin);
+            var store = new T();
+            store.SetTypeInfo(plugin);
 
             // Set the values of the plugin property
-            if (store.SetBindingValue(plugin, pinchGesture.PluginProperty.Value) == false)
+            if (store.SetValue(plugin, pinchGesture.PluginProperty.Value) == false)
                 return null;
 
             return new BindablePinchGesture(pinchGesture)
             {
                 Store = store,
-                Binding = BindingBuilder.Build(store, tablet) as IBinding
+                Binding = BindingBuilder.Current?.Build(store, tablet)
             };
         }
 
@@ -134,7 +134,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             var store = gesture.Store;
 
             var identifier = identifierToPlugin.FirstOrDefault(x => x.Value.FullName == store?.Path);
-            var value = store?.GetBindingValue(identifier.Value);
+            var value = store?.GetValue(identifier.Value);
 
             return new SerializablePinchGesture(gesture)
             {

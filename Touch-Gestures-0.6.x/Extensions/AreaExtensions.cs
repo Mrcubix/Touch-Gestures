@@ -1,7 +1,7 @@
 using System.Numerics;
 using OpenTabletDriver.Plugin;
 
-namespace TouchGestures.Lib.Extensions
+namespace TouchGestures.Extensions
 {
     public static class AreaExtensions
     {

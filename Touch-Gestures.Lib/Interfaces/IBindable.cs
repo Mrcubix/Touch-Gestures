@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
-using OpenTabletDriver.Desktop.Reflection;
-using OpenTabletDriver.Plugin;
+using TouchGestures.Lib.Reflection;
 
 namespace TouchGestures.Lib.Interfaces
 {
@@ -9,11 +8,11 @@ namespace TouchGestures.Lib.Interfaces
     {
         /// <inheritdoc />  
         [JsonProperty]
-        PluginSettingStore? Store { get; set; }
+        BindingSettingStore? Store { get; set; }
 
         /// <summary>
         ///   The binding associated with the gesture.
         /// </summary>
-        IBinding? Binding { get; }
+        ISharedBinding? Binding { get; set; }
     }
 }

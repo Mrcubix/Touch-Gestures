@@ -5,14 +5,18 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.External.Common.RPC;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
+using TouchGestures.Converters;
+using TouchGestures.Entities;
 using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Extensions;
+using Settings = TouchGestures.Lib.Entities.Settings;
 
 namespace TouchGestures
 {
@@ -20,7 +24,7 @@ namespace TouchGestures
     ///   Manages settings for each tablets as well as the RPC server.
     /// </summary>
     [PluginName(PLUGIN_NAME)]
-    public class GesturesDaemon : GesturesDaemonBase, ITool
+    public class GesturesDaemon : GesturesDaemonBase<BulletproofBindableProfile, BulletproofBindingSettingsStore>, ITool
     {
         #region Constructors
 
@@ -34,6 +38,9 @@ namespace TouchGestures
                 _rpcServer = new RpcServer<GesturesDaemonBase>("GesturesDaemon", this);
                 _rpcServer.Converters.Add(new SharedAreaConverter());
             }
+
+            Settings.SerializerSettings.Converters.Add(new BulletproofBindingSettingStoreConverter());
+            _pluginsTypes = AppInfo.PluginManager.GetChildTypes<IStateBinding>();
 
             Instance ??= this;
         }

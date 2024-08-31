@@ -1,21 +1,22 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenTabletDriver.Desktop;
-using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin;
+using TouchGestures.Entities;
+using TouchGestures.Lib.Converters;
+using TouchGestures.Lib.Reflection;
 
-namespace TouchGestures.Lib.Converters
+namespace TouchGestures.Converters
 {
-    public class PluginSettingStoreConverter : JsonConverter<PluginSettingStore>
+    public class BulletproofBindingSettingStoreConverter : BindingSettingStoreConverter
     {
-        private readonly IReadOnlyCollection<TypeInfo> pluginsTypes = AppInfo.PluginManager.PluginTypes;
+        public BulletproofBindingSettingStoreConverter() : base(AppInfo.PluginManager.PluginTypes) { }
 
-        public override PluginSettingStore? ReadJson(JsonReader reader, Type objectType, PluginSettingStore? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override BindingSettingStore? ReadJson(JsonReader reader, Type objectType, BindingSettingStore? existingValue, 
+                                                      bool hasExistingValue, JsonSerializer serializer)
         {
             // build a PluginSettingsStore using value.Path as argument
             var value = JObject.Load(reader);
@@ -40,12 +41,12 @@ namespace TouchGestures.Lib.Converters
                 return null!;
             }
 
-            ObservableCollection<PluginSetting> settings = serializer.Deserialize<ObservableCollection<PluginSetting>>(pluginSettingsReader) 
-                                                               ?? new ObservableCollection<PluginSetting>(); 
+            ObservableCollection<BindingSetting> settings = serializer.Deserialize<ObservableCollection<BindingSetting>>(pluginSettingsReader)
+                                                               ?? new ObservableCollection<BindingSetting>();
 
             var enabled = value["Enable"]?.Value<bool>();
 
-            var store = new PluginSettingStore(type)
+            var store = new BulletproofBindingSettingsStore(type)
             {
                 Settings = settings,
                 Enable = enabled ?? false
@@ -54,7 +55,7 @@ namespace TouchGestures.Lib.Converters
             return store;
         }
 
-        public override void WriteJson(JsonWriter writer, PluginSettingStore? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, BindingSettingStore? value, JsonSerializer serializer)
         {
             // write a JObject with Path, Settings and Enable properties
             if (value == null)

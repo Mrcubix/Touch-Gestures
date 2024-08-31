@@ -2,7 +2,7 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using Newtonsoft.Json;
-using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib.Entities.Tablet.Touch;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Extensions;
 

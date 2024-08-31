@@ -5,7 +5,6 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using OpenTabletDriver;
-using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
 using OpenTabletDriver.Plugin.DependencyInjection;
@@ -16,6 +15,7 @@ using OpenTabletDriver.Plugin.Tablet.Touch;
 using OTD.EnhancedOutputMode.Lib.Tools;
 using TouchGestures.Entities;
 using TouchGestures.Extensions;
+using TouchGestures.Lib;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
@@ -57,7 +57,8 @@ namespace TouchGestures
             GesturesDaemonBase.DaemonLoaded += OnDaemonLoaded;
             _awaitingDaemon = true;
 
-            BulletproofBindingBuilder.ChooseAsBuilder();
+            BindingBuilder.Current = new BulletproofBindingBuilder();
+            Logger.Instance = new BulletproofLogger();
         }
 
         private static void WaitForDebugger()
@@ -187,7 +188,7 @@ namespace TouchGestures
 
                     // Iterate through all non-conflicting gestures
                     foreach (var gesture in NonConflictingGestures)
-                        gesture.OnInput(touchReport.Touches);
+                        gesture.OnInput(touchReport.Touches.FromOTD());
                 }
             }
 
@@ -200,7 +201,7 @@ namespace TouchGestures
 
             foreach (var gesture in gestures)
             {
-                gesture.OnInput(touchReport.Touches);
+                gesture.OnInput(touchReport.Touches.FromOTD());
 
                 // TODO: Ending it might not be the best move as simillar gesture might not work at all
 

@@ -5,14 +5,18 @@ using System.Numerics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.External.Common.RPC;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
+using TouchGestures.Converters;
+using TouchGestures.Entities;
 using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
+using Settings = TouchGestures.Lib.Entities.Settings;
 
 namespace TouchGestures
 {
@@ -20,7 +24,7 @@ namespace TouchGestures
     ///   Manages settings for each tablets as well as the RPC server.
     /// </summary>
     [PluginName(PLUGIN_NAME)]
-    public sealed class GesturesDaemon : GesturesDaemonBase, ITool
+    public sealed class GesturesDaemon : GesturesDaemonBase<StableBindableProfile, StableBindingSettingStore>, ITool
     {
         #region Fields
 
@@ -43,16 +47,12 @@ namespace TouchGestures
                 _rpcServer.Converters.Add(new SharedAreaConverter());
             }
 
+            Settings.SerializerSettings.Converters.Add(new StableBindingSettingStoreConverter());
+            _pluginsTypes = AppInfo.PluginManager.GetChildTypes<IBinding>();
+
             Instance ??= this;
 
             TabletAdded += OnTabletAdded;
-        }
-
-        public GesturesDaemon(Settings settings)
-        {
-            TouchGestureSettings = settings;
-
-            Initialize(false);
         }
 
         private void WaitForDebugger()
@@ -130,10 +130,10 @@ namespace TouchGestures
             _tabletSize = _tablets[0].Size;
             _touchLPMM = _tablets[0].TouchDigitizer?.GetLPMM() ?? Vector2.One;
 
-            if (TouchGestureSettings == null)
+            if (CurrentSettings == null)
                 return;
 
-            var profile = TouchGestureSettings.Profiles.Find(p => p.Name == _tablets[0].Name);
+            var profile = CurrentSettings.Profiles.Find(p => p.Name == _tablets[0].Name);
 
             if (profile == null)
                 return;

@@ -1,22 +1,15 @@
 using TouchGestures.Lib.Entities.Tablet;
-using OpenTabletDriver.Desktop.Reflection;
-using OpenTabletDriver.Plugin;
-using System;
+using TouchGestures.Lib.Interfaces;
+using TouchGestures.Lib.Reflection;
 
 namespace TouchGestures.Lib.Entities
 {
-    public class BindingBuilder
+    public abstract class BindingBuilder
     {
-        static BindingBuilder()
-        {
-            Build = BuildCore;
-        }
+        public static BindingBuilder? Current { get; set; }
 
-        public static Func<PluginSettingStore?, SharedTabletReference?, object?> Build { get; protected set; }
+        public IServiceManager? ServiceProvider { get; set; }
 
-        private static object? BuildCore(PluginSettingStore? store, SharedTabletReference? tablet)
-        {
-            return store?.Construct<IBinding>();
-        }
+        public abstract ISharedBinding? Build(BindingSettingStore? store, SharedTabletReference? tablet);
     }
 }

@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Reflection;
-using OpenTabletDriver.Desktop.Reflection;
-using OpenTabletDriver.Plugin.Attributes;
+
+#if OUTDATED_EXTENSIONS
 
 namespace TouchGestures.Lib.Extensions
 {
@@ -105,3 +105,5 @@ namespace TouchGestures.Lib.Extensions
 #endif
     }
 }
+
+#endif

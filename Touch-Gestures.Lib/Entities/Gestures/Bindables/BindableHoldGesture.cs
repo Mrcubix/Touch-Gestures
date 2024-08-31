@@ -1,16 +1,13 @@
-using OpenTabletDriver.Plugin;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Interfaces;
-using OpenTabletDriver.Desktop.Reflection;
 using TouchGestures.Lib.Serializables.Gestures;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using OpenTabletDriver.External.Common.Serializables;
 using System.Drawing;
-using TouchGestures.Lib.Extensions;
-using System.Diagnostics;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Reflection;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -51,7 +48,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             Threshold = tapGesture.Threshold;
         }
 
-        public BindableHoldGesture(Rectangle bounds, double deadline, IBinding binding) : this(bounds, deadline)
+        public BindableHoldGesture(Rectangle bounds, double deadline, ISharedBinding binding) : this(bounds, deadline)
         {
             Binding = binding;
         }
@@ -61,13 +58,13 @@ namespace TouchGestures.Lib.Entities.Gestures
             RequiredTouchesCount = requiredTouchesCount;
         }
 
-        public BindableHoldGesture(Rectangle bounds, IBinding binding, int requiredTouchesCount) : this(bounds)
+        public BindableHoldGesture(Rectangle bounds, ISharedBinding binding, int requiredTouchesCount) : this(bounds)
         {
             RequiredTouchesCount = requiredTouchesCount;
             Binding = binding;
         }
 
-        public BindableHoldGesture(Rectangle bounds, double deadline, IBinding binding, int requiredTouchesCount) : this(bounds, deadline)
+        public BindableHoldGesture(Rectangle bounds, double deadline, ISharedBinding binding, int requiredTouchesCount) : this(bounds, deadline)
         {
             RequiredTouchesCount = requiredTouchesCount;
             Binding = binding;
@@ -79,10 +76,10 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         /// <inheritdoc/>
         [JsonProperty]
-        public PluginSettingStore? Store { get; set; }
+        public BindingSettingStore? Store { get; set; }
 
         /// <inheritdoc/>
-        public IBinding? Binding { get; set; }
+        public ISharedBinding? Binding { get; set; }
 
         #endregion
 
@@ -91,23 +88,13 @@ namespace TouchGestures.Lib.Entities.Gestures
         protected override void Press()
         {
             base.Press();
-#if NET6_0
-            if (Binding is IStateBinding stateBinding)
-                stateBinding.Press();
-#else
+
             Binding?.Press();
-#endif
         }
 
         protected override void Release()
         {
-#if NET6_0
-            if (IsPressing && Binding is IStateBinding stateBinding)
-                stateBinding.Release();
-#else
-            if (IsPressing)
-                Binding?.Release();
-#endif
+            Binding?.Release();
 
             base.Release();
         }
@@ -116,7 +103,8 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #region static Methods
 
-        public static BindableHoldGesture? FromSerializable(SerializableHoldGesture? holdGesture, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet)
+        public static BindableHoldGesture? FromSerializable<T>(SerializableHoldGesture? holdGesture, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet)
+            where T : BindingSettingStore, new()
         {
             if (holdGesture == null)
                 return null;
@@ -127,16 +115,17 @@ namespace TouchGestures.Lib.Entities.Gestures
             if (!identifierToPlugin.TryGetValue(holdGesture.PluginProperty.Identifier, out var plugin))
                 return null;
 
-            var store = new PluginSettingStore(plugin);
+            var store = new T();
+            store.SetTypeInfo(plugin);
 
             // Set the values of the plugin property
-            if (store.SetBindingValue(plugin, holdGesture.PluginProperty.Value) == false)
+            if (store.SetValue(plugin, holdGesture.PluginProperty.Value) == false)
                 return null;
 
             return new BindableHoldGesture(holdGesture)
             {
                 Store = store,
-                Binding = BindingBuilder.Build(store, tablet) as IBinding
+                Binding = BindingBuilder.Current?.Build(store, tablet)
             };
         }
 
@@ -148,7 +137,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             var store = holdGesture.Store;
 
             var identifier = identifierToPlugin.FirstOrDefault(x => x.Value.FullName == store?.Path);
-            var value = store?.GetBindingValue(identifier.Value);
+            var value = store?.GetValue(identifier.Value);
 
             return new SerializableHoldGesture(holdGesture)
             {

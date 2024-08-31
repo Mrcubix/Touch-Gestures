@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
 using Newtonsoft.Json;
-using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib.Entities.Tablet.Touch;
 using TouchGestures.Lib.Input;
 using TouchGestures.Lib.Interfaces;
 

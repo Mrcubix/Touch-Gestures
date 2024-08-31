@@ -4,8 +4,8 @@ using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using Newtonsoft.Json;
-using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Entities.Tablet.Touch;
 using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Input;
 

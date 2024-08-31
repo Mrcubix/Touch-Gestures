@@ -15,7 +15,7 @@
 
   <!-- Only for OTD 0.5.x (Running on .NET 5) -->
   <ItemGroup>
-    <ProjectReference Include="../.modules/OpenTabletDriver.External-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" />
-    <ProjectReference Include="../.modules/OpenTabletDriver.External-0.6.x/OpenTabletDriver.External.Common/OpenTabletDriver.External.Common.csproj" />
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" Nullable="disable" />
+    <ProjectReference Include="../.modules/OpenTabletDriver.External/OpenTabletDriver.External.Common/OpenTabletDriver.External.Common.csproj" />
   </ItemGroup>
 </Project>

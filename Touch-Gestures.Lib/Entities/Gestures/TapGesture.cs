@@ -1,15 +1,13 @@
 using System;
 using System.Numerics;
-using OpenTabletDriver.Plugin;
-using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Input;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using System.Linq;
 using System.Drawing;
-using TouchGestures.Lib.Extensions;
 using System.Collections.Generic;
-using TouchGestures.Lib.Interfaces;
+using TouchGestures.Lib.Entities.Tablet.Touch;
+using TouchGestures.Lib.Enums;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -187,7 +185,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             set
             {
                 if (value < 1)
-                    Log.Write("Touch Gestures", "The number of required touches cannot be less than 1, setting to 1.", LogLevel.Warning);
+                    Logger.Instance?.Write("Touch Gestures", "The number of required touches cannot be less than 1, setting to 1.", LogLevel.Warning);
 
                 _requiredTouchesCount = value;
 

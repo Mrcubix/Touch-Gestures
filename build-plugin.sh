@@ -127,6 +127,8 @@ build_installer () {
 
     project="Touch-Gestures.Installer/Touch-Gestures.Installer$suffix.csproj"
 
+    dotnet restore $project
+
     # Build the installer
     if ! dotnet publish $project -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/installer/$version;
     then

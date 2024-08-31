@@ -1,7 +1,5 @@
-using System.Numerics;
-using Newtonsoft.Json;
-using OpenTabletDriver.Desktop.Reflection;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Reflection;
 
 namespace TouchGestures.Entities
 {
@@ -9,7 +7,7 @@ namespace TouchGestures.Entities
     {
         public BulletproofSharedTabletReference() : base()
         {
-            ServiceProvider = new ServiceManager();
+            ServiceProvider = new PointerManager();
         }
 
         public BulletproofSharedTabletReference(string name, SharedTabletDigitizer digitizer, 

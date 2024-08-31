@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <!-- OpenTabletDriver.Plugin -->
-    <ProjectReference Include="../.modules/OpenTabletDriver.External-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" PrivateAssets="all" />
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- embed ressource /build/plugin/Wheel-Addon.zip -->

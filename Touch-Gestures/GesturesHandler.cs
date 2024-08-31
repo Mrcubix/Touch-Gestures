@@ -114,7 +114,7 @@ namespace TouchGestures
 
                     // Iterate through all non-conflicting gestures
                     foreach (var gesture in NonConflictingGestures)
-                        gesture.OnInput(touchReport.Touches);
+                        gesture.OnInput(touchReport.Touches.FromOTD());
                 }
             }
 
@@ -127,7 +127,7 @@ namespace TouchGestures
 
             foreach (var gesture in gestures)
             {
-                gesture.OnInput(touchReport.Touches);
+                gesture.OnInput(touchReport.Touches.FromOTD());
 
                 // TODO: Ending it might not be the best move as simillar gesture might not work at all
 

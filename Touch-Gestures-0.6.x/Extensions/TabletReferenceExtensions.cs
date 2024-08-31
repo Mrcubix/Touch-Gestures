@@ -1,5 +1,4 @@
 using System.Numerics;
-using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin.Tablet;
 using OTD.EnhancedOutputMode.Lib.Tools;
 using TouchGestures.Entities;
@@ -29,7 +28,7 @@ namespace TouchGestures.Extensions
                 MaxY = touchSettings.MaxY
             };
 
-            return new BulletproofSharedTabletReference(tablet.Properties.Name, penDigitizer, touchDigitizer, new ServiceManager());
+            return new BulletproofSharedTabletReference(tablet.Properties.Name, penDigitizer, touchDigitizer, new PointerManager());
         }
 
         public static Vector2 GetLPMM(this TabletReference tabletReference)
