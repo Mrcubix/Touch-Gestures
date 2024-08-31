@@ -64,10 +64,8 @@ namespace TouchGestures
 
                 var store = new PluginSettingStore(plugin);
 
-                var stateBinding = store.Construct<IStateBinding>();
-
                 // ALL that extra reflection bs just to get valid keys
-                var property = stateBinding.GetType().FindPropertyWithAttribute<PropertyValidatedAttribute>();
+                var property = store.GetTypeInfo()?.FindPropertyWithAttribute<PropertyValidatedAttribute>();
 
                 if (property == null)
                     continue;
