@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
     <NoWarn>NETSDK1138</NoWarn>
     <AssemblyName>Touch-Gestures.Installer</AssemblyName>
   </PropertyGroup>

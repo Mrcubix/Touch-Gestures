@@ -35,13 +35,13 @@
 
   <!-- Only for OTD 0.5.x (Running on .NET 5) -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" />
+    <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" Nullable="disable" />
     <ProjectReference Include="../.modules/OpenTabletDriver.External/OpenTabletDriver.External.Common/OpenTabletDriver.External.Common.csproj" />
   </ItemGroup>
 
   <!-- Only for OTD 0.6.x (Running on .NET 6) -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <ProjectReference Include="../.modules/OpenTabletDriver.External-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" />
+    <ProjectReference Include="../.modules/OpenTabletDriver.External-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" PrivateAssets="all" Nullable="disable" />
     <ProjectReference Include="../.modules/OpenTabletDriver.External-0.6.x/OpenTabletDriver.External.Common/OpenTabletDriver.External.Common.csproj" />
   </ItemGroup>
 </Project>
