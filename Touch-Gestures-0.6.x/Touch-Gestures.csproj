@@ -16,7 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="../Touch-Gestures.Lib-0.6.x/Touch-Gestures.Lib-0.6.x.csproj" />
 
-    <ProjectReference Include="../.modules/OpenTabletDriver.External-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" Nullable="disable" />
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" Nullable="disable" />
     <ProjectReference Include="../.modules/OTD.EnhancedOutputMode-0.6.x/OTD.EnhancedOutputMode.Lib/OTD.EnhancedOutputMode.Lib.csproj" />
   </ItemGroup>
 
