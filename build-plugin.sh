@@ -125,7 +125,7 @@ build_installer () {
     echo "Building the installer"
     echo ""
 
-    project="Touch-Gestures.Installer/Touch-Gestures.Installer$suffix.csproj"
+    project="Touch-Gestures.Installer$suffix/Touch-Gestures.Installer$suffix.csproj"
 
     # Build the installer
     if ! dotnet publish $project -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/installer/$version;
@@ -171,7 +171,7 @@ do
     echo "Building Touch-Gestures$suffix"
 
     #Build the plugin, exit on failure
-    if ! dotnet publish "Touch-Gestures$suffix" -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/plugin/$version -p:OTDVersion=$version_code;
+    if ! dotnet publish "Touch-Gestures$suffix" -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/plugin/$version ;
     then
         echo "Failed to build Touch-Gestures for $version"
         exit 1

@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="../Touch-Gestures.Installer/**/*.cs" CopyToOutputDirectory="Never" />
+
+    <Compile Remove="../Touch-Gestures.Installer/obj/**/*.cs" />
+    <Compile Remove="../Touch-Gestures.Installer/bin/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- OpenTabletDriver.Plugin -->
     <ProjectReference Include="../.modules/OpenTabletDriver.External-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" PrivateAssets="all" />
   </ItemGroup>
