@@ -92,6 +92,8 @@ namespace TouchGestures
                 plugins.Add(serializablePlugin);
             }
 
+            Log.Write("Gestures Daemon", $"Found {plugins.Count} Usable Bindings Plugins.");
+
             return Task.FromResult(plugins);
         }
 
