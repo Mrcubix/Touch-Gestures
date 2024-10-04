@@ -9,7 +9,7 @@
   <!-- NET 5 Only -->
   <ItemGroup>
     <!-- OpenTabletDriver.Plugin -->
-    <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" />
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" />
   </ItemGroup>
 
   <!-- embed ressource /build/plugin/Wheel-Addon.zip -->
