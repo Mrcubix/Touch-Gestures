@@ -7,6 +7,11 @@ declare -rA versions=(
     ["0.6.x"]="OTD06"
 )
 
+declare -rA targetFrameworks=(
+    ["0.5.x"]="net5.0"
+    ["0.6.x"]="net6.0"
+)
+
 declare -rA suffixes=(
     ["OTD05"]=""
     ["OTD06"]="-0.6.x"
@@ -122,19 +127,15 @@ move_files () {
 
 build_installer () {
     echo ""
-    echo "Building the installer"
+    echo "Building the installer for $version"
     echo ""
 
-    project="Touch-Gestures.Installer$suffix/Touch-Gestures.Installer$suffix.csproj"
-
     # Build the installer
-    if ! dotnet publish $project -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/installer/$version;
+    if ! dotnet publish Touch-Gestures.Installer -c Release -f $targetFramework -p:noWarn='"NETSDK1138;VSTHRD200"' -o build/installer/$version;
     then
         echo "Failed to build Touch-Gestures.Installer for $version"
         exit 1
     fi
-
-    mv "temp/installer/$version/Touch-Gestures.Installer.dll" "build/installer/$version/Touch-Gestures.Installer.dll"
 
     (
         cd build/installer/$version
@@ -160,15 +161,14 @@ for version in "${!versions[@]}"
 do
     # Get suffix for the version (0.5.x -> OTD05 -> "")
     version_code=${versions[${version}]}
+    targetFramework=${targetFrameworks[${version}]}
     suffix=${suffixes[${version_code}]}
 
     create_plugin_structure
 
     echo ""
-    echo "Building Touch-Gestures"
+    echo "Building Touch-Gestures $version"
     echo ""
-
-    echo "Building Touch-Gestures$suffix"
 
     #Build the plugin, exit on failure
     if ! dotnet publish "Touch-Gestures$suffix" -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/plugin/$version ;
