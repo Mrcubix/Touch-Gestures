@@ -38,7 +38,7 @@ namespace TouchGestures.Lib.Entities
         #region Properties
 
         [JsonProperty]
-        public int Version { get; set; }
+        public int Version { get; set; } = 1;
 
         [JsonProperty]
         public List<BindableProfile> Profiles { get; set; } = new();
