@@ -20,7 +20,8 @@ using static AssetLoaderExtensions;
 #nullable enable
 
 [Name("Tap"), Icon("Assets/Setups/Tap/tap_triple.png"),
- Description("A gesture completed by tapping with any specified number of fingers")]
+ Description("A gesture completed by tapping with any specified number of fingers"),
+ MultiTouchOnly(false)]
 public partial class TapSetupViewModel : GestureSetupViewModel
 {
     private readonly SerializableTapGesture _gesture;
@@ -70,7 +71,7 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
         SelectedGestureSetupPickIndex = 0;
 
-        BindingDisplay = new BindingDisplayViewModel();
+        BindingDisplay = new BindingDisplayViewModel("1-Touch Tap", string.Empty, null);
         AreaDisplay = new AreaDisplayViewModel();
         _gesture = new SerializableTapGesture();
 
@@ -96,6 +97,7 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         SelectedGestureSetupPickIndex = serializedTapGesture.RequiredTouchesCount - 1;
 
         BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
+        BindingDisplay.Description = $"{serializedTapGesture.RequiredTouchesCount}-Touch Tap";
 
         SetupArea(fullArea, serializedTapGesture.Bounds);
     }
@@ -109,11 +111,18 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
     #endregion
 
+    #region Properties
+
+    public override bool SingleTouchOptionSelectionEnabled { get; } = false;
+
+    #endregion
+
     #region Methods
 
     protected override void GoBack()
     {
-        if (IsBindingSelectionStepActive) // Step 2
+        // We skip the option selection in the case a setup is single-touch. (Pen) 
+        if (IsBindingSelectionStepActive && IsMultiTouchSetup) // Step 2
         {
             IsBindingSelectionStepActive = false;
             IsOptionsSelectionStepActive = true;

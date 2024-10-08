@@ -214,7 +214,8 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         var x = Math.Round(SelectedTablet.Reference.Size.X, 5);
         var y = Math.Round(SelectedTablet.Reference.Size.Y, 5);
 
-        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y));
+        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y),
+                                                          SelectedTablet.Profile.IsMultiTouch);
 
         setupWizard.SetupCompleted += OnSetupCompleted;
         setupWizard.BackRequested += OnBackRequestedAhead;
@@ -325,7 +326,8 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         var x = Math.Round(SelectedTablet.Reference.Size.X, 5);
         var y = Math.Round(SelectedTablet.Reference.Size.Y, 5);
 
-        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y));
+        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y),
+                                                          SelectedTablet.Profile.IsMultiTouch);
 
         // We need to check whenever the edit is completed & when te user goes back
         setupWizard.EditCompleted += (s, args) => OnEditCompleted(s, bindingDisplay, args);

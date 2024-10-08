@@ -7,9 +7,9 @@ using TouchGestures.UX.ViewModels.Controls.Setups;
 
 namespace TouchGestures.UX.ViewModels.Controls.Tiles
 {
-    [Name("Non-Implemented")]
-    [Description("This gesture has not been implemented yet")]
-    [Icon("")]
+    [Name("Non-Implemented"), Icon(""),
+     Description("This gesture has not been implemented yet"),
+     MultiTouchOnly(false)]
     public partial class GestureTileViewModel<T> : GestureTileViewModel where T : GestureSetupViewModel, new()
     {
         private const string DEFAULT_NAME = "Non-Implemented";
@@ -20,10 +20,12 @@ namespace TouchGestures.UX.ViewModels.Controls.Tiles
             var nameAttribute = (NameAttribute?)Attribute.GetCustomAttribute(typeof(T), typeof(NameAttribute));
             var descriptionAttribute = (DescriptionAttribute?)Attribute.GetCustomAttribute(typeof(T), typeof(DescriptionAttribute));
             var iconAttribute = (IconAttribute?)Attribute.GetCustomAttribute(typeof(T), typeof(IconAttribute));
+            var multiTouchOnlyAttribute = (MultiTouchOnlyAttribute?)Attribute.GetCustomAttribute(typeof(T), typeof(MultiTouchOnlyAttribute));
 
             GestureName = nameAttribute?.Name ?? DEFAULT_NAME;
             Description = descriptionAttribute?.Description ?? DEFAULT_DESCRIPTION;
             Icon = iconAttribute?.Icon;
+            IsMultiTouchOnly = multiTouchOnlyAttribute?.IsMultiTouchOnly ?? false;
 
             AssociatedSetup = new T();
         }
@@ -42,6 +44,11 @@ namespace TouchGestures.UX.ViewModels.Controls.Tiles
         
         [ObservableProperty]
         private GestureSetupViewModel _associatedSetup = new();
+
+        [ObservableProperty]
+        private bool _isEnabled = true;
+
+        public bool IsMultiTouchOnly { get; init; }
 
         public event EventHandler? Selected;
 

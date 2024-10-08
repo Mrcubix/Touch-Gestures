@@ -20,7 +20,8 @@ using static AssetLoaderExtensions;
 #nullable enable
 
 [Name("Rotation"), Icon("Assets/Setups/Rotation/rotation_clockwise.png"),
- Description("A gesture completed by pinching & rotating 2 fingers, simillar to how you would rotate a map in various application")]
+ Description("A gesture completed by pinching & rotating 2 fingers, simillar to how you would rotate a map in various application"),
+ MultiTouchOnly(true)]
 public partial class RotateSetupViewModel : PinchSetupViewModel
 {
     private readonly SerializablePinchGesture _gesture;
