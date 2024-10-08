@@ -1,19 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin;
 using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Interfaces;
 using TouchGestures.Lib.Serializables.Gestures;
 
 namespace TouchGestures.Lib.Entities
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class BindableProfile : IEnumerable<Gesture>
+    public class BindableProfile : IGesturesProfile
     {
         public event EventHandler? ProfileChanged;
 
@@ -21,6 +21,9 @@ namespace TouchGestures.Lib.Entities
 
         [JsonProperty]
         public string Name { get; set; } = string.Empty;
+
+        [JsonProperty]
+        public bool IsMultiTouch { get; set; } = true;
 
         [JsonProperty]
         public List<BindableTapGesture> TapGestures { get; set; } = new();
@@ -89,6 +92,30 @@ namespace TouchGestures.Lib.Entities
             }
         }
 
+        public void Remove(Gesture gesture)
+        {
+            switch(gesture)
+            {
+                case BindableTapGesture tapGesture:
+                    TapGestures.Remove(tapGesture);
+                    break;
+                case BindableHoldGesture holdGesture:
+                    HoldGestures.Remove(holdGesture);
+                    break;
+                case BindableSwipeGesture swipeGesture:
+                    SwipeGestures.Remove(swipeGesture);
+                    break;
+                case BindablePanGesture panGesture:
+                    PanGestures.Remove(panGesture);
+                    break;
+                case BindablePinchGesture pinchGesture:
+                    RemovePinch(pinchGesture);
+                    break;
+                default:
+                    throw new ArgumentException("Unknown gesture type.");
+            }
+        }
+
         public void Update(SerializableProfile profile, SharedTabletReference tablet, Dictionary<int, TypeInfo> identifierToPlugin)
         {
             FromSerializable(profile, identifierToPlugin, tablet, this);
@@ -111,6 +138,14 @@ namespace TouchGestures.Lib.Entities
                 PinchGestures.Add(pinchGesture);
             else
                 RotateGestures.Add(pinchGesture);
+        }
+
+        private void RemovePinch(BindablePinchGesture pinchGesture)
+        {
+            if (pinchGesture.DistanceThreshold > 0)
+                PinchGestures.Remove(pinchGesture);
+            else
+                RotateGestures.Remove(pinchGesture);
         }
 
         #endregion
