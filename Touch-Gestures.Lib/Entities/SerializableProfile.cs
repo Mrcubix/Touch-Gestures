@@ -3,15 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Interfaces;
 using TouchGestures.Lib.Serializables.Gestures;
 
 namespace TouchGestures.Lib.Entities
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class SerializableProfile : IEnumerable<Gesture>
+    public class SerializableProfile : IGesturesProfile
     {
         [JsonProperty]
         public string Name { get; set; } = string.Empty;
+
+        [JsonProperty]
+        public bool IsMultiTouch { get; set; } = true;
 
         [JsonProperty]
         public List<SerializableTapGesture> TapGestures { get; set; } = new();
