@@ -127,6 +127,21 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
         }
     }
 
+    /// <summary>
+    ///   Whether single touch gestures are supported for this setup.
+    /// </summary>
+    public virtual bool SingleTouchSupported { get; } = true;
+
+    /// <summary>
+    ///   Whether option selection is enabled for this setup when not multi-touch.
+    /// </summary>
+    public virtual bool SingleTouchOptionSelectionEnabled { get; } = true;
+
+    /// <summary>
+    ///   Whether this setup is for a multi-touch gesture or not.
+    /// </summary>
+    public bool IsMultiTouchSetup { get; set; } = true;
+
     #endregion
 
     #region Methods
