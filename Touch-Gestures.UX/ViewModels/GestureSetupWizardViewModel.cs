@@ -46,7 +46,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         GestureSelectionScreenViewModel.BackRequested += OnBackRequestedAhead;
         GestureSelectionScreenViewModel.GestureSelected += OnGestureSelected;
 
-        GestureSetupScreenViewModel.BackRequested += OnBackRequestedAhead;
+        //GestureSetupScreenViewModel.BackRequested += OnBackRequestedAhead;
     }
 
     public GestureSetupWizardViewModel(Rect bounds) : this()
@@ -70,10 +70,10 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
     protected override void GoBack()
     {
-        if (NextViewModel is GestureSelectionScreenViewModel || (NextViewModel is GestureSetupScreenViewModel && _editedGesture != null))
-            BackRequested?.Invoke(this, EventArgs.Empty);
-        else
+        if (NextViewModel is GestureSetupScreenViewModel && _editedGesture == null)
             NextViewModel = GestureSelectionScreenViewModel;
+        else if (NextViewModel is GestureSelectionScreenViewModel || NextViewModel is GestureSetupScreenViewModel)
+            BackRequested?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
