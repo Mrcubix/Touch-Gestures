@@ -36,7 +36,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
     #region Constructors
 
-    public GestureSetupWizardViewModel()
+    public GestureSetupWizardViewModel(bool isMultiTouch = true)
     {
         NextViewModel = _gestureSelectionScreenViewModel;
         
@@ -45,11 +45,12 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
         GestureSelectionScreenViewModel.BackRequested += OnBackRequestedAhead;
         GestureSelectionScreenViewModel.GestureSelected += OnGestureSelected;
+        GestureSelectionScreenViewModel.HideMultiTouchTiles(isMultiTouch);
 
         //GestureSetupScreenViewModel.BackRequested += OnBackRequestedAhead;
     }
 
-    public GestureSetupWizardViewModel(Rect bounds) : this()
+    public GestureSetupWizardViewModel(Rect bounds, bool isMultiTouch = true) : this(isMultiTouch)
     {
         _bounds = bounds;
     }
