@@ -17,6 +17,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     private Gesture _editedGesture = null!;
 
     private Rect _bounds;
+    private bool _isMultiTouch;
 
     #region Observable Fields
 
@@ -39,6 +40,8 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     public GestureSetupWizardViewModel(bool isMultiTouch = true)
     {
         NextViewModel = _gestureSelectionScreenViewModel;
+
+        _isMultiTouch = isMultiTouch;
         
         PropertyChanging += OnPropertyChanging;
         PropertyChanged += OnGestureChanged;
@@ -106,7 +109,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         // Subscribe to the events
         setupViewModel.EditCompleted += OnEditCompleted;
 
-        GestureSetupScreenViewModel.StartSetup(setupViewModel);
+        GestureSetupScreenViewModel.StartSetup(setupViewModel, _isMultiTouch);
         NextViewModel = GestureSetupScreenViewModel;
     }
 
@@ -132,7 +135,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
         associatedSetup.AreaDisplay = new(_bounds);
 
-        GestureSetupScreenViewModel.StartSetup(associatedSetup);
+        GestureSetupScreenViewModel.StartSetup(associatedSetup, _isMultiTouch);
         NextViewModel = GestureSetupScreenViewModel;
     }
 
