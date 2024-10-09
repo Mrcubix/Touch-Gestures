@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin.Tablet;
@@ -11,7 +12,10 @@ namespace TouchGestures.Extensions
     {
         public static SharedTabletReference ToShared(this TabletReference tablet, TouchSettings touchSettings)
         {
-            var digitizer = tablet.Properties.Specifications.Digitizer;
+            var digitizer = tablet?.Properties?.Specifications?.Digitizer;
+
+            if (tablet == null || digitizer == null)
+                throw new ArgumentNullException(nameof(tablet));
 
             var penDigitizer = new SharedTabletDigitizer
             {

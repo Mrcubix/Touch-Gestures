@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using OpenTabletDriver.Plugin.Tablet;
 using OTD.EnhancedOutputMode.Lib.Tools;
@@ -9,6 +10,9 @@ namespace TouchGestures.Extensions
     {
         public static SharedTabletReference ToShared(this TabletState tablet, TouchSettings touchSettings)
         {
+            if (tablet == null || tablet.Digitizer == null)
+                throw new ArgumentNullException(nameof(tablet));
+
             var digitizer = new SharedTabletDigitizer
             {
                 Width = tablet.Digitizer.Width,
@@ -25,25 +29,25 @@ namespace TouchGestures.Extensions
                 MaxY = touchSettings.MaxY
             };
 
-            var featureInitReport = tablet.Auxiliary.FeatureInitReport == null
-                ? new List<byte[]>()
-                : new List<byte[]> { tablet.Auxiliary.FeatureInitReport };
+            var featureInitReport = tablet.Digitizer.FeatureInitReport == null
+            ? new List<byte[]>()
+            : new List<byte[]> { tablet.Digitizer.FeatureInitReport };
 
-            var outputInitReport = tablet.Auxiliary.OutputInitReport == null
+            var outputInitReport = tablet.Digitizer.OutputInitReport == null
                 ? new List<byte[]>()
-                : new List<byte[]> { tablet.Auxiliary.OutputInitReport };
+                : new List<byte[]> { tablet.Digitizer.OutputInitReport };
 
             var identifier = new SharedDeviceIdentifier
             {
-                VendorID = tablet.Auxiliary.VendorID,
-                ProductID = tablet.Auxiliary.ProductID,
-                InputReportLength = tablet.Auxiliary.InputReportLength,
-                OutputReportLength = tablet.Auxiliary.OutputReportLength,
-                ReportParser = tablet.Auxiliary.ReportParser,
+                VendorID = tablet.Digitizer.VendorID,
+                ProductID = tablet.Digitizer.ProductID,
+                InputReportLength = tablet.Digitizer.InputReportLength,
+                OutputReportLength = tablet.Digitizer.OutputReportLength,
+                ReportParser = tablet.Digitizer.ReportParser,
                 FeatureInitReport = featureInitReport,
                 OutputInitReport = outputInitReport,
-                DeviceStrings = tablet.Auxiliary.DeviceStrings,
-                InitializationStrings = tablet.Auxiliary.InitializationStrings
+                DeviceStrings = tablet.Digitizer.DeviceStrings,
+                InitializationStrings = tablet.Digitizer.InitializationStrings
             };
 
             return new SharedTabletReference(tablet.TabletProperties.Name, digitizer, touchDigitizer, identifier);
