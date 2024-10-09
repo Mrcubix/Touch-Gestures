@@ -28,20 +28,19 @@ namespace TouchGestures
     {
         #region Constants
 
-        public const string PLUGIN_NAME = "Touch Gestures";
+        private const string PLUGIN_NAME = "Touch Gestures";
 
         #endregion
 
         #region Fields
-
-        private GesturesDaemonBase? _daemon;
-        private TouchSettings _touchSettings = TouchSettings.Default;
-        private IOutputMode? _outputMode;
-        private BindableProfile? _profile;
-        private SharedTabletReference? _tablet;
+        
+        protected TouchSettings _touchSettings = TouchSettings.Default;
+        protected IOutputMode? _outputMode;
+        protected GesturesDaemonBase? _daemon;
+        protected BindableProfile? _profile;
+        protected SharedTabletReference? _tablet;
         private bool _awaitingDaemon;
         private bool _hasPreviousGestureStarted;
-
 
         #endregion
 
@@ -91,7 +90,7 @@ namespace TouchGestures
                 Log.Write(PLUGIN_NAME, "Touch Gestures Daemon has not been enabled, please enable it in the 'Tools' tab", LogLevel.Error);
         }
 
-        private void InitializeCore(TabletReference tablet)
+        protected virtual void InitializeCore(TabletReference tablet)
         {
             _tablet = tablet.ToShared(_touchSettings);
 
@@ -112,7 +111,7 @@ namespace TouchGestures
             }
         }
 
-        private void FetchTouchSettings()
+        protected void FetchTouchSettings()
         {
             if (_Driver is Driver driver && Tablet != null)
             {
@@ -132,7 +131,7 @@ namespace TouchGestures
             }
         }
 
-        private void AddServices()
+        protected void AddServices()
         {
             if (_tablet is BulletproofSharedTabletReference btablet)
             {
@@ -175,7 +174,7 @@ namespace TouchGestures
 
         #region Methods
 
-        public void Consume(IDeviceReport report)
+        public virtual void Consume(IDeviceReport report)
         {
             if (report is ITouchReport touchReport)
             {
@@ -220,10 +219,13 @@ namespace TouchGestures
 
         #region Events Handlers
 
+        public void OnEmit(IDeviceReport e)
+            => Emit?.Invoke(e);
+
         public void OnDaemonLoaded(object? sender, EventArgs e)
             => Initialize();
 
-        public void OnProfileChanged(object? sender, EventArgs e)
+        public virtual void OnProfileChanged(object? sender, EventArgs e)
         {
             if (_profile == null)
             {
@@ -256,7 +258,7 @@ namespace TouchGestures
             Log.Debug(PLUGIN_NAME, "Settings updated");
         }
 
-        private void SortGestures()
+        protected void SortGestures()
         {
             if (_profile == null)
                 return;
