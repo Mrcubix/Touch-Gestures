@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Reflection;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin;
@@ -125,11 +126,16 @@ namespace TouchGestures.Lib.Entities
 
         public void UpdateLPMM(SharedTabletReference tablet)
         {
-            if (tablet.TouchDigitizer == null)
-                return;
+            Vector2? lpmm;
 
-            foreach (var gesture in this)
-                gesture.LinesPerMM = tablet.TouchDigitizer.GetLPMM();
+            if (IsMultiTouch)
+                lpmm = tablet.TouchDigitizer?.GetLPMM();
+            else
+                lpmm = tablet.PenDigitizer?.GetLPMM();
+
+            if (lpmm != null && lpmm != Vector2.Zero)
+                foreach (var gesture in this)
+                    gesture.LinesPerMM = (Vector2)lpmm;
         }
 
         private void AddPinch(BindablePinchGesture pinchGesture)
@@ -165,6 +171,7 @@ namespace TouchGestures.Lib.Entities
         {
             var result = existingProfile ?? new BindableProfile();
             result.Name = profile.Name;
+            result.IsMultiTouch = profile.IsMultiTouch;
 
             if (existingProfile != null)
             {
@@ -238,6 +245,7 @@ namespace TouchGestures.Lib.Entities
             var result = new SerializableProfile();
             {
                 result.Name = profile.Name;
+                result.IsMultiTouch = profile.IsMultiTouch;
             }
 
             foreach (var gesture in profile.TapGestures)
