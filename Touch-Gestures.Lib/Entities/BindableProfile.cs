@@ -126,12 +126,8 @@ namespace TouchGestures.Lib.Entities
 
         public void UpdateLPMM(SharedTabletReference tablet)
         {
-            Vector2? lpmm;
-
-            if (IsMultiTouch)
-                lpmm = tablet.TouchDigitizer?.GetLPMM();
-            else
-                lpmm = tablet.PenDigitizer?.GetLPMM();
+            Vector2? lpmm = IsMultiTouch ? tablet.TouchDigitizer?.GetLPMM() : 
+                                           tablet.PenDigitizer?.GetLPMM();
 
             if (lpmm != null && lpmm != Vector2.Zero)
                 foreach (var gesture in this)
