@@ -10,17 +10,7 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
 {
     #region Constructors
 
-    public GestureSetupScreenViewModel()
-    {
-        BackRequested = null!;
-        CanGoBack = true;
-    }
-
-    #endregion
-
-    #region Events
-
-    public override event EventHandler? BackRequested;
+    public GestureSetupScreenViewModel() => CanGoBack = true;
 
     #endregion
 
@@ -54,7 +44,7 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
         if (NextViewModel != null)
             NextViewModel.BackRequested -= OnBackRequestedAhead;
 
-        BackRequested?.Invoke(this, EventArgs.Empty);
+        base.GoBack();
     }
 
     #endregion

@@ -12,10 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TouchGestures.Lib.Entities;
 using System.Threading;
-using TouchGestures.UX.Events;
 using Avalonia.Threading;
-using System.Numerics;
-using Avalonia;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities.Tablet;
@@ -86,8 +83,6 @@ public partial class MainViewModel : NavigableViewModel
         BindingsOverviewViewModel.SaveRequested += OnSaveRequested;
         BindingsOverviewViewModel.ProfileChanged += OnProfileChanged;
 
-        BackRequested = null!;
-
         CanGoBack = false;
         // TODO: Change in production to the home view
         //NextViewModel = _gestureSetupWizardViewModel;
@@ -121,8 +116,6 @@ public partial class MainViewModel : NavigableViewModel
     public event EventHandler<ObservableCollection<SerializablePlugin>>? PluginChanged;
 
     public event EventHandler<SerializableSettings>? SettingsChanged;
-
-    public override event EventHandler? BackRequested;
 
     public event EventHandler? Ready;
 
@@ -329,7 +322,7 @@ public partial class MainViewModel : NavigableViewModel
             _settings = tempSettings;
             Dispatcher.UIThread.Post(() => OnSettingsChanged(_settings));
             Dispatcher.UIThread.Post(() => BindingsOverviewViewModel.SetTablets(tablets));
-        } 
+        }
     }
 
     //

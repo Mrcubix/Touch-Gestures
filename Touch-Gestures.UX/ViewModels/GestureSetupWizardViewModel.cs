@@ -50,6 +50,8 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         GestureSelectionScreenViewModel.GestureSelected += OnGestureSelected;
         GestureSelectionScreenViewModel.HideMultiTouchTiles(isMultiTouch);
 
+        CanGoBack = true;
+
         //GestureSetupScreenViewModel.BackRequested += OnBackRequestedAhead;
     }
 
@@ -61,8 +63,6 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     #endregion
 
     #region Events
-
-    public override event EventHandler? BackRequested;
 
     public event EventHandler<GestureAddedEventArgs>? SetupCompleted;
 
@@ -77,7 +77,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         if (NextViewModel is GestureSetupScreenViewModel && _editedGesture == null)
             NextViewModel = GestureSelectionScreenViewModel;
         else if (NextViewModel is GestureSelectionScreenViewModel || NextViewModel is GestureSetupScreenViewModel)
-            BackRequested?.Invoke(this, EventArgs.Empty);
+            base.GoBack();
     }
 
     /// <summary>
