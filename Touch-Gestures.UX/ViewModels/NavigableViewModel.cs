@@ -8,7 +8,7 @@ namespace TouchGestures.UX.ViewModels;
 
 public abstract partial class NavigableViewModel : ViewModelBase
 {
-    public abstract event EventHandler? BackRequested;
+    public event EventHandler? BackRequested;
 
     public bool CanGoBack { get; init; }
 
@@ -16,5 +16,9 @@ public abstract partial class NavigableViewModel : ViewModelBase
     protected NavigableViewModel? _nextViewModel = null;
 
     [RelayCommand(CanExecute = nameof(CanGoBack))]
-    protected abstract void GoBack();
+    protected virtual void GoBack()
+    {
+        if (CanGoBack)
+            BackRequested?.Invoke(this, EventArgs.Empty);
+    }
 }

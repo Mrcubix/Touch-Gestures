@@ -71,7 +71,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         IsReady = false;
 
         NextViewModel = this;
-        BackRequested = null!;
     }
 
     public BindingsOverviewViewModel(MainViewModel mainViewModel)
@@ -83,7 +82,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         _parentViewModel.Disconnected += OnDisconnected;
 
         NextViewModel = this;
-        BackRequested = null!;
     }
 
     public BindingsOverviewViewModel(MainViewModel mainViewModel, SerializableSettings settings) : this(mainViewModel)
@@ -94,8 +92,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     #region Events
 
     private event EventHandler? TabletChanged;
-
-    public override event EventHandler? BackRequested;
     public event EventHandler<EventArgs>? SaveRequested;
     public event EventHandler<SerializableProfile>? ProfileChanged;
 
@@ -478,7 +474,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
         SaveRequested = null;
         ProfileChanged = null;
-        BackRequested = null;
 
         GC.SuppressFinalize(this);
     }
