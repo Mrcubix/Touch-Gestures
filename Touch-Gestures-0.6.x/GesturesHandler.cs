@@ -39,7 +39,7 @@ namespace TouchGestures
         protected GesturesDaemonBase? _daemon;
         protected BindableProfile? _profile;
         protected SharedTabletReference? _tablet;
-        private bool _awaitingDaemon;
+        protected bool _awaitingDaemon;
         private bool _hasPreviousGestureStarted;
 
         #endregion
@@ -69,7 +69,7 @@ namespace TouchGestures
             }
         }
 
-        public void Initialize()
+        public virtual void Initialize()
         {
             FetchTouchSettings();
 

@@ -5,6 +5,7 @@ using OpenTabletDriver.Plugin.Attributes;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Extensions;
+using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
 
 namespace TouchGestures
@@ -26,6 +27,22 @@ namespace TouchGestures
         #endregion
 
         #region Initialization
+
+        public override void Initialize()
+        {
+            // Filters are loaded before tools for some reasons, so we have to wait for the daemon to be loaded
+            _daemon = GesturesDaemonBase.Instance;
+
+            // OTD 0.6.4.0 doesn't dispose of plugins when detecting tablets, so unsubscribing early is necessary
+            GesturesDaemonBase.DaemonLoaded -= OnDaemonLoaded;
+            _awaitingDaemon = false;
+
+            if (Tablet != null)
+                InitializeCore(Tablet);
+
+            if (_daemon == null)
+                Log.Write(PLUGIN_NAME, "Touch Gestures Daemon has not been enabled, please enable it in the 'Tools' tab", LogLevel.Error);
+        }
 
         protected override void InitializeCore(TabletReference tablet)
         {
