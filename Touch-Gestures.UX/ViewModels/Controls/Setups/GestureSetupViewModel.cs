@@ -77,8 +77,6 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     public GestureSetupViewModel()
     {
-        BackRequested = null!;
-
         CanGoBack = true;
         CanGoNext = false;
 
@@ -97,8 +95,6 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     #endregion
 
     #region Events
-
-    public override event EventHandler? BackRequested;
 
     public event EventHandler? SetupCompleted;
 
@@ -145,8 +141,6 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     #endregion
 
     #region Methods
-
-    protected override void GoBack() => BackRequested?.Invoke(this, EventArgs.Empty);
 
     [RelayCommand(CanExecute = nameof(CanGoNext))]
     protected virtual void GoNext() => throw new NotImplementedException("GoNext has not been overriden.");
