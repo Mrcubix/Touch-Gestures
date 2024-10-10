@@ -1,19 +1,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Numerics;
 using System.Reflection;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin;
 using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Interfaces;
 using TouchGestures.Lib.Serializables.Gestures;
 
 namespace TouchGestures.Lib.Entities
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class BindableProfile : IEnumerable<Gesture>
+    public class BindableProfile : IGesturesProfile
     {
         public event EventHandler? ProfileChanged;
 
@@ -21,6 +22,9 @@ namespace TouchGestures.Lib.Entities
 
         [JsonProperty]
         public string Name { get; set; } = string.Empty;
+
+        [JsonProperty]
+        public bool IsMultiTouch { get; set; } = true;
 
         [JsonProperty]
         public List<BindableTapGesture> TapGestures { get; set; } = new();
@@ -44,6 +48,13 @@ namespace TouchGestures.Lib.Entities
 
         #region Methods
 
+        /// <summary>
+        ///   Constructs the bindings for this profile using a set builder.
+        /// </summary>
+        /// <param name="tablet">The Tablet owning these bindings.</param>
+        /// <remarks>
+        ///   TODO: Apply abstraction to bindings so that we use inherited classes or builders Instead of <see cref="BindingBuilder"/>.
+        /// </remarks>
         public virtual void ConstructBindings(SharedTabletReference? tablet = null)
         {
             foreach (var gesture in TapGestures)
@@ -89,6 +100,40 @@ namespace TouchGestures.Lib.Entities
             }
         }
 
+        public void Remove(Gesture gesture)
+        {
+            switch(gesture)
+            {
+                case BindableTapGesture tapGesture:
+                    TapGestures.Remove(tapGesture);
+                    break;
+                case BindableHoldGesture holdGesture:
+                    HoldGestures.Remove(holdGesture);
+                    break;
+                case BindableSwipeGesture swipeGesture:
+                    SwipeGestures.Remove(swipeGesture);
+                    break;
+                case BindablePanGesture panGesture:
+                    PanGestures.Remove(panGesture);
+                    break;
+                case BindablePinchGesture pinchGesture:
+                    RemovePinch(pinchGesture);
+                    break;
+                default:
+                    throw new ArgumentException("Unknown gesture type.");
+            }
+        }
+
+        public void Clear()
+        {
+            TapGestures.Clear();
+            HoldGestures.Clear();
+            SwipeGestures.Clear();
+            PanGestures.Clear();
+            PinchGestures.Clear();
+            RotateGestures.Clear();
+        }
+
         public void Update(SerializableProfile profile, SharedTabletReference tablet, Dictionary<int, TypeInfo> identifierToPlugin)
         {
             FromSerializable(profile, identifierToPlugin, tablet, this);
@@ -98,11 +143,12 @@ namespace TouchGestures.Lib.Entities
 
         public void UpdateLPMM(SharedTabletReference tablet)
         {
-            if (tablet.TouchDigitizer == null)
-                return;
+            Vector2? lpmm = IsMultiTouch ? tablet.TouchDigitizer?.GetLPMM() : 
+                                           tablet.PenDigitizer?.GetLPMM();
 
-            foreach (var gesture in this)
-                gesture.LinesPerMM = tablet.TouchDigitizer.GetLPMM();
+            if (lpmm != null && lpmm != Vector2.Zero)
+                foreach (var gesture in this)
+                    gesture.LinesPerMM = (Vector2)lpmm;
         }
 
         private void AddPinch(BindablePinchGesture pinchGesture)
@@ -111,6 +157,14 @@ namespace TouchGestures.Lib.Entities
                 PinchGestures.Add(pinchGesture);
             else
                 RotateGestures.Add(pinchGesture);
+        }
+
+        private void RemovePinch(BindablePinchGesture pinchGesture)
+        {
+            if (pinchGesture.DistanceThreshold > 0)
+                PinchGestures.Remove(pinchGesture);
+            else
+                RotateGestures.Remove(pinchGesture);
         }
 
         #endregion
@@ -130,16 +184,10 @@ namespace TouchGestures.Lib.Entities
         {
             var result = existingProfile ?? new BindableProfile();
             result.Name = profile.Name;
+            result.IsMultiTouch = profile.IsMultiTouch;
 
             if (existingProfile != null)
-            {
-                result.TapGestures.Clear();
-                result.HoldGestures.Clear();
-                result.SwipeGestures.Clear();
-                result.PanGestures.Clear();
-                result.PinchGestures.Clear();
-                result.RotateGestures.Clear();
-            }
+                result.Clear();
 
             foreach (var gesture in profile.TapGestures)
             {
@@ -203,6 +251,7 @@ namespace TouchGestures.Lib.Entities
             var result = new SerializableProfile();
             {
                 result.Name = profile.Name;
+                result.IsMultiTouch = profile.IsMultiTouch;
             }
 
             foreach (var gesture in profile.TapGestures)
