@@ -1,0 +1,12 @@
+<Project>
+
+    <Target Name="FixPackageId" BeforeTargets="_GenerateRestoreProjectPathWalk" Condition="$(AssemblyName.Contains('OpenTabletDriver'))">
+    
+        <PropertyGroup>
+          <PackageId>$(AssemblyName)-$(TargetFramework)</PackageId>
+        </PropertyGroup>
+    
+        <Message Importance="High" Text="changed PackageId in Assembly '$(AssemblyName)' to '$(PackageId)'." />
+    </Target>
+
+</Project>

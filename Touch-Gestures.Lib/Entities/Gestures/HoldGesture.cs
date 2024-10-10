@@ -17,7 +17,7 @@ namespace TouchGestures.Lib.Entities.Gestures
     [JsonObject(MemberSerialization.OptIn)]
     public partial class HoldGesture : TapGesture
     {
-        private bool _deadlineStarted = false;
+        //private bool _deadlineStarted = false;
 
         #region Constructors
 

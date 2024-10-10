@@ -20,7 +20,8 @@ using static AssetLoaderExtensions;
 #nullable enable
 
 [Name("Hold"), Icon("Assets/Setups/Hold/hold.png"),
- Description("A gesture completed by holding any specified number of fingers down for a specified amount of time")]
+ Description("A gesture completed by holding any specified number of fingers down for a specified amount of time"),
+ MultiTouchOnly(false)]
 public partial class HoldSetupViewModel : TapSetupViewModel
 {
     private readonly SerializableHoldGesture _gesture;
@@ -49,6 +50,7 @@ public partial class HoldSetupViewModel : TapSetupViewModel
         SelectedGestureSetupPickIndex = serializedHoldGesture.RequiredTouchesCount - 1;
 
         BindingDisplay.PluginProperty = serializedHoldGesture.PluginProperty;
+        BindingDisplay.Description = $"{serializedHoldGesture.RequiredTouchesCount}-Touch Hold";
 
         SetupArea(fullArea, serializedHoldGesture.Bounds);
     }
@@ -80,7 +82,7 @@ public partial class HoldSetupViewModel : TapSetupViewModel
 
         SelectedGestureSetupPickIndex = 0;
 
-        BindingDisplay = new BindingDisplayViewModel();
+        BindingDisplay = new BindingDisplayViewModel("1-Touch Hold", string.Empty, null);
         AreaDisplay = new AreaDisplayViewModel();
         _gesture = new SerializableHoldGesture();
 

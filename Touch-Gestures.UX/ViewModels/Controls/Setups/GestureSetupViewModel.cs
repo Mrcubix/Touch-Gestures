@@ -77,8 +77,6 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     public GestureSetupViewModel()
     {
-        BackRequested = null!;
-
         CanGoBack = true;
         CanGoNext = false;
 
@@ -97,8 +95,6 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     #endregion
 
     #region Events
-
-    public override event EventHandler? BackRequested;
 
     public event EventHandler? SetupCompleted;
 
@@ -127,11 +123,24 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
         }
     }
 
+    /// <summary>
+    ///   Whether single touch gestures are supported for this setup.
+    /// </summary>
+    public virtual bool SingleTouchSupported { get; } = true;
+
+    /// <summary>
+    ///   Whether option selection is enabled for this setup when not multi-touch.
+    /// </summary>
+    public virtual bool SingleTouchOptionSelectionEnabled { get; } = true;
+
+    /// <summary>
+    ///   Whether this setup is for a multi-touch gesture or not.
+    /// </summary>
+    public bool IsMultiTouchSetup { get; set; } = true;
+
     #endregion
 
     #region Methods
-
-    protected override void GoBack() => BackRequested?.Invoke(this, EventArgs.Empty);
 
     [RelayCommand(CanExecute = nameof(CanGoNext))]
     protected virtual void GoNext() => throw new NotImplementedException("GoNext has not been overriden.");

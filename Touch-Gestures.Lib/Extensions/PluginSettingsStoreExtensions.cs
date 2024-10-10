@@ -75,8 +75,8 @@ namespace TouchGestures.Lib.Extensions
                     return SetBindingValueCore06(store, plugin, value);
 #else
                     store.Settings.Single(s => s.Property == "Property").SetValue(value!);
-#endif
                     return true;
+#endif
                 }
             }
 
