@@ -124,6 +124,16 @@ namespace TouchGestures.Lib.Entities
             }
         }
 
+        public void Clear()
+        {
+            TapGestures.Clear();
+            HoldGestures.Clear();
+            SwipeGestures.Clear();
+            PanGestures.Clear();
+            PinchGestures.Clear();
+            RotateGestures.Clear();
+        }
+
         public void Update(SerializableProfile profile, SharedTabletReference tablet, Dictionary<int, TypeInfo> identifierToPlugin)
         {
             FromSerializable(profile, identifierToPlugin, tablet, this);
@@ -177,14 +187,7 @@ namespace TouchGestures.Lib.Entities
             result.IsMultiTouch = profile.IsMultiTouch;
 
             if (existingProfile != null)
-            {
-                result.TapGestures.Clear();
-                result.HoldGestures.Clear();
-                result.SwipeGestures.Clear();
-                result.PanGestures.Clear();
-                result.PinchGestures.Clear();
-                result.RotateGestures.Clear();
-            }
+                result.Clear();
 
             foreach (var gesture in profile.TapGestures)
             {
