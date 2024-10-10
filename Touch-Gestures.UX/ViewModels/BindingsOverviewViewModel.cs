@@ -172,7 +172,10 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
             Tablets.Add(overview);
         }
 
-        SelectedTablet = Tablets.FirstOrDefault();
+        if (SelectedTablet != null)
+            SelectedTablet = Tablets.FirstOrDefault(x => x.Name == SelectedTablet.Name);
+
+        SelectedTablet ??= Tablets.FirstOrDefault();
 
         if (SelectedTablet != null)
             SelectedTabletIndex = Tablets.IndexOf(SelectedTablet);
