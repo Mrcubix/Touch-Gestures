@@ -53,8 +53,7 @@ namespace TouchGestures.Lib.Entities
         /// </summary>
         /// <param name="tablet">The Tablet owning these bindings.</param>
         /// <remarks>
-        ///   TODO: Apply abstraction to bindings so that we use inherited classes or builders
-        ///   Instead of <see cref="BindingBuilder"/>.
+        ///   TODO: Apply abstraction to bindings so that we use inherited classes or builders Instead of <see cref="BindingBuilder"/>.
         /// </remarks>
         public virtual void ConstructBindings(SharedTabletReference? tablet = null)
         {
