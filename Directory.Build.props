@@ -1,7 +1,15 @@
 <Project>
   <PropertyGroup>
-    <NoWarn>$(NoWarn); NETSDK1138; NU1902; NU1903</NoWarn>
-    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn); NETSDK1138</NoWarn>
+    <NuGetAuditLevel>critical</NuGetAuditLevel>
     <AvaloniaVersion>11.0.10</AvaloniaVersion>
   </PropertyGroup>
+
+  <!-- Only Embed debug symbols for the Release configuration -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <Import Project="Targets/FixPackageId.targets" />
+
 </Project>

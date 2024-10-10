@@ -1,19 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
     <NoWarn>NETSDK1138</NoWarn>
   </PropertyGroup>
 
   <!-- NET 5 Only -->
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
     <!-- OpenTabletDriver.Plugin -->
-    <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" />
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" Private="False" />
+  </ItemGroup>
+
+  <!-- NET 6 Only -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <!-- OpenTabletDriver.Plugin -->
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" Private="False" />
   </ItemGroup>
 
   <!-- embed ressource /build/plugin/Wheel-Addon.zip -->
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
     <EmbeddedResource Include="../build/plugin/0.5.x/Touch-Gestures-0.5.x.zip" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <EmbeddedResource Include="../build/plugin/0.6.x/Touch-Gestures-0.6.x.zip" />
   </ItemGroup>
 
 </Project>

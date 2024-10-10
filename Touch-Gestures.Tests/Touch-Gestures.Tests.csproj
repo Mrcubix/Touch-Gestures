@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
     <RootNamespace>TouchGestures.Tests</RootNamespace>
     <NoWarn>$(NoWarn); NETSDK1138; VSTHRD200; NU1902; NU1903;</NoWarn>
 
@@ -23,7 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Touch-Gestures.Lib/Touch-Gestures.Lib.csproj" />
-    <ProjectReference Include="../.modules/OpenTabletDriver.External/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" />
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" />
   </ItemGroup>
 
 </Project>
