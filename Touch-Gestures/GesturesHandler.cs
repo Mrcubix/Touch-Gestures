@@ -203,6 +203,9 @@ namespace TouchGestures
             if (_profile != null)
                 _profile.ProfileChanged -= OnProfileChanged;
 
+            if (_tablet != null)
+                _daemon?.RemoveTablet(_tablet);
+
             GC.SuppressFinalize(this);
         }
 

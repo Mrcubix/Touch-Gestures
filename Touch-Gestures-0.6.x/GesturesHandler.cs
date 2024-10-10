@@ -284,6 +284,9 @@ namespace TouchGestures
             if (_awaitingDaemon)
                 GesturesDaemonBase.DaemonLoaded -= OnDaemonLoaded;
 
+            if (_tablet != null)
+                _daemon?.RemoveTablet(_tablet);
+
             _awaitingDaemon = false;
 
             GC.SuppressFinalize(this);
