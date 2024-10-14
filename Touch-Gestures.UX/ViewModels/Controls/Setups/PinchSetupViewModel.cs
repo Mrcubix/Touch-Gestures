@@ -20,7 +20,8 @@ using static AssetLoaderExtensions;
 #nullable enable
 
 [Name("Pinch"), Icon("Assets/Setups/Pinch/pinch_inner.png"),
- Description("A gesture completed by pinching, simillar to how you would zoom in, in various application")]
+ Description("A gesture completed by pinching, simillar to how you would zoom in, in various application"),
+ MultiTouchOnly(true)]
 public partial class PinchSetupViewModel : GestureSetupViewModel
 {
     private readonly SerializablePinchGesture _gesture;
@@ -32,6 +33,8 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
 
     [ObservableProperty]
     protected bool _isInner;
+
+    public override bool SingleTouchSupported { get; } = false;
 
     #endregion
 
