@@ -4,112 +4,17 @@
 
 ~~Add a `OnExternalGestureCompleted` event to `IGestures` with as parameter an GestureCompletedEventArgs that contains the gesture type and the gesture data.~~
 
-## Un-ordered List
+## Medium Priority Tasks
 
-- [x] Absolute Position based gestures (Need to start at a specific point)
-- [x] Relative Position based gestures (Can be started from anywhere)
+### Bindings Rework
 
-### Node-Based Gestures
+- [ ] Wrap different versions of Binding under a single generic interface, with a `Press()` and `Release()` method.
 
-- [ ] Gesture Recording
-- [ ] Gesture Recognition
-    - [ ] Any single touch in a start nodes is a gesture
-    - [ ] More than 2 touches is a gesture
-- [ ] Manual Gesture Setup
-    - [-] Node Types
-        - [-] Shared Elements
-            - [x] IsGestureStart (bool) (length == 1 || index == 0)
-            - [x] IsGestureEnd (bool) (length == 1 || index == length - 1)
-            - [x] Position (Vector2)
-            - [x] Allowed Position Deviation (double)
-            - [x] Timestamp (double)
-            - [x] Allowed Timestamp Deviation (double)
-            - [x] IsHold (bool)
-            - [x] Hold Duration (double)
-            - [x] Nodes Can be dragged
-            - [ ] Nodes Can be resized (Only for the start and end nodes)
-        - [ ] Rectangle
-        - [ ] Circle
+### Debugger
 
-### Basic Gestures
+- [ ] Implement an In-app gesture debugger, draw the inputs as well as state changes when they happen. (Simillar to osu!lazer's replay analyzer or Rewind)
 
-#### Gestures
-
-- [x] Tap (Any)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Hold (Any)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Swipe (Single)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Pan (Single)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Pinch (Single)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Rotate (Single)
-    - [x] Relative
-    - [x] Absolute
-
-#### Gestures Unit Tests
-
-- [x] Tap (Any)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Hold (Any)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Swipe (Single)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Pan (Single)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Pinch (Single)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Rotate (Single)
-    - [x] Relative
-    - [x] Absolute
-
-#### Gestures Setup
-
-- [x] Tap (Any)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Hold (Any)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Swipe (Single)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Pan (Single)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Pinch (Single)
-    - [x] Relative
-    - [x] Absolute
-
-- [x] Rotate (Single)
-    - [x] Relative
-    - [x] Absolute
+## Documentation
 
 ### Dev Documentation (Github Wiki)
 
@@ -121,6 +26,32 @@ For each of these topics, indicates in which way such systems could be improved,
     - [ ] Gesture Tiles
     - [ ] Gesture Setup
     - [ ] Gesture Unit Tests
+
+- [ ] Intended behaviors
+    - [ ] UX
+        - [ ] Connection Screen
+        - [ ] Binding Overview (Main View)
+        - [ ] Gesture Setup
+            - [ ] Gesture Selection Screen
+            - [ ] Gesture Setup Screen
+                - [ ] Options Selection Screen
+                - [ ] Binding Selection Screen
+                - [ ] Tweaks Screen (Area & Gesture specific tweaks)
+        - [ ] Gesture Editing
+        - [ ] Gesture Removal
+
+    - [ ] Gestures
+        - [ ] Tap
+        - [ ] Hold
+        - [ ] Swipe
+        - [ ] Pan
+        - [ ] Pinch
+        - [ ] Rotate
+
+- [ ] UX Testing Procedures
+- [ ] Gesture Testing Procedures
+    - [ ] Unit Tests
+    - [ ] Manual Testing
 
 ### User Documentation (Github Pages)
 
@@ -146,7 +77,3 @@ For each of these topics, indicates in which way such systems could be improved,
 - [-] FAQ
     - [-] Basic
     - [-] Troubleshooting
-
-### Bindings Rework
-
-- [ ] Wrap different versions of Binding under a single generic interface, with a `Press()` and `Release()` method.
