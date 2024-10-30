@@ -248,7 +248,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         if (string.IsNullOrWhiteSpace(text))
             CurrentGestureBindings.AddRange(SelectedTablet.Gestures);
         else
-            CurrentGestureBindings.AddRange(SelectedTablet.Gestures.Where(x => GestureNameStartsWith(x, text)));
+            CurrentGestureBindings.AddRange(SelectedTablet.Gestures.Where(x => GestureNameContains(x, text)));
     }
 
     /// <summary>
@@ -450,6 +450,11 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     private static bool GestureNameStartsWith(GestureBindingDisplayViewModel gestureTileViewModel, string text)
     {
         return gestureTileViewModel.Description?.StartsWith(text, StringComparison.CurrentCultureIgnoreCase) ?? false;
+    }
+
+    private static bool GestureNameContains(GestureBindingDisplayViewModel gestureTileViewModel, string text)
+    {
+        return gestureTileViewModel.Description?.Contains(text, StringComparison.CurrentCultureIgnoreCase) ?? false;
     }
 
     #endregion
