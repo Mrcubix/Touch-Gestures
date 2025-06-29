@@ -27,7 +27,7 @@ namespace TouchGestures.Installer
         private static readonly FileInfo location = new(assembly.Location);
         private static readonly DirectoryInfo? pluginsDirectory = location.Directory?.Parent;
 
-        private readonly DirectoryInfo OTDEnhancedOutputModeDirectory = null!;
+        private readonly DirectoryInfo? OTDEnhancedOutputModeDirectory = null;
 
         private readonly string dependenciesResourcePath = $"Touch-Gestures.Installer.Touch-Gestures-{OTD_VERSION}.zip";
 
@@ -35,7 +35,7 @@ namespace TouchGestures.Installer
         {
             if (pluginsDirectory == null || !pluginsDirectory.Exists)
             {
-                Log.Write(PLUGIN_NAME, "Failed to get plugins directory.", LogLevel.Error);
+                Log.Write(PLUGIN_NAME, $"Failed to get plugins directory : '{pluginsDirectory}'.", LogLevel.Error);
                 return;
             }
 
@@ -59,7 +59,7 @@ namespace TouchGestures.Installer
             return true;
         }
 
-        public bool Install(Assembly assembly, string group, string resourcePath, DirectoryInfo destinationDirectory, bool forceInstall = false)
+        public static bool Install(Assembly assembly, string group, string resourcePath, DirectoryInfo? destinationDirectory, bool forceInstall = false)
         {
             if (pluginsDirectory == null || !pluginsDirectory.Exists)
             {
@@ -67,7 +67,7 @@ namespace TouchGestures.Installer
                 return false;
             }
 
-            if (!OTDEnhancedOutputModeDirectory.Exists)
+            if (destinationDirectory == null || !destinationDirectory.Exists)
             {
                 Log.Write(group, "OTD.EnhancedOutputMode is not installed.", LogLevel.Error);
                 return false;
@@ -77,7 +77,7 @@ namespace TouchGestures.Installer
 
             if (dependencies == null)
             {
-                Log.Write(group, "Failed to open embedded dependencies.", LogLevel.Error);
+                Log.Write(group, $"Failed to open embedded dependencies using path: '{resourcePath}'.", LogLevel.Error);
                 return false;
             }
 
