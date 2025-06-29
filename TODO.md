@@ -9,7 +9,7 @@
 - Rewrite gestures to properly handle areas.
     - Draw used areas in the Gesture Setup View
     - Indicate when new gesture area overlap with an existing gesture area.
-
+    - A gesture is invalidated depending on gesture type or finger count.
 
 ## Medium Priority Tasks
 
