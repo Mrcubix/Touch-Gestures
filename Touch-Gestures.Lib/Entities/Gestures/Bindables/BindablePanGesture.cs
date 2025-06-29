@@ -83,12 +83,8 @@ namespace TouchGestures.Lib.Entities.Gestures
             
             if (Binding != null)
             {
-                _ = Task.Run(async () =>
-                {
-                    Binding.Press();
-                    await Task.Delay(15);
-                    Binding.Release();
-                });
+                Binding.Press();
+                Binding.Release();
             }
         }
 

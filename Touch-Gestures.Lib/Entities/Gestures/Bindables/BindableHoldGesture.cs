@@ -9,7 +9,6 @@ using System.Linq;
 using OpenTabletDriver.External.Common.Serializables;
 using System.Drawing;
 using TouchGestures.Lib.Extensions;
-using System.Diagnostics;
 using TouchGestures.Lib.Entities.Tablet;
 
 namespace TouchGestures.Lib.Entities.Gestures
@@ -91,23 +90,13 @@ namespace TouchGestures.Lib.Entities.Gestures
         protected override void Press()
         {
             base.Press();
-#if NET6_0
-            if (Binding is IStateBinding stateBinding)
-                stateBinding.Press();
-#else
             Binding?.Press();
-#endif
         }
 
         protected override void Release()
         {
-#if NET6_0
-            if (IsPressing && Binding is IStateBinding stateBinding)
-                stateBinding.Release();
-#else
             if (IsPressing)
                 Binding?.Release();
-#endif
 
             base.Release();
         }

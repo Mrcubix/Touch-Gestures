@@ -4,6 +4,13 @@
 
 ~~Add a `OnExternalGestureCompleted` event to `IGestures` with as parameter an GestureCompletedEventArgs that contains the gesture type and the gesture data.~~
 
+## High Priority Tasks
+
+- Rewrite gestures to properly handle areas.
+    - Draw used areas in the Gesture Setup View
+    - Indicate when new gesture area overlap with an existing gesture area.
+
+
 ## Medium Priority Tasks
 
 ### Bindings Rework
@@ -13,6 +20,15 @@
 ### Debugger
 
 - [ ] Implement an In-app gesture debugger, draw the inputs as well as state changes when they happen. (Simillar to osu!lazer's replay analyzer or Rewind)
+
+### Support for multiple Plugin Properties
+
+- [ ] Implement having multiple settings per binding as done in OpenTabletDriver 
+    (will make it easier to convert settings to serializable form, ~~because i won't have to check which property is the validated property~~ will still have to do so when serializing)
+    ~~(This will be harder to handle on the UX side as i now need to create a viewmodel & control for each setting, depending on the plugin)~~
+    Handled in OpenTabletDriver.External/property-serialization
+
+## Low Priority Tasks
 
 ## Documentation
 

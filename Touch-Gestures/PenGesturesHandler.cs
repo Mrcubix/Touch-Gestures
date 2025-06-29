@@ -114,6 +114,7 @@ namespace TouchGestures
 
             SortGestures();
 
+            // TODO : Non-Conflicting Tap & Hold gestures should be added to NonConflictingGestures
             TapGestures.AddRange(_profile.TapGestures);
             HoldGestures.AddRange(_profile.HoldGestures);
 
