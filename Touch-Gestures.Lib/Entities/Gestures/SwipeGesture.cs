@@ -140,6 +140,9 @@ namespace TouchGestures.Lib.Entities.Gestures
             }
         }
 
+        [JsonProperty]
+        public override GestureType Type => GestureType.Swipe;
+
         /// <inheritdoc/>
         [JsonProperty]
         public override Vector2 Threshold { get; set; }

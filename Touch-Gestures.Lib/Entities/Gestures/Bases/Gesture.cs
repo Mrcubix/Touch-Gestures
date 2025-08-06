@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Input;
 using TouchGestures.Lib.Interfaces;
 
@@ -46,6 +47,10 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
 
         /// <inheritdoc />
         public abstract bool HasCompleted { get; protected set; }
+
+        /// <inheritdoc />
+        [JsonProperty]
+        public abstract GestureType Type { get; }
 
         /// <summary>
         ///    Check whether a situation needs to start in a specific area.

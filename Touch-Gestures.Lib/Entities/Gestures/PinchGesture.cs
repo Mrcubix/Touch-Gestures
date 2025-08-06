@@ -6,6 +6,7 @@ using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Input;
 
@@ -168,6 +169,9 @@ namespace TouchGestures.Lib.Entities.Gestures
                     GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasEnded, value));
             }
         }
+
+        [JsonProperty]
+        public override GestureType Type => DistanceThreshold > 0 ? GestureType.Pinch : GestureType.Rotate;
 
         #endregion
 

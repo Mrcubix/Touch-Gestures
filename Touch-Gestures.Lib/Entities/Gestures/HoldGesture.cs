@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System.Linq;
 using System.Drawing;
 using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib.Enums;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -141,6 +142,9 @@ namespace TouchGestures.Lib.Entities.Gestures
                     GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasEnded, value));
             }
         }
+
+        [JsonProperty]
+        public override GestureType Type => GestureType.Hold;
 
         /// <summary>
         ///   The amount of time the user has to keep the touch points pressed to trigger the hold.

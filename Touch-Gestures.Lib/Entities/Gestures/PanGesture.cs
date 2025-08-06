@@ -37,6 +37,13 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #endregion
 
+        #region Properties
+
+        [JsonProperty]
+        public override GestureType Type => GestureType.Tap;
+
+        #endregion
+
         #region Methods
 
         protected override void CompleteGesture()

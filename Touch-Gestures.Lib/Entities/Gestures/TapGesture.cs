@@ -10,6 +10,7 @@ using System.Drawing;
 using TouchGestures.Lib.Extensions;
 using System.Collections.Generic;
 using TouchGestures.Lib.Interfaces;
+using TouchGestures.Lib.Enums;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -150,6 +151,9 @@ namespace TouchGestures.Lib.Entities.Gestures
                     GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasEnded, value));
             }
         }
+
+        [JsonProperty]
+        public override GestureType Type => GestureType.Tap;
 
         /// <inheritdoc/>
         [JsonProperty]

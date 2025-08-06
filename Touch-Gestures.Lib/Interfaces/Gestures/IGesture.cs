@@ -2,6 +2,7 @@ using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Entities;
+using TouchGestures.Lib.Enums;
 
 namespace TouchGestures.Lib.Interfaces
 {
@@ -24,6 +25,11 @@ namespace TouchGestures.Lib.Interfaces
         ///   Whether the gesture has completed.
         /// </summary>
         bool HasCompleted { get; }
+
+        /// <summary>
+        ///   The type of the current gesture, specified from <see cref="GestureType">.
+        /// </summary> 
+        GestureType Type { get; }
 
         /// <summary>
         ///   Whether the gesture is relative or absolute.
