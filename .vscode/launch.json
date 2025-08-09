@@ -22,6 +22,7 @@
             "type": "coreclr",
             "request": "attach",
             "requireExactSource": false,
+            "enableStepFiltering": false,
             "processName": "OpenTabletDriver.Daemon.exe",
             "logging": {
                 "moduleLoad": false

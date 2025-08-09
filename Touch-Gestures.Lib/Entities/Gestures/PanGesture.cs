@@ -48,7 +48,8 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         protected override void CompleteGesture()
         {
-            HasCompleted = true;
+            _delta = Vector2.Zero;
+            //HasCompleted = true;
         }
 
         #endregion
@@ -56,17 +57,11 @@ namespace TouchGestures.Lib.Entities.Gestures
         #region Event Handlers
 
         /// <inheritdoc/>
-        protected override void OnGestureEnd(GestureEventArgs e)
-        {
-            // reset the gesture
-            HasStarted = false;
-        }
-
-        /// <inheritdoc/>
-        protected override void OnGestureComplete(GestureEventArgs e)
-        {
-            _delta = Vector2.Zero;
-        }
+        //protected override void OnGestureComplete(GestureEventArgs e)
+        //{
+            //base.OnGestureComplete(e);
+            
+        //}
 
         /// <inheritdoc/>
         public override void OnInput(TouchPoint[] points)
@@ -106,8 +101,10 @@ namespace TouchGestures.Lib.Entities.Gestures
                 }
                 else
                 {
-                    // finger may have been lifted
-                    if (HasStarted)
+                    // finger may have been lifted while the gesture was active
+                    if (HasActivated)
+                        HasCompleted = true;
+                    else if (HasStarted)
                         HasEnded = true;
                 }
             }

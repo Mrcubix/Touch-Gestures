@@ -9,7 +9,6 @@ using System.Linq;
 using System.Drawing;
 using TouchGestures.Lib.Extensions;
 using System.Collections.Generic;
-using TouchGestures.Lib.Interfaces;
 using TouchGestures.Lib.Enums;
 
 namespace TouchGestures.Lib.Entities.Gestures
@@ -26,6 +25,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         #region Fields
 
         protected bool _hasStarted = false;
+        protected bool _hasActivated = false;
         protected bool _hasEnded = false;
         protected bool _hasCompleted = false;
 
@@ -44,6 +44,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         public TapGesture()
         {
             GestureStarted += (_, args) => OnGestureStart(args);
+            GestureActivated += (_, args) => OnGestureActive(args);
             GestureEnded += (_, args) => OnGestureEnd(args);
             GestureCompleted += (_, args) => OnGestureComplete(args);
 
@@ -96,6 +97,9 @@ namespace TouchGestures.Lib.Entities.Gestures
         public override event EventHandler<GestureStartedEventArgs>? GestureStarted;
 
         /// <inheritdoc/>
+        public override event EventHandler<GestureEventArgs>? GestureActivated;
+
+        /// <inheritdoc/>
         public override event EventHandler<GestureEventArgs>? GestureEnded;
 
         /// <inheritdoc/>
@@ -118,7 +122,22 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasStarted = value;
 
                 if (value && previous == false)
-                    GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasEnded, _hasCompleted, StartPosition));
+                    GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasActivated, _hasEnded, _hasCompleted, StartPosition));
+            }
+        }
+
+        /// <inheritdoc/>
+        public override bool HasActivated
+        {
+            get => _hasActivated;
+            protected set
+            {
+                var previous = _hasActivated;
+
+                _hasActivated = value;
+
+                if (value && previous == false)
+                    GestureActivated?.Invoke(this, new GestureEventArgs(_hasStarted, _hasActivated, _hasEnded, _hasCompleted));
             }
         }
 
@@ -133,7 +152,7 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasEnded = value;
 
                 if (value && previous == false)
-                    GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, value, _hasCompleted));
+                    GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, _hasActivated, value, _hasCompleted));
             }
         }
 
@@ -148,7 +167,7 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasCompleted = value;
 
                 if (value && previous == false)
-                    GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasEnded, value));
+                    GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasActivated, _hasEnded, value));
             }
         }
 
@@ -207,33 +226,20 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #region Methods
 
-        protected virtual void CompleteGesture()
-        {
-            HasCompleted = true;
-            HasEnded = true;
-        }
+        protected virtual void CompleteGesture() => HasCompleted = true;
+
+        protected virtual void Press() => HasActivated = true;
+
+        protected virtual void Release() => CompleteGesture();
 
         #endregion
 
         #region Event Handlers
 
         /// <inheritdoc/>
-        protected override void OnGestureStart(GestureStartedEventArgs e)
-        {
-            HasEnded = false;
-            HasCompleted = false;
-        }
-
-        /// <inheritdoc/>
-        protected override void OnGestureEnd(GestureEventArgs e)
-        {
-            HasStarted = false;
-        }
-
-        /// <inheritdoc/>
         protected override void OnGestureComplete(GestureEventArgs e)
         {
-            HasStarted = false;
+            base.OnGestureComplete(e);
             StartPosition = Vector2.Zero;
         }
 
@@ -343,7 +349,10 @@ namespace TouchGestures.Lib.Entities.Gestures
             if (_releasedPoints.All(released => released))
             {
                 if (!IsInvalidState)
-                    CompleteGesture();
+                {
+                    Press();
+                    Release();
+                }
                 else
                 {
                     // Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release

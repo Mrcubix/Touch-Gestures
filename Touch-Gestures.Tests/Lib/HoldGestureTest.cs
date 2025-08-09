@@ -64,7 +64,7 @@ namespace TouchGestures.Tests.Lib
                 // Pass a similar sample with the same touch points active
                 gesture.OnInput(sample);
 
-                Assert.True(gesture.IsPressing);
+                Assert.True(gesture.HasActivated);
                 Assert.False(gesture.HasEnded);
                 Assert.False(gesture.HasCompleted);
 
@@ -100,7 +100,7 @@ namespace TouchGestures.Tests.Lib
                 // Pass a similar sample with the same touch points active
                 gesture.OnInput(sample);
 
-                Assert.False(gesture.IsPressing);
+                Assert.False(gesture.HasActivated);
                 Assert.False(gesture.HasEnded);
                 Assert.False(gesture.HasCompleted);
 
@@ -134,7 +134,7 @@ namespace TouchGestures.Tests.Lib
 
             gesture.OnInput(invalidSample);
             
-            Assert.False(gesture.IsPressing);
+            Assert.False(gesture.HasActivated);
             Assert.False(gesture.HasEnded);
             Assert.False(gesture.HasCompleted);
 
@@ -156,7 +156,7 @@ namespace TouchGestures.Tests.Lib
             gesture.OnInput(sample);
 
             // Then
-            Assert.False(gesture.IsPressing);
+            Assert.False(gesture.HasActivated);
             Assert.False(gesture.HasStarted);
             Assert.True(gesture.HasEnded);
             Assert.True(gesture.HasCompleted);

@@ -89,13 +89,15 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         protected override void Press()
         {
+            if (!HasActivated)
+                Binding?.Press();
+
             base.Press();
-            Binding?.Press();
         }
 
         protected override void Release()
         {
-            if (IsPressing)
+            if (HasActivated)
                 Binding?.Release();
 
             base.Release();

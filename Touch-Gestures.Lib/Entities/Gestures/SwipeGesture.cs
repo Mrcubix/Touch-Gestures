@@ -7,7 +7,6 @@ using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Input;
-using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -20,6 +19,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         #region Fields
 
         protected bool _hasStarted = false;
+        protected bool _hasActivated = false;
         protected bool _hasEnded = false;
         protected bool _hasCompleted = false;
 
@@ -34,6 +34,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             IsRestrained = true;
 
             GestureStarted += (_, args) => OnGestureStart(args);
+            GestureActivated += (_, args) => OnGestureActive(args);
             GestureEnded += (_, args) => OnGestureEnd(args);
             GestureCompleted += (_, args) => OnGestureComplete(args);
         }
@@ -84,6 +85,9 @@ namespace TouchGestures.Lib.Entities.Gestures
         public override event EventHandler<GestureStartedEventArgs>? GestureStarted;
 
         /// <inheritdoc/>
+        public override event EventHandler<GestureEventArgs>? GestureActivated;
+
+        /// <inheritdoc/>
         public override event EventHandler<GestureEventArgs>? GestureEnded;
 
         /// <inheritdoc/>
@@ -106,7 +110,22 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasStarted = value;
 
                 if (value && !previous)
-                    GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasEnded, _hasCompleted, StartPosition));
+                    GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasActivated, _hasEnded, _hasCompleted, StartPosition));
+            }
+        }
+
+        /// <inheritdoc/>
+        public override bool HasActivated
+        {
+            get => _hasActivated;
+            protected set
+            {
+                var previous = _hasActivated;
+
+                _hasActivated = value;
+
+                if (value && !previous)
+                    GestureActivated?.Invoke(this, new GestureEventArgs(_hasStarted, value, _hasEnded, _hasCompleted));
             }
         }
 
@@ -121,7 +140,7 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasEnded = value;
 
                 if (value && !previous)
-                    GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, value, _hasCompleted));
+                    GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, _hasActivated, value, _hasCompleted));
             }
         }
 
@@ -136,7 +155,7 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasCompleted = value;
 
                 if (value && !previous)
-                    GestureCompleted?.Invoke(this, new SwipeGestureEventArgs(_hasStarted, _hasEnded, value, Direction));
+                    GestureCompleted?.Invoke(this, new SwipeGestureEventArgs(_hasStarted, _hasActivated, _hasEnded, value, Direction));
             }
         }
 
@@ -171,7 +190,6 @@ namespace TouchGestures.Lib.Entities.Gestures
         protected virtual void CompleteGesture()
         {
             HasCompleted = true;
-            HasEnded = true;
         }
 
         #endregion
@@ -181,8 +199,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         /// <inheritdoc/>
         protected override void OnGestureStart(GestureStartedEventArgs e)
         {
-            HasEnded = false;
-            HasCompleted = false;
+            base.OnGestureStart(e);
 
             TimeStarted = DateTime.Now;
         }
@@ -191,15 +208,9 @@ namespace TouchGestures.Lib.Entities.Gestures
         protected override void OnGestureEnd(GestureEventArgs e)
         {
             // reset the gesture
-            HasStarted = false;
+            base.OnGestureEnd(e);
             StartPosition = Vector2.Zero;
             _delta = Vector2.Zero;
-        }
-
-        /// <inheritdoc/>
-        protected override void OnGestureComplete(GestureEventArgs e)
-        {
-            HasStarted = false;
         }
 
         /// <inheritdoc/>
@@ -214,6 +225,7 @@ namespace TouchGestures.Lib.Entities.Gestures
                     // TODO: Swipes are stealing each others turn, an up swipe could mistakenly be started by a down swipe.
                     if (!HasStarted)
                     {
+                        // 1. Check if the point is inside the bounds
                         if (IsRestrained && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
                             return;
 
@@ -223,24 +235,28 @@ namespace TouchGestures.Lib.Entities.Gestures
                     }
                     else
                     {
+                        // 2. Check if the deadline has been reached after the gesture has started
                         if (Deadline != 0 && (DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
                             IsInvalidState = true;
 
+                        // 3. Check if the point is still inside the bounds
                         if (IsRestrained && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
                             IsInvalidState = true;
 
+                        // 4. End it early if the gesture is invalid
                         if (IsInvalidState)
                         {
                             HasEnded = true;
                             return;
                         }
 
+                        // 5. Calculate the delta
                         _delta = point.Position - StartPosition;
                     }
                 }
                 else
                 {
-                    // finger may have been lifter after reaching the threshold
+                    // 6. On release, possibly complete the gesture
                     if (HasStarted)
                     {
                         OnDelta();
@@ -257,6 +273,8 @@ namespace TouchGestures.Lib.Entities.Gestures
         /// </summary>
         protected virtual void OnDelta()
         {
+            HasActivated = true;
+
             switch (Direction)
             {
                 case SwipeDirection.Up:

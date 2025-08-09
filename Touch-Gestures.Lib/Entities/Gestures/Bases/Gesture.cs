@@ -26,6 +26,11 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
         public abstract event EventHandler<GestureStartedEventArgs>? GestureStarted;
 
         /// <summary>
+        ///   Invoked when the gesture requirements are met.
+        /// </summary>
+        public abstract event EventHandler<GestureEventArgs>? GestureActivated;
+
+        /// <summary>
         ///   Invoked when the gesture ends.
         /// </summary>
         public abstract event EventHandler<GestureEventArgs>? GestureEnded;
@@ -41,6 +46,9 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
 
         /// <inheritdoc />
         public abstract bool HasStarted { get; protected set; }
+
+        /// <inheritdoc />
+        public abstract bool HasActivated { get; protected set; }
 
         /// <inheritdoc />
         public abstract bool HasEnded { get; protected set; }
@@ -106,8 +114,17 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
         protected virtual void OnGestureStart(GestureStartedEventArgs e)
         {
             HasEnded = false;
-            HasStarted = true;
+            HasCompleted = false;
         }
+
+        /// <summary>
+        ///   Called when the gesture is active.
+        /// </summary>
+        /// <param name="e">The event arguments.</param>
+        /// <remarks>
+        ///   This happen when the gesture gesture requirements are met.
+        /// </remarks>
+        protected virtual void OnGestureActive(GestureEventArgs e) { }
 
         /// <summary>
         ///   Called when the gesture ends.
@@ -130,7 +147,8 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
         /// </remarks>
         protected virtual void OnGestureComplete(GestureEventArgs e)
         {
-            HasStarted = false;
+            HasEnded = true;
+            HasActivated = false;
         }
 
         /// <inheritdoc />

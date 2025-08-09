@@ -23,7 +23,7 @@ namespace TouchGestures.Tests.Samples
             new()
             {
                 TouchID = 0,
-                Position = new Vector2(-20, -20),
+                Position = new Vector2(-201, -201),
             },
         };
 

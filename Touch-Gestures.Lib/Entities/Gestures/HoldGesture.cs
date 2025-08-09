@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using TouchGestures.Lib.Input;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Drawing;
@@ -18,16 +17,10 @@ namespace TouchGestures.Lib.Entities.Gestures
     [JsonObject(MemberSerialization.OptIn)]
     public partial class HoldGesture : TapGesture
     {
-        //private bool _deadlineStarted = false;
-
         #region Constructors
 
         public HoldGesture() : base(1000)
         {
-            GestureStarted += (_, args) => OnGestureStart(args);
-            GestureEnded += (_, args) => OnGestureEnd(args);
-            GestureCompleted += (_, args) => OnGestureComplete(args);
-
             UseThreshold = true;
 
             RequiredTouchesCount = 1;
@@ -81,67 +74,9 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #endregion
 
-        #region Events
-
-        /// <inheritdoc/>
-        public override event EventHandler<GestureStartedEventArgs>? GestureStarted;
-
-        /// <inheritdoc/>
-        public override event EventHandler<GestureEventArgs>? GestureEnded;
-
-        /// <inheritdoc/>
-        public override event EventHandler<GestureEventArgs>? GestureCompleted;
-
-        #endregion
-
         #region Properties
 
         #region Parents Implementation
-
-        /// <inheritdoc/>
-        public override bool HasStarted
-        {
-            get => _hasStarted;
-            protected set
-            {
-                var previous = _hasStarted;
-
-                _hasStarted = value;
-
-                if (value && previous == false)
-                    GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasEnded, _hasCompleted, StartPosition));
-            }
-        }
-
-        /// <inheritdoc/>
-        public override bool HasEnded
-        {
-            get => _hasEnded;
-            protected set
-            {
-                var previous = _hasEnded;
-
-                _hasEnded = value;
-
-                if (value && previous == false)
-                    GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, value, _hasCompleted));
-            }
-        }
-
-        /// <inheritdoc/>
-        public override bool HasCompleted
-        {
-            get => _hasCompleted;
-            protected set
-            {
-                var previous = _hasCompleted;
-
-                _hasCompleted = value;
-
-                if (value && previous == false)
-                    GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasEnded, value));
-            }
-        }
 
         [JsonProperty]
         public override GestureType Type => GestureType.Hold;
@@ -160,24 +95,6 @@ namespace TouchGestures.Lib.Entities.Gestures
         public override Vector2 Threshold { get; set; }
 
         #endregion
-
-        public bool IsPressing { get; private set; }
-
-        #endregion
-
-        #region Methods
-
-        protected virtual void Press() 
-        {
-            IsPressing = true;
-        }
-
-        protected virtual void Release() 
-        {
-            IsPressing = false;
-
-            CompleteGesture();
-        }
 
         #endregion
 
@@ -204,7 +121,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             // 4. Deadline & Release check
 
             // 4.1 Check if the user has held the touch point for the required amount of time
-            if (!IsInvalidState && !IsPressing && (DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
+            if (!IsInvalidState && !HasActivated && (DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
                 Press();
 
             // 4.2 // 4.1.2 Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release

@@ -1,5 +1,4 @@
 using OpenTabletDriver.Plugin;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Interfaces;
 using OpenTabletDriver.Desktop.Reflection;

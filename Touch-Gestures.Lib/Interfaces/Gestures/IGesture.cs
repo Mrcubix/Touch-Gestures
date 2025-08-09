@@ -17,6 +17,11 @@ namespace TouchGestures.Lib.Interfaces
         bool HasStarted { get; }
 
         /// <summary>
+        ///   Whether the gesture requirements were met &amp; is invoking its actions as a result.
+        /// </summary>
+        bool HasActivated { get; }
+
+        /// <summary>
         ///   Whether the gesture has ended.
         /// </summary>
         bool HasEnded { get; }

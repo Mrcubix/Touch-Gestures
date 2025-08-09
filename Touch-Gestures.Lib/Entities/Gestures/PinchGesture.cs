@@ -26,6 +26,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         #region Fields
 
         protected bool _hasStarted = false;
+        protected bool _hasActivated = false;
         protected bool _hasEnded = false;
         protected bool _hasCompleted = false;
 
@@ -47,6 +48,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         public PinchGesture()
         {
             GestureStarted += (_, args) => OnGestureStart(args);
+            GestureActivated += (_, args) => OnGestureActive(args);
             GestureEnded += (_, args) => OnGestureEnd(args);
             GestureCompleted += (_, args) => OnGestureComplete(args);
 
@@ -113,6 +115,9 @@ namespace TouchGestures.Lib.Entities.Gestures
         public override event EventHandler<GestureStartedEventArgs>? GestureStarted;
 
         /// <inheritdoc/>
+        public override event EventHandler<GestureEventArgs>? GestureActivated;
+
+        /// <inheritdoc/>
         public override event EventHandler<GestureEventArgs>? GestureEnded;
 
         /// <inheritdoc/>
@@ -136,7 +141,22 @@ namespace TouchGestures.Lib.Entities.Gestures
 
                 if (value && previous == false)
                     if (_currentPoints.Count == REQUIRED_TOUCHES_COUNT)
-                        GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasEnded, _hasCompleted, _currentPoints[0].Position));
+                        GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasActivated, _hasEnded, _hasCompleted, _currentPoints[0].Position));
+            }
+        }
+
+        /// <inheritdoc/>
+        public override bool HasActivated
+        {
+            get => _hasActivated;
+            protected set
+            {
+                var previous = _hasActivated;
+
+                _hasActivated = value;
+
+                if (value && previous == false)
+                    GestureActivated?.Invoke(this, new GestureEventArgs(_hasStarted, value, _hasEnded, _hasCompleted));
             }
         }
 
@@ -151,7 +171,7 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasEnded = value;
 
                 if (value && previous == false)
-                    GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, value, _hasCompleted));
+                    GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, _hasActivated, value, _hasCompleted));
             }
         }
 
@@ -166,7 +186,7 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasCompleted = value;
 
                 if (value && previous == false)
-                    GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasEnded, value));
+                    GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasActivated, _hasEnded, value));
             }
         }
 
@@ -364,19 +384,6 @@ namespace TouchGestures.Lib.Entities.Gestures
         #endregion
 
         #region Event Handlers
-
-        /// <inheritdoc/>
-        protected override void OnGestureStart(GestureStartedEventArgs e)
-        {
-            HasEnded = false;
-            HasCompleted = false;
-        }
-
-        /// <inheritdoc/>
-        protected override void OnGestureEnd(GestureEventArgs e)
-        {
-            HasStarted = false;
-        }
 
         /// <inheritdoc/>
         protected override void OnGestureComplete(GestureEventArgs e)
