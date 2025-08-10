@@ -5,7 +5,7 @@ using OpenTabletDriver.Plugin.Attributes;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Extensions;
-using TouchGestures.Lib.Entities;
+using TouchGestures.Lib;
 using TouchGestures.Lib.Entities.Tablet;
 
 namespace TouchGestures
@@ -15,7 +15,7 @@ namespace TouchGestures
     {
         #region Constants
 
-        private const string PLUGIN_NAME = "Pen Gestures";
+        private new const string PLUGIN_NAME = "Pen Gestures";
 
         #endregion
 
@@ -108,20 +108,7 @@ namespace TouchGestures
                     Log.Write(PLUGIN_NAME, "LPMM is zero, this is very unusual as the tablet's specifications should be defined in the internal tablet configuration.", LogLevel.Error);
             }
 
-            TapGestures.Clear();
-            HoldGestures.Clear();
-            NonConflictingGestures.Clear();
-
-            SortGestures();
-
-            // TODO : Non-Conflicting Tap & Hold gestures should be added to NonConflictingGestures
-            TapGestures.AddRange(_profile.TapGestures);
-            HoldGestures.AddRange(_profile.HoldGestures);
-
-            NonConflictingGestures.AddRange(_profile.SwipeGestures);
-            NonConflictingGestures.AddRange(_profile.PanGestures);
-            NonConflictingGestures.AddRange(_profile.PinchGestures);
-            NonConflictingGestures.AddRange(_profile.RotateGestures);
+            ReplaceGesturesUsingProfile();
 
             Log.Debug(PLUGIN_NAME, "Settings updated");
         }

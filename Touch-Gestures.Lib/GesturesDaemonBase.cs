@@ -10,9 +10,10 @@ using OpenTabletDriver.External.Common.RPC;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using TouchGestures.Lib.Converters;
+using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
 
-namespace TouchGestures.Lib.Entities
+namespace TouchGestures.Lib
 {
     public class GesturesDaemonBase : IDisposable
     {

@@ -10,8 +10,8 @@ using OpenTabletDriver.External.Common.RPC;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
+using TouchGestures.Lib;
 using TouchGestures.Lib.Converters;
-using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Extensions;
 
 namespace TouchGestures

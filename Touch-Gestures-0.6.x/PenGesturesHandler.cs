@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
+using OpenTabletDriver;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Extensions;
+using TouchGestures.Lib;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
 
@@ -15,7 +18,7 @@ namespace TouchGestures
     {
         #region Constants
 
-        private const string PLUGIN_NAME = "Pen Gestures";
+        private new const string PLUGIN_NAME = "Pen Gestures";
 
         #endregion
 
@@ -30,6 +33,8 @@ namespace TouchGestures
 
         public override void Initialize()
         {
+            FetchOutputMode();
+
             // Filters are loaded before tools for some reasons, so we have to wait for the daemon to be loaded
             _daemon = GesturesDaemonBase.Instance;
 
@@ -44,7 +49,7 @@ namespace TouchGestures
                 Log.Write(PLUGIN_NAME, "Touch Gestures Daemon has not been enabled, please enable it in the 'Tools' tab", LogLevel.Error);
         }
 
-        protected override void InitializeCore(TabletReference tablet)
+        private void InitializeCore(TabletReference tablet)
         {
             _tablet = tablet.ToShared(_touchSettings);
             _tablet.Name = $"{_tablet.Name} (Pen Only)";
@@ -73,6 +78,12 @@ namespace TouchGestures
 
         public override void Consume(IDeviceReport report)
         {
+            Consume(report, true);
+            OnEmit(report);
+        }
+
+        public override bool Consume(IDeviceReport report, bool IsTouchToggled = true)
+        {
             if (report is ITabletReport tabletReport)
             {
                 if (tabletReport.Pressure > 0)
@@ -93,9 +104,11 @@ namespace TouchGestures
                     foreach (var gesture in NonConflictingGestures)
                         gesture.OnInput(_stubReport.Touches);
                 }
+
+                // TODO : Maybe prevent touch report from spreading if more than 2 touches are detected
             }
 
-            OnEmit(report);
+            return true;
         }
 
         #endregion
@@ -120,20 +133,7 @@ namespace TouchGestures
                     Log.Write(PLUGIN_NAME, "LPMM is zero, this usually means that 'Touch Settings' hasn't been enabled or its maxes are set to zero", LogLevel.Error);
             }
 
-            TapGestures.Clear();
-            HoldGestures.Clear();
-            NonConflictingGestures.Clear();
-
-            SortGestures();
-
-            // TODO : Non-Conflicting Tap & Hold gestures should be added to NonConflictingGestures
-            TapGestures.AddRange(_profile.TapGestures);
-            HoldGestures.AddRange(_profile.HoldGestures);
-
-            NonConflictingGestures.AddRange(_profile.SwipeGestures);
-            NonConflictingGestures.AddRange(_profile.PanGestures);
-            NonConflictingGestures.AddRange(_profile.PinchGestures);
-            NonConflictingGestures.AddRange(_profile.RotateGestures);
+            ReplaceGesturesUsingProfile();
 
             Log.Debug(PLUGIN_NAME, "Settings updated");
         }
