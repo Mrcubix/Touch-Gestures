@@ -42,7 +42,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         NextViewModel = _gestureSelectionScreenViewModel;
 
         _isMultiTouch = isMultiTouch;
-        
+
         PropertyChanging += OnPropertyChanging;
         PropertyChanged += OnGestureChanged;
 
@@ -153,7 +153,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         var args = new GestureAddedEventArgs(setup);
 
         SetupCompleted?.Invoke(this, args);
-    } 
+    }
 
     private void OnEditCompleted(object? sender, EventArgs e)
     {

@@ -11,7 +11,7 @@ namespace TouchGestures.Lib.Entities
     public class Settings
     {
         #region Constants
-        
+
         private static readonly JsonSerializerSettings _serializerSettings = new()
         {
             Formatting = Formatting.Indented,
@@ -60,7 +60,7 @@ namespace TouchGestures.Lib.Entities
 
                     return true;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Log.Write("Touch Gestures Settings Loader", $"Failed to load settings from {path}: {e}", LogLevel.Error);
                 }

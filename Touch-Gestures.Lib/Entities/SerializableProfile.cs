@@ -39,7 +39,7 @@ namespace TouchGestures.Lib.Entities
 
         public void Add(Gesture gesture)
         {
-            switch(gesture)
+            switch (gesture)
             {
                 case SerializableTapGesture tapGesture:
                     TapGestures.Add(tapGesture);
@@ -63,7 +63,7 @@ namespace TouchGestures.Lib.Entities
 
         public void Remove(Gesture gesture)
         {
-            switch(gesture)
+            switch (gesture)
             {
                 case SerializableTapGesture tapGesture:
                     TapGestures.Remove(tapGesture);

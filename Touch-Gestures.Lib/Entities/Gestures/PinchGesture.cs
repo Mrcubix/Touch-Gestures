@@ -87,7 +87,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             AngleThreshold = angleThreshold;
         }
 
-        public PinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise, SharedArea? bounds) 
+        public PinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise, SharedArea? bounds)
             : this(bounds)
         {
             IsInner = isInner;
@@ -95,9 +95,9 @@ namespace TouchGestures.Lib.Entities.Gestures
 
             DistanceThreshold = distanceThreshold;
             AngleThreshold = angleThreshold;
-        } 
+        }
 
-        public PinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise, Rectangle bounds) 
+        public PinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise, Rectangle bounds)
             : this(bounds)
         {
             IsInner = isInner;
@@ -294,7 +294,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         {
             if (_currentPoints.Count != REQUIRED_TOUCHES_COUNT)
                 return;
-                //return (0, 0, 0, 0);
+            //return (0, 0, 0, 0);
 
             var first = _currentPoints[0];
             var second = _currentPoints[1];

@@ -27,7 +27,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         {
         }
 
-        public BindablePanGesture(SerializablePanGesture swipeGesture) 
+        public BindablePanGesture(SerializablePanGesture swipeGesture)
             : base(swipeGesture.Threshold, swipeGesture.Deadline, swipeGesture.Direction, swipeGesture.Bounds)
         {
         }
@@ -80,7 +80,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         protected override void CompleteGesture()
         {
             base.CompleteGesture();
-            
+
             if (Binding != null)
             {
                 Binding.Press();

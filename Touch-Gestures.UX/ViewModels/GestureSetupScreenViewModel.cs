@@ -35,7 +35,7 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
             gestureSetupViewModel.IsOptionsSelectionStepActive = true;
         else
             gestureSetupViewModel.IsBindingSelectionStepActive = true;
-        
+
         gestureSetupViewModel.IsMultiTouchSetup = isMultiTouch;
     }
 

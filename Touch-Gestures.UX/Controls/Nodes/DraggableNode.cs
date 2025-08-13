@@ -95,7 +95,7 @@ public abstract class DraggableNode : Shape
 
         if (_transform != null)
         {
-            _dragStartPoint = new Point(_dragStartPoint.X - _transform.X, 
+            _dragStartPoint = new Point(_dragStartPoint.X - _transform.X,
                                         _dragStartPoint.Y - _transform.Y);
         }
 

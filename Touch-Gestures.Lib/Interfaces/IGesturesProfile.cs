@@ -4,7 +4,7 @@ using TouchGestures.Lib.Entities.Gestures.Bases;
 
 namespace TouchGestures.Lib.Interfaces
 {
-    public interface IGesturesProfile : IEnumerable<Gesture> 
+    public interface IGesturesProfile : IEnumerable<Gesture>
     {
         /// <summary>
         ///   The name of the tablet associated with the profile.

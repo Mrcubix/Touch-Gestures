@@ -39,8 +39,8 @@ public partial class TapSetupViewModel : GestureSetupViewModel
     #region Constructors
 
     /// Design-time constructor
-    public TapSetupViewModel() : this(false) 
-    { 
+    public TapSetupViewModel() : this(false)
+    {
         IsOptionsSelectionStepActive = true;
     }
 
@@ -207,4 +207,4 @@ public partial class TapSetupViewModel : GestureSetupViewModel
     #endregion
 }
 
-public class TapTileViewModel : GestureTileViewModel<TapSetupViewModel> {}
+public class TapTileViewModel : GestureTileViewModel<TapSetupViewModel> { }

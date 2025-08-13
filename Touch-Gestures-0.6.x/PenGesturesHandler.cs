@@ -93,7 +93,7 @@ namespace TouchGestures
                 }
                 else
                     _stubReport.Touches[0] = null;
-                
+
                 if (_daemon != null && _daemon.IsReady)
                 {
                     // Iterate through all conflicting gestures

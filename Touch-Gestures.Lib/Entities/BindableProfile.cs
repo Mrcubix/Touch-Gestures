@@ -78,7 +78,7 @@ namespace TouchGestures.Lib.Entities
 
         public void Add(Gesture gesture)
         {
-            switch(gesture)
+            switch (gesture)
             {
                 case BindableTapGesture tapGesture:
                     TapGestures.Add(tapGesture);
@@ -102,7 +102,7 @@ namespace TouchGestures.Lib.Entities
 
         public void Remove(Gesture gesture)
         {
-            switch(gesture)
+            switch (gesture)
             {
                 case BindableTapGesture tapGesture:
                     TapGestures.Remove(tapGesture);
@@ -143,7 +143,7 @@ namespace TouchGestures.Lib.Entities
 
         public void UpdateLPMM(SharedTabletReference tablet)
         {
-            Vector2? lpmm = IsMultiTouch ? tablet.TouchDigitizer?.GetLPMM() : 
+            Vector2? lpmm = IsMultiTouch ? tablet.TouchDigitizer?.GetLPMM() :
                                            tablet.PenDigitizer?.GetLPMM();
 
             if (lpmm != null && lpmm != Vector2.Zero)
@@ -180,7 +180,7 @@ namespace TouchGestures.Lib.Entities
 
         #region Static Methods
 
-        public static BindableProfile FromSerializable(SerializableProfile profile, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet = null, in BindableProfile? existingProfile = null)  
+        public static BindableProfile FromSerializable(SerializableProfile profile, Dictionary<int, TypeInfo> identifierToPlugin, SharedTabletReference? tablet = null, in BindableProfile? existingProfile = null)
         {
             var result = existingProfile ?? new BindableProfile();
             result.Name = profile.Name;
@@ -240,7 +240,7 @@ namespace TouchGestures.Lib.Entities
                     continue;
 
                 if (BindablePinchGesture.FromSerializable(gesture, identifierToPlugin, tablet) is BindablePinchGesture rotateGesture)
-                    result.RotateGestures.Add(rotateGesture);       
+                    result.RotateGestures.Add(rotateGesture);
             }
 
             return result;

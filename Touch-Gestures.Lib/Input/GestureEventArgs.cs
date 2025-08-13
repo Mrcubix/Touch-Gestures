@@ -3,7 +3,7 @@ namespace TouchGestures.Lib
     public class GestureEventArgs
     {
         #region Constructors
-        
+
         public GestureEventArgs()
         {
             HasStarted = false;

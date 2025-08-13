@@ -160,7 +160,7 @@ namespace TouchGestures.Lib
                 return;
 
             _tablets.Add(tablet);
-            
+
             // Since a new tablet has been added, we need to build the bindings for it
             BuildProfileBindings(tablet);
 
@@ -268,7 +268,7 @@ namespace TouchGestures.Lib
         ///   The method of obtaining plugins depends on the version of OpenTabletDriver.
         /// </remarks>
         /// <returns>The available plugins.</returns>
-        public virtual Task<List<SerializablePlugin>> GetPlugins() 
+        public virtual Task<List<SerializablePlugin>> GetPlugins()
             => throw new NotImplementedException();
 
         /// <inheritdoc />

@@ -22,7 +22,7 @@ namespace TouchGestures.Lib.Contracts
         ///   Returns the connected tablets.
         /// </summary>
         public Task<IEnumerable<SharedTabletReference>> GetTablets();
-        
+
         /// <summary>
         ///   Returns the tablet size.
         /// </summary>

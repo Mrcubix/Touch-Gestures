@@ -55,7 +55,7 @@ namespace TouchGestures.Tests.Lib
                     Assert.False(gesture.HasEnded);
                     Assert.False(gesture.HasCompleted);
                 }
-                
+
                 // Distance delta is -10.799997977871385 at the 6th sample
                 if (i > 6)
                 {
@@ -90,7 +90,7 @@ namespace TouchGestures.Tests.Lib
                     Assert.False(gesture.HasEnded);
                     Assert.False(gesture.HasCompleted);
                 }
-                
+
                 // Distance delta is 10.799997977871385 at the 6th sample
                 if (i > 5)
                 {

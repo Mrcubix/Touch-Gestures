@@ -45,7 +45,7 @@ public partial class GestureTile : TemplatedControl, IDisposable
 
     private IImage? _icon = _placeholderIcon;
 
-    public IImage? Icon 
+    public IImage? Icon
     {
         get => _icon;
         set => SetAndRaise(IconProperty, ref _icon, value);

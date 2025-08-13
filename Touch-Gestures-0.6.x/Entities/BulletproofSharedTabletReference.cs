@@ -12,14 +12,14 @@ namespace TouchGestures.Entities
             ServiceProvider = new ServiceManager();
         }
 
-        public BulletproofSharedTabletReference(string name, SharedTabletDigitizer digitizer, 
+        public BulletproofSharedTabletReference(string name, SharedTabletDigitizer digitizer,
                                                 SharedTabletDigitizer touchDigitizer, IServiceManager serviceProvider)
             : base(name, digitizer, touchDigitizer)
         {
             ServiceProvider = serviceProvider;
         }
 
-        public BulletproofSharedTabletReference(string name, SharedTabletDigitizer digitizer, 
+        public BulletproofSharedTabletReference(string name, SharedTabletDigitizer digitizer,
                                                 SharedTabletDigitizer touchDigitizer, SharedDeviceIdentifier deviceIdentifier,
                                                 IServiceManager serviceProvider)
             : base(name, digitizer, touchDigitizer, deviceIdentifier)

@@ -50,7 +50,7 @@ namespace TouchGestures.Tests.Lib
                 // Given
                 var gesture = new HoldGesture(BOUNDS, DEADLINE, i);
                 var sample = GenerateValidSample(i);
-                
+
                 TestIntermediarySamples(gesture, i);
 
                 gesture.OnInput(sample);
@@ -134,7 +134,7 @@ namespace TouchGestures.Tests.Lib
             Thread.Sleep((int)DEADLINE + 15);
 
             gesture.OnInput(invalidSample);
-            
+
             Assert.False(gesture.HasActivated);
             Assert.False(gesture.HasEnded);
             Assert.False(gesture.HasCompleted);

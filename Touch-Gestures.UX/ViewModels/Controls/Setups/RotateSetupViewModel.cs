@@ -39,8 +39,8 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
     #region Constructors
 
     /// Design-time constructor
-    public RotateSetupViewModel() : this(false) 
-    { 
+    public RotateSetupViewModel() : this(false)
+    {
         IsOptionsSelectionStepActive = true;
     }
 
@@ -187,4 +187,4 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
     #endregion
 }
 
-public class RotateTileViewModel : GestureTileViewModel<RotateSetupViewModel> {}
+public class RotateTileViewModel : GestureTileViewModel<RotateSetupViewModel> { }

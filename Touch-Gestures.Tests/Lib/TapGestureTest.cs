@@ -14,7 +14,7 @@ namespace TouchGestures.Tests.Lib
     public class TapGestureTest
     {
         #region Constants & Readonly fields
-        
+
         protected const double DEADLINE = 500;
         protected const int TESTED_TOUCHES = 2;
 

@@ -35,7 +35,7 @@ namespace TouchGestures
             if (Info.Driver.Tablet != null && _daemon != null)
             {
                 _tablet = Info.Driver.Tablet.ToShared(_touchSettings);
-                _tablet.Name = $"{_tablet.Name} (Pen Only)"; 
+                _tablet.Name = $"{_tablet.Name} (Pen Only)";
 
                 _daemon.AddTablet(_tablet);
                 _profile = _daemon.GetSettingsForTablet(_tablet.Name);

@@ -37,7 +37,7 @@ namespace TouchGestures
 
             Instance ??= this;
         }
-        
+
         private void WaitForDebugger()
         {
             Console.WriteLine("Waiting for debugger to attach...");

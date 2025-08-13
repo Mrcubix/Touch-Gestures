@@ -86,7 +86,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         protected override void CompleteGesture()
         {
             base.CompleteGesture();
-            
+
             if (Binding != null)
             {
                 Binding.Press();

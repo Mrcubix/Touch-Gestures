@@ -120,7 +120,7 @@ namespace TouchGestures.Installer
             {
                 string successMessage = $"Successfully installed {installed} of {entriesCount} dependencies.";
                 string spacer = new('-', successMessage.Length);
-                
+
                 Log.Write(group, spacer, LogLevel.Info);
                 Log.Write(group, $"Installed {installed} of {entriesCount} dependencies.", LogLevel.Info);
                 Log.Write(group, $"You may need to restart OpenTabletDriver before the plugin can be enabled.", LogLevel.Info);
@@ -130,7 +130,7 @@ namespace TouchGestures.Installer
             return true;
         }
 
-        public void Dispose() {}
+        public void Dispose() { }
 
         [BooleanProperty("Force Install", ""),
          DefaultPropertyValue(false),

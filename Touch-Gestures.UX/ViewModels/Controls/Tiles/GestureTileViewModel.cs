@@ -41,7 +41,7 @@ namespace TouchGestures.UX.ViewModels.Controls.Tiles
 
         [ObservableProperty]
         private IImage? _icon = null;
-        
+
         [ObservableProperty]
         private GestureSetupViewModel _associatedSetup = new();
 

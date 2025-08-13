@@ -28,8 +28,8 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
     #region Constructors
 
     /// Design-time constructor
-    public PanSetupViewModel() : this(false) 
-    { 
+    public PanSetupViewModel() : this(false)
+    {
     }
 
     public PanSetupViewModel(bool isEditing = false)
@@ -135,4 +135,4 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
     #endregion
 }
 
-public class PanTileViewModel : GestureTileViewModel<PanSetupViewModel> {}
+public class PanTileViewModel : GestureTileViewModel<PanSetupViewModel> { }

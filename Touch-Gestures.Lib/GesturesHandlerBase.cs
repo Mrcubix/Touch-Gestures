@@ -114,7 +114,7 @@ namespace TouchGestures.Lib
                 else
                     Log.Write(PLUGIN_NAME, "LPMM is zero, this usually means that 'Touch Settings' hasn't been enabled or its maxes are set to zero", LogLevel.Error);
             }
-            
+
             ReplaceGesturesUsingProfile();
 
             Log.Debug(PLUGIN_NAME, "Settings updated");

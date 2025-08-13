@@ -166,8 +166,8 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
         {
             // Let's use the area that is provided
             var nativeAreaPosition = mapped.Position;
-            
-            var converted = new Area(Math.Round(nativeAreaPosition.X, 5), Math.Round(nativeAreaPosition.Y, 5), 
+
+            var converted = new Area(Math.Round(nativeAreaPosition.X, 5), Math.Round(nativeAreaPosition.Y, 5),
                                      Math.Round(mapped.Width, 5), Math.Round(mapped.Height, 5),
                                      Math.Round(mapped.Rotation, 5), true);
 

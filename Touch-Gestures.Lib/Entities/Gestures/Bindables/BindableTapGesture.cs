@@ -40,7 +40,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         {
             Deadline = deadline;
         }
-            
+
         public BindableTapGesture(Rectangle bounds, double deadline, IBinding binding) : this(bounds, deadline)
         {
             Binding = binding;

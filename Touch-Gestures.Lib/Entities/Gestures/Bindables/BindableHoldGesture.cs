@@ -44,8 +44,8 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #endregion
 
-        public BindableHoldGesture(SerializableHoldGesture tapGesture) 
-            : this(tapGesture.Bounds, tapGesture.Deadline, tapGesture.RequiredTouchesCount) 
+        public BindableHoldGesture(SerializableHoldGesture tapGesture)
+            : this(tapGesture.Bounds, tapGesture.Deadline, tapGesture.RequiredTouchesCount)
         {
             Threshold = tapGesture.Threshold;
         }

@@ -153,7 +153,7 @@ namespace TouchGestures
         public override void Dispose()
         {
             TabletAdded -= OnTabletAdded;
-            
+
             base.Dispose();
         }
 

@@ -254,7 +254,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             if (points.Length > 0)
             {
                 // 1. Check the currently active points, gesture may have been invalidated
-                if(CheckActivePoints(points, out int currentIndex) == false)
+                if (CheckActivePoints(points, out int currentIndex) == false)
                     return;
 
                 // 2. Has the gesture started?

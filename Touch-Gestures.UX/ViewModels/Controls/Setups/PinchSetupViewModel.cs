@@ -41,8 +41,8 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
     #region Constructors
 
     /// Design-time constructor
-    public PinchSetupViewModel() : this(false) 
-    { 
+    public PinchSetupViewModel() : this(false)
+    {
         IsOptionsSelectionStepActive = true;
     }
 
@@ -187,4 +187,4 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
     #endregion
 }
 
-public class PinchTileViewModel : GestureTileViewModel<PinchSetupViewModel> {}
+public class PinchTileViewModel : GestureTileViewModel<PinchSetupViewModel> { }
