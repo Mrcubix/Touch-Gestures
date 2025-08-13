@@ -1,10 +1,8 @@
-using System;
 using System.Drawing;
+using System.Linq;
 using System.Numerics;
 using Newtonsoft.Json;
-using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Enums;
-using TouchGestures.Lib.Extensions;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -35,12 +33,18 @@ namespace TouchGestures.Lib.Entities.Gestures
         public PanGesture(Vector2 threshold, double deadline, SwipeDirection direction, SharedArea? bounds)
             : base(threshold, deadline, direction, bounds) { }
 
+        public PanGesture(Vector2 threshold, double deadline, SwipeDirection direction, Rectangle bounds, int requiredTouchesCount)
+            : base(threshold, deadline, direction, bounds, requiredTouchesCount) { }
+
+        public PanGesture(Vector2 threshold, double deadline, SwipeDirection direction, SharedArea? bounds, int requiredTouchesCount)
+            : base(threshold, deadline, direction, bounds, requiredTouchesCount) { }
+
         #endregion
 
         #region Properties
 
         [JsonProperty]
-        public override GestureType Type => GestureType.Tap;
+        public override GestureType Type => GestureType.Pan;
 
         #endregion
 
@@ -48,66 +52,25 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         protected override void CompleteGesture()
         {
-            _delta = Vector2.Zero;
-            //HasCompleted = true;
+            HasActivated = true;
+            StartPosition = _lastPosition;
         }
 
         #endregion
 
         #region Event Handlers
 
-        /// <inheritdoc/>
-        //protected override void OnGestureComplete(GestureEventArgs e)
-        //{
-            //base.OnGestureComplete(e);
-            
-        //}
-
-        /// <inheritdoc/>
-        public override void OnInput(TouchPoint[] points)
+        protected override void OnInputCore()
         {
-            if (points.Length > 0)
-            {
-                var point = points[0];
+            if (IsInvalidState == false)
+                OnDelta();
 
-                if (point != null)
-                {
-                    if (!HasStarted)
-                    {
-                        if (IsRestrained && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
-                            return;
-
-                        StartPosition = point.Position;
-                        IsInvalidState = false;
-                        HasStarted = true;
-                    }
-                    else
-                    {
-                        if (Deadline != 0 && (DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
-                            IsInvalidState = true;
-
-                        if (IsRestrained && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
-                            IsInvalidState = true;
-
-                        if (IsInvalidState)
-                        {
-                            HasEnded = true;
-                            return;
-                        }
-
-                        _delta = point.Position - StartPosition;
-                        OnDelta();
-                    }
-                }
+            // Wait for all touches to be released, or else, it will just start again on the next input and complete on the next release
+            if (_releasedPoints.All(released => released) && _currentPoints.Count == 0)
+                if (HasActivated)
+                    HasCompleted = true;
                 else
-                {
-                    // finger may have been lifted while the gesture was active
-                    if (HasActivated)
-                        HasCompleted = true;
-                    else if (HasStarted)
-                        HasEnded = true;
-                }
-            }
+                    HasEnded = true;
         }
 
         #endregion
