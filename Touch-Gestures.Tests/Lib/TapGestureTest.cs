@@ -10,6 +10,7 @@ namespace TouchGestures.Tests.Lib
 {
     using static TouchGestures.Tests.Samples.TapSamples;
 
+    [Collection("Tap Gesture Tests")]
     public class TapGestureTest
     {
         #region Constants & Readonly fields

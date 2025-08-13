@@ -8,6 +8,7 @@ namespace TouchGestures.Tests.Lib
 {
     using static TouchGestures.Tests.Samples.PinchSamples;
 
+    [Collection("Rotation Gesture Tests")]
     public class RotateGestureTest
     {
         #region Constants & Readonly fields

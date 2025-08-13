@@ -68,8 +68,6 @@ namespace TouchGestures.Lib
                     foreach (var gesture in NonConflictingGestures)
                         gesture.OnInput(touchReport.Touches);
                 }
-
-                // TODO : Maybe prevent touch report from spreading if more than 2 touches are detected
             }
 
             return true;

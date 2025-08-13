@@ -9,6 +9,7 @@ namespace TouchGestures.Tests.Lib
 {
     using static TouchGestures.Tests.Samples.TapSamples;
 
+    [Collection("Hold Gesture Tests")]
     public class HoldGestureTest
     {
         #region Constants & Readonly fields
