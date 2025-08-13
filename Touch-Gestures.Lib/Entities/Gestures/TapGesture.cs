@@ -10,6 +10,7 @@ using System.Drawing;
 using TouchGestures.Lib.Extensions;
 using System.Collections.Generic;
 using TouchGestures.Lib.Enums;
+using TouchGestures.Lib.Interfaces;
 
 namespace TouchGestures.Lib.Entities.Gestures
 {
@@ -20,7 +21,7 @@ namespace TouchGestures.Lib.Entities.Gestures
     ///   A tap gesture is triggered when a <see cref="RequiredTouchesCount"/> number of fingers are pressed and released within a specified deadline.
     /// </remarks>
     [JsonObject(MemberSerialization.OptIn)]
-    public class TapGesture : MixedBasedGesture
+    public class TapGesture : MixedBasedGesture, ITouchesCountDependant
     {
         #region Fields
 
@@ -204,21 +205,24 @@ namespace TouchGestures.Lib.Entities.Gestures
         ///   Defaults to 1.
         /// </summary>
         [JsonProperty]
-        public virtual int RequiredTouchesCount
+        public int RequiredTouchesCount
         {
             get => _requiredTouchesCount;
             set
             {
+                var finalCount = value;
+
                 if (value < 1)
+                {
                     Log.Write("Touch Gestures", "The number of required touches cannot be less than 1, setting to 1.", LogLevel.Warning);
+                    finalCount = 1;
+                }
 
-                _requiredTouchesCount = value;
+                _requiredTouchesCount = finalCount;
 
-                _currentPoints = new List<TouchPoint>(value);
-                _activatingPoints = new TouchPoint[value];
-                _releasedPoints = new bool[value];
-
-                //_currentTouches = new List<int>(value);
+                _currentPoints = new List<TouchPoint>(finalCount);
+                _activatingPoints = new TouchPoint[finalCount];
+                _releasedPoints = new bool[finalCount];
             }
         }
 
