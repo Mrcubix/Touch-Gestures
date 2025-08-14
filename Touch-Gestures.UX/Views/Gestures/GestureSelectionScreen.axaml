@@ -41,12 +41,15 @@
   </UserControl.Styles>
 
   <Grid RowDefinitions="Auto, *" Grid.Row="0">
+
+      <!-- Header : Back button and search bar -->
       <Grid Name="VIEW_GestureSelectionMenu" ColumnDefinitions="Auto, *, Auto" Grid.Row="0" Margin="0, 32">
         <Button Name="VIEW_BackButton" Content="←" Command="{Binding GoBackCommand}" Grid.Column="0" />
         <TextBox Name="VIEW_SearchBar" Watermark="Search..." Text="{Binding SearchText}" Grid.Column="1" />
         <TextBlock Text="" Grid.Column="2" Width="35" Height="35" />
       </Grid>
 
+      <!-- Body : List of Gestures -->
       <ScrollViewer Name="VIEW_GestureSelectionScreen" Grid.Row="1">
         <ItemsControl ItemsSource="{Binding CurrentGestureTiles}" Padding="16, 0">
           <ItemsControl.ItemsPanel>
@@ -62,5 +65,6 @@
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </ScrollViewer>
+      
     </Grid>
 </UserControl>
