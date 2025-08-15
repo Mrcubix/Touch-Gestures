@@ -40,8 +40,8 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
     #region Constructors
 
     /// Design-time constructor
-    public SwipeSetupViewModel() : this(false) 
-    { 
+    public SwipeSetupViewModel() : this(false)
+    {
         IsOptionsSelectionStepActive = true;
     }
 
@@ -193,4 +193,4 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
     #endregion
 }
 
-public class SwipeTileViewModel : GestureTileViewModel<SwipeSetupViewModel> {}
+public class SwipeTileViewModel : GestureTileViewModel<SwipeSetupViewModel> { }

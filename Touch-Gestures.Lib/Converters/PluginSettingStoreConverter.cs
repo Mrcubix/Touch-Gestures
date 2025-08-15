@@ -40,8 +40,8 @@ namespace TouchGestures.Lib.Converters
                 return null!;
             }
 
-            ObservableCollection<PluginSetting> settings = serializer.Deserialize<ObservableCollection<PluginSetting>>(pluginSettingsReader) 
-                                                               ?? new ObservableCollection<PluginSetting>(); 
+            ObservableCollection<PluginSetting> settings = serializer.Deserialize<ObservableCollection<PluginSetting>>(pluginSettingsReader)
+                                                               ?? new ObservableCollection<PluginSetting>();
 
             var enabled = value["Enable"]?.Value<bool>();
 

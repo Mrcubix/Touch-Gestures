@@ -43,14 +43,14 @@ namespace TouchGestures.Lib.Serializables.Gestures
         }
 
         public SerializablePinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise,
-                                        SharedArea? bounds, SerializablePluginSettings pluginProperty) 
+                                        SharedArea? bounds, SerializablePluginSettings pluginProperty)
             : base(distanceThreshold, angleThreshold, isInner, isClockwise, bounds)
         {
             PluginProperty = pluginProperty;
         }
 
         public SerializablePinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise,
-                                        Rectangle bounds, SerializablePluginSettings pluginProperty) 
+                                        Rectangle bounds, SerializablePluginSettings pluginProperty)
             : base(distanceThreshold, angleThreshold, isInner, isClockwise, bounds)
         {
             PluginProperty = pluginProperty;

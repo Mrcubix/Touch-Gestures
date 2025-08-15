@@ -1,7 +1,6 @@
 using System.Drawing;
 using System.Numerics;
 using System.Threading;
-using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Input;
@@ -12,6 +11,7 @@ namespace TouchGestures.Tests.Lib
 {
     using static TouchGestures.Tests.Samples.SwipeSamples;
 
+    [Collection("Swipe Gesture Tests")]
     public class SwipeGestureTest
     {
         /*
@@ -24,12 +24,12 @@ namespace TouchGestures.Tests.Lib
         */
 
         #region Constants & readonly fields
-        
-        private const double DEADLINE = 50;
+
+        private const double DEADLINE = 200;
 
         private readonly Vector2 THRESHOLD = new(30, 30);
 
-        private readonly Rectangle EXAMPLE_BOUNDS = new(0, 0, 400, 400);
+        private readonly Rectangle EXAMPLE_BOUNDS = new(-200, -200, 400, 400);
 
         #endregion
 
@@ -54,7 +54,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void LeftSwipeGesture()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.Left);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.Left, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.Left);
 
@@ -81,7 +81,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void UpSwipeGesture()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.Up);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.Up, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.Up);
 
@@ -108,7 +108,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void RightSwipeGesture()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.Right);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.Right, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.Right);
 
@@ -135,7 +135,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void DownSwipeGesture()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.Down);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.Down, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.Down);
 
@@ -162,7 +162,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void LeftUpSwipeGesture()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.UpLeft);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.UpLeft, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.UpLeft);
 
@@ -189,7 +189,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void RightUpSwipeGesture()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.UpRight);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.UpRight, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.UpRight);
 
@@ -216,7 +216,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void LeftDownSwipeGesture()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownLeft);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownLeft, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.DownLeft);
 
@@ -243,7 +243,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void RightDownSwipeGesture()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.DownRight);
 
@@ -276,7 +276,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void AbsoluteGestureStartedWithinBounds()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS, 1);
 
             TestOriginSampleData(gesture);
 
@@ -289,7 +289,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void AbsoluteGestureNotStartedOutsideBounds()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS, 1);
 
             //TestOriginSampleData(gesture);
             gesture.OnInput(OriginAbsoluteFaultyData);
@@ -313,17 +313,12 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void ReleasedSwipeGesture()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.DownRight);
 
             TestOriginSampleData(gesture);
-            
-            gesture.OnInput(ReleasedSampleData);
-
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
-            Assert.False(gesture.HasCompleted);
+            TestReleasedSampleData(gesture, false);
 
             UnsubscribeToCompletion(gesture, SwipeDirection.DownRight);
 
@@ -336,7 +331,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void CompletedAfterDeadline()
         {
-            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight);
+            var gesture = new SwipeGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.DownRight);
 
@@ -348,9 +343,12 @@ namespace TouchGestures.Tests.Lib
 
             _output.WriteLine($"Right Down Swipe Sample Data passed to OnInput");
 
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
+            Assert.True(gesture.HasStarted);
+            Assert.True(gesture.IsInvalidState);
+            Assert.False(gesture.HasEnded);
             Assert.False(gesture.HasCompleted);
+
+            TestReleasedSampleData(gesture, false);
 
             UnsubscribeToCompletion(gesture, SwipeDirection.DownRight);
 
@@ -375,11 +373,10 @@ namespace TouchGestures.Tests.Lib
         }
 
         /// <summary>
-        ///   Upon releasing the touch point, we check if the threshold has been reached <br/>
-        ///   Only then the gesture is considered completed.
+        ///   Upon releasing the touch point, we check if the gesture has ended & completed.<br/>
         /// </summary>
         /// <param name="gesture">The gesture to be tested on</param>
-        private void TestReleasedSampleData(SwipeGesture gesture)
+        private void TestReleasedSampleData(SwipeGesture gesture, bool needsToBeCompleted = true)
         {
             gesture.OnInput(ReleasedSampleData);
 
@@ -387,7 +384,11 @@ namespace TouchGestures.Tests.Lib
 
             Assert.False(gesture.HasStarted);
             Assert.True(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+
+            if (needsToBeCompleted)
+                Assert.True(gesture.HasCompleted);
+            else
+                Assert.False(gesture.HasCompleted);
         }
 
         private void SubscribeToCompletion(SwipeGesture gesture, SwipeDirection direction)

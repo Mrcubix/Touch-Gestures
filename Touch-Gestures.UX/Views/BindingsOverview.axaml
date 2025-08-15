@@ -65,6 +65,7 @@
       <DataTemplate DataType="vm:BindingsOverviewViewModel">
         <Grid RowDefinitions="Auto, *, Auto">
 
+          <!-- Header -->
           <Grid Name="VIEW_Header" ColumnDefinitions="Auto, *, Auto" Grid.Row="0" Margin="0, 32">
 
             <Button Name="VIEW_Adder" Command="{Binding StartSetupWizardCommand}" Grid.Column="0" ToolTip.Tip="Setup a new gesture">
@@ -78,6 +79,7 @@
 
           </Grid>
 
+          <!-- Body : List of Gestures -->
           <ScrollViewer Grid.Row="1" Margin="23, 0" Grid.IsSharedSizeScope="True">
             <ItemsControl Name="VIEW_Body" ItemsSource="{Binding CurrentGestureBindings}" Padding="32, 0">
               <ItemsControl.ItemTemplate>
@@ -88,6 +90,7 @@
             </ItemsControl>
           </ScrollViewer>
 
+          <!-- Body : No elements or no tablet connected -->
           <Grid Name="VIEW_BodyNoElements" RowDefinitions="Auto, Auto, Auto" Grid.Row="1">
 
             <!-- Margin of 0, 0, 0, 16 if IsReady is true -->
@@ -112,6 +115,7 @@
               </TextBlock.IsVisible>
             </TextBlock>
 
+            <!-- Body : No gestures but tablet connected -->
             <Button Command="{Binding StartSetupWizardCommand}" Content="Setup a new Gesture" Grid.Row="2" HorizontalAlignment="Center">
               <Button.IsVisible>
                 <MultiBinding Converter="{x:Static BoolConverters.And}">
@@ -129,6 +133,7 @@
 
           </Grid>
 
+          <!-- Tablet Selector -->
           <Border Background="{StaticResource AccentColorBrush}" BorderThickness="0,2,0,0" Grid.Row="2" Padding="4">
             <Grid>
               <ComboBox ItemsSource="{Binding Tablets}" SelectedIndex="{Binding SelectedTabletIndex}" 

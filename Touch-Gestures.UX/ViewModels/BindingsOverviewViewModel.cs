@@ -182,7 +182,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
         IsTabletsEmpty = !Tablets.Any();
         IsEmpty = !SelectedTablet?.Gestures.Any() ?? true;
-        
+
         IsReady = _parentViewModel.IsReady;
         TabletChanged += OnTabletChanged;
     }
@@ -402,7 +402,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
             return;
 
         //SelectedTabletIndex = Math.Min(SelectedTabletIndex, Tablets.Count - 2);
-        
+
         SelectedTablet.Remove(bindingDisplay);
 
         IsEmpty = !SelectedTablet.Gestures.Any();

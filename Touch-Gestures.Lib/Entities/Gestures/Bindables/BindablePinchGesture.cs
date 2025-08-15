@@ -86,15 +86,11 @@ namespace TouchGestures.Lib.Entities.Gestures
         protected override void CompleteGesture()
         {
             base.CompleteGesture();
-            
+
             if (Binding != null)
             {
-                _ = Task.Run(async () =>
-                {
-                    Binding.Press();
-                    await Task.Delay(15);
-                    Binding.Release();
-                });
+                Binding.Press();
+                Binding.Release();
             }
         }
 

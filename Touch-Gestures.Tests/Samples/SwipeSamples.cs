@@ -6,7 +6,7 @@ namespace TouchGestures.Tests.Samples
     public static class SwipeSamples
     {
         private const int MAX_TOUCHES = 1;
-        
+
         #region Sample Data
 
         public static readonly TouchPoint[] OriginSampleData = new TouchPoint[MAX_TOUCHES]
@@ -23,7 +23,7 @@ namespace TouchGestures.Tests.Samples
             new()
             {
                 TouchID = 0,
-                Position = new Vector2(-20, -20),
+                Position = new Vector2(-201, -201),
             },
         };
 

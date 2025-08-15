@@ -1,18 +1,22 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using OpenTabletDriver.External.Common.RPC;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
 using TouchGestures.Lib.Converters;
+using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Input;
 
-namespace TouchGestures.Lib.Entities
+namespace TouchGestures.Lib
 {
     public class GesturesDaemonBase : IDisposable
     {
@@ -47,6 +51,13 @@ namespace TouchGestures.Lib.Entities
         #endregion
 
         #region Initialization
+
+        public GesturesDaemonBase()
+        {
+#if DEBUG
+            WaitForDebugger();
+#endif
+        }
 
         public virtual bool Initialize()
         {
@@ -119,6 +130,10 @@ namespace TouchGestures.Lib.Entities
         public event EventHandler<Settings?>? SettingsChanged;
         public event EventHandler<IEnumerable<SharedTabletReference>>? TabletsChanged;
 
+        public event EventHandler<DeviceReportEventArgs>? DeviceReport;
+        public event EventHandler<SharedTabletReference>? RecordingRequested;
+        public event EventHandler<SharedTabletReference>? RecordingStopped;
+
         protected event EventHandler<SharedTabletReference>? TabletAdded;
         protected event EventHandler<SharedTabletReference>? TabletRemoved;
 
@@ -159,7 +174,7 @@ namespace TouchGestures.Lib.Entities
                 return;
 
             _tablets.Add(tablet);
-            
+
             // Since a new tablet has been added, we need to build the bindings for it
             BuildProfileBindings(tablet);
 
@@ -241,6 +256,13 @@ namespace TouchGestures.Lib.Entities
 
         #region Event Methods
 
+        /// <summary>
+        ///   Used by Gesture Handlers to send report to the UX for Gesture debugging purposes
+        /// </summary>
+        /// <param name="e">The event arguments.</param>
+        public virtual void OnDeviceReport(DeviceReportEventArgs e)
+            => DeviceReport?.Invoke(this, e);
+
         protected virtual void OnReady(EventArgs e)
             => Ready?.Invoke(this, e);
 
@@ -267,7 +289,7 @@ namespace TouchGestures.Lib.Entities
         ///   The method of obtaining plugins depends on the version of OpenTabletDriver.
         /// </remarks>
         /// <returns>The available plugins.</returns>
-        public virtual Task<List<SerializablePlugin>> GetPlugins() 
+        public virtual Task<List<SerializablePlugin>> GetPlugins()
             => throw new NotImplementedException();
 
         /// <inheritdoc />
@@ -347,12 +369,20 @@ namespace TouchGestures.Lib.Entities
         }
 
         /// <inheritdoc />
-        public virtual Task<bool> StartRecording()
-            => throw new NotImplementedException();
+        public virtual Task<bool> StartRecording(SharedTabletReference tablet)
+        {
+            Log.Write("Gestures Daemon", $"Starting recording for tablet {tablet.Name}...");
+            RecordingRequested?.Invoke(this, tablet);
+            return Task.FromResult(true);
+        }
 
         /// <inheritdoc />
-        public virtual Task<bool> StopRecording()
-            => throw new NotImplementedException();
+        public virtual Task<bool> StopRecording(SharedTabletReference tablet)
+        {
+            Log.Write("Gestures Daemon", $"Stopping recording for tablet {tablet.Name}...");
+            RecordingStopped?.Invoke(this, tablet);
+            return Task.FromResult(true);
+        }
 
         #endregion
 
@@ -364,6 +394,20 @@ namespace TouchGestures.Lib.Entities
             _rpcServer.Dispose();
 
             GC.SuppressFinalize(this);
+        }
+
+        #endregion
+
+        #region Static Methods
+
+        protected static void WaitForDebugger()
+        {
+            Console.WriteLine("Waiting for debugger to attach...");
+
+            while (!Debugger.IsAttached)
+            {
+                Thread.Sleep(100);
+            }
         }
 
         #endregion

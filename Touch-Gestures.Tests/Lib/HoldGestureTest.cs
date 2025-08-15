@@ -9,6 +9,7 @@ namespace TouchGestures.Tests.Lib
 {
     using static TouchGestures.Tests.Samples.TapSamples;
 
+    [Collection("Hold Gesture Tests")]
     public class HoldGestureTest
     {
         #region Constants & Readonly fields
@@ -49,7 +50,7 @@ namespace TouchGestures.Tests.Lib
                 // Given
                 var gesture = new HoldGesture(BOUNDS, DEADLINE, i);
                 var sample = GenerateValidSample(i);
-                
+
                 TestIntermediarySamples(gesture, i);
 
                 gesture.OnInput(sample);
@@ -64,7 +65,7 @@ namespace TouchGestures.Tests.Lib
                 // Pass a similar sample with the same touch points active
                 gesture.OnInput(sample);
 
-                Assert.True(gesture.IsPressing);
+                Assert.True(gesture.HasActivated);
                 Assert.False(gesture.HasEnded);
                 Assert.False(gesture.HasCompleted);
 
@@ -100,7 +101,7 @@ namespace TouchGestures.Tests.Lib
                 // Pass a similar sample with the same touch points active
                 gesture.OnInput(sample);
 
-                Assert.False(gesture.IsPressing);
+                Assert.False(gesture.HasActivated);
                 Assert.False(gesture.HasEnded);
                 Assert.False(gesture.HasCompleted);
 
@@ -133,8 +134,8 @@ namespace TouchGestures.Tests.Lib
             Thread.Sleep((int)DEADLINE + 15);
 
             gesture.OnInput(invalidSample);
-            
-            Assert.False(gesture.IsPressing);
+
+            Assert.False(gesture.HasActivated);
             Assert.False(gesture.HasEnded);
             Assert.False(gesture.HasCompleted);
 
@@ -156,7 +157,7 @@ namespace TouchGestures.Tests.Lib
             gesture.OnInput(sample);
 
             // Then
-            Assert.False(gesture.IsPressing);
+            Assert.False(gesture.HasActivated);
             Assert.False(gesture.HasStarted);
             Assert.True(gesture.HasEnded);
             Assert.True(gesture.HasCompleted);

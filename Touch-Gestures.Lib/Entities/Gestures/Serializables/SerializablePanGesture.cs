@@ -33,12 +33,12 @@ namespace TouchGestures.Lib.Serializables.Gestures
         {
         }
 
-        public SerializablePanGesture(Vector2 threshold, double deadline, SwipeDirection direction, SharedArea area) 
+        public SerializablePanGesture(Vector2 threshold, double deadline, SwipeDirection direction, SharedArea area)
             : base(threshold, deadline, direction, area)
         {
         }
 
-        public SerializablePanGesture(SwipeGesture gesture) 
+        public SerializablePanGesture(SwipeGesture gesture)
             : base(gesture.Threshold, gesture.Deadline, gesture.Direction, gesture.Bounds)
         {
         }

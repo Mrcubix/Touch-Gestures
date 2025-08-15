@@ -49,7 +49,7 @@ public class CircleNodeViewModel : NodeViewModel
 
             Timestamp = viewModel.Timestamp,
             TimestampTolerance = viewModel.TimestampTolerance,
-            
+
             IsHold = viewModel.IsHold,
             HoldDuration = viewModel.HoldDuration
         };

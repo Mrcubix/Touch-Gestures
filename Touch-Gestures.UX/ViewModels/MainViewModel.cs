@@ -285,6 +285,8 @@ public partial class MainViewModel : NavigableViewModel
     {
         ConnectionStateText = "Connected, Fetching Plugins & Settings ...";
 
+        // TODO : Check if Supported Setting Version is actually compatible with UX
+
         _client.Instance.TabletsChanged += OnTabletsChanged;
 
         var tempPlugins = await FetchPluginsAsync();

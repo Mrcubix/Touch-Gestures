@@ -8,6 +8,7 @@ namespace TouchGestures.Tests.Lib
 {
     using static TouchGestures.Tests.Samples.PinchSamples;
 
+    [Collection("Rotation Gesture Tests")]
     public class RotateGestureTest
     {
         #region Constants & Readonly fields
@@ -54,7 +55,7 @@ namespace TouchGestures.Tests.Lib
                     Assert.False(gesture.HasEnded);
                     Assert.False(gesture.HasCompleted);
                 }
-                
+
                 // Distance delta is -10.799997977871385 at the 6th sample
                 if (i > 6)
                 {
@@ -89,7 +90,7 @@ namespace TouchGestures.Tests.Lib
                     Assert.False(gesture.HasEnded);
                     Assert.False(gesture.HasCompleted);
                 }
-                
+
                 // Distance delta is 10.799997977871385 at the 6th sample
                 if (i > 5)
                 {

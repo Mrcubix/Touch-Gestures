@@ -1,5 +1,4 @@
 using OpenTabletDriver.Plugin;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Interfaces;
 using OpenTabletDriver.Desktop.Reflection;
@@ -41,7 +40,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         {
             Deadline = deadline;
         }
-            
+
         public BindableTapGesture(Rectangle bounds, double deadline, IBinding binding) : this(bounds, deadline)
         {
             Binding = binding;
@@ -85,12 +84,8 @@ namespace TouchGestures.Lib.Entities.Gestures
 
             if (Binding != null)
             {
-                _ = Task.Run(async () =>
-                {
-                    Binding.Press();
-                    await Task.Delay(15);
-                    Binding.Release();
-                });
+                Binding.Press();
+                Binding.Release();
             }
         }
 
