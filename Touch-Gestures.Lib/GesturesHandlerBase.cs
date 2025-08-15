@@ -10,6 +10,7 @@ using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Input;
 
 namespace TouchGestures.Lib
 {
@@ -27,6 +28,7 @@ namespace TouchGestures.Lib
         protected BindableProfile? _profile;
         protected SharedTabletReference? _tablet;
         private bool _hasPreviousGestureStarted;
+        private bool _isRecording;
 
         #endregion
 
@@ -67,6 +69,9 @@ namespace TouchGestures.Lib
                     // Iterate through all non-conflicting gestures
                     foreach (var gesture in NonConflictingGestures)
                         gesture.OnInput(touchReport.Touches);
+
+                    if (_isRecording && _tablet != null)
+                        _daemon.OnDeviceReport(new DeviceReportEventArgs(_tablet.Name, touchReport));
                 }
             }
 
@@ -157,6 +162,18 @@ namespace TouchGestures.Lib
             NonConflictingGestures.AddRange(_profile.RotateGestures);
         }
 
+        protected virtual void OnRecordingRequested(object? sender, SharedTabletReference e)
+        {
+            if (_tablet != null && e.Name == _tablet.Name)
+                _isRecording = true;
+        }
+
+        protected virtual void OnRecordingStopped(object? sender, SharedTabletReference e)
+        {
+            if (_tablet != null && e.Name == _tablet.Name)
+                _isRecording = false;
+        }
+
         #endregion
 
         #region Interface Implementations
@@ -169,6 +186,12 @@ namespace TouchGestures.Lib
 
             if (_tablet != null)
                 _daemon?.RemoveTablet(_tablet);
+
+            if (_daemon != null)
+            {
+                _daemon.RecordingRequested -= OnRecordingRequested;
+                _daemon.RecordingStopped -= OnRecordingStopped;
+            }
 
             GC.SuppressFinalize(this);
         }

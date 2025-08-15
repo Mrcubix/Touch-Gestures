@@ -73,6 +73,9 @@ namespace TouchGestures
                     OnProfileChanged(this, EventArgs.Empty);
                 }
 
+                _daemon.RecordingRequested += OnRecordingRequested;
+                _daemon.RecordingStopped += OnRecordingStopped;
+
                 Log.Write(PLUGIN_NAME, "Now handling touch gesture for: " + _tablet.Name);
             }
         }

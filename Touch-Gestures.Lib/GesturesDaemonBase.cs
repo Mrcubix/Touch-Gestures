@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using OpenTabletDriver.External.Common.RPC;
@@ -12,6 +14,7 @@ using OpenTabletDriver.Plugin;
 using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Input;
 
 namespace TouchGestures.Lib
 {
@@ -48,6 +51,13 @@ namespace TouchGestures.Lib
         #endregion
 
         #region Initialization
+
+        public GesturesDaemonBase()
+        {
+#if DEBUG
+            WaitForDebugger();
+#endif
+        }
 
         public virtual bool Initialize()
         {
@@ -119,6 +129,10 @@ namespace TouchGestures.Lib
         public event EventHandler? Ready;
         public event EventHandler<Settings?>? SettingsChanged;
         public event EventHandler<IEnumerable<SharedTabletReference>>? TabletsChanged;
+
+        public event EventHandler<DeviceReportEventArgs>? DeviceReport;
+        public event EventHandler<SharedTabletReference>? RecordingRequested;
+        public event EventHandler<SharedTabletReference>? RecordingStopped;
 
         protected event EventHandler<SharedTabletReference>? TabletAdded;
         protected event EventHandler<SharedTabletReference>? TabletRemoved;
@@ -242,6 +256,13 @@ namespace TouchGestures.Lib
 
         #region Event Methods
 
+        /// <summary>
+        ///   Used by Gesture Handlers to send report to the UX for Gesture debugging purposes
+        /// </summary>
+        /// <param name="e">The event arguments.</param>
+        public virtual void OnDeviceReport(DeviceReportEventArgs e)
+            => DeviceReport?.Invoke(this, e);
+
         protected virtual void OnReady(EventArgs e)
             => Ready?.Invoke(this, e);
 
@@ -348,12 +369,20 @@ namespace TouchGestures.Lib
         }
 
         /// <inheritdoc />
-        public virtual Task<bool> StartRecording()
-            => throw new NotImplementedException();
+        public virtual Task<bool> StartRecording(SharedTabletReference tablet)
+        {
+            Log.Write("Gestures Daemon", $"Starting recording for tablet {tablet.Name}...");
+            RecordingRequested?.Invoke(this, tablet);
+            return Task.FromResult(true);
+        }
 
         /// <inheritdoc />
-        public virtual Task<bool> StopRecording()
-            => throw new NotImplementedException();
+        public virtual Task<bool> StopRecording(SharedTabletReference tablet)
+        {
+            Log.Write("Gestures Daemon", $"Stopping recording for tablet {tablet.Name}...");
+            RecordingStopped?.Invoke(this, tablet);
+            return Task.FromResult(true);
+        }
 
         #endregion
 
@@ -365,6 +394,20 @@ namespace TouchGestures.Lib
             _rpcServer.Dispose();
 
             GC.SuppressFinalize(this);
+        }
+
+        #endregion
+
+        #region Static Methods
+
+        protected static void WaitForDebugger()
+        {
+            Console.WriteLine("Waiting for debugger to attach...");
+
+            while (!Debugger.IsAttached)
+            {
+                Thread.Sleep(100);
+            }
         }
 
         #endregion

@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.External.Common.RPC;
@@ -33,11 +30,8 @@ namespace TouchGestures
 
         #region Constructors
 
-        public GesturesDaemon()
+        public GesturesDaemon() : base()
         {
-#if DEBUG
-            WaitForDebugger();
-#endif
             if (_rpcServer == null)
             {
                 _rpcServer = new RpcServer<GesturesDaemonBase>("GesturesDaemon", this);
@@ -49,21 +43,11 @@ namespace TouchGestures
             TabletAdded += OnTabletAdded;
         }
 
-        public GesturesDaemon(Settings settings)
+        public GesturesDaemon(Settings settings) : base()
         {
             TouchGestureSettings = settings;
 
             Initialize(false);
-        }
-
-        private void WaitForDebugger()
-        {
-            Console.WriteLine("Waiting for debugger to attach...");
-
-            while (!Debugger.IsAttached)
-            {
-                Thread.Sleep(100);
-            }
         }
 
         #endregion
@@ -112,16 +96,6 @@ namespace TouchGestures
             Log.Write("Gestures Daemon", "Acquiring Tablet...");
 
             return Task.FromResult(_touchLPMM);
-        }
-
-        public override Task<bool> StartRecording()
-        {
-            return Task.FromResult(true);
-        }
-
-        public override Task<bool> StopRecording()
-        {
-            return Task.FromResult(true);
         }
 
         #endregion

@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using OpenTabletDriver.External.Common.Contracts;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Input;
 
 namespace TouchGestures.Lib.Contracts
 {
     public interface IGesturesDaemon : IPluginDaemon
     {
         event EventHandler<IEnumerable<SharedTabletReference>> TabletsChanged;
+        event EventHandler<DeviceReportEventArgs> DeviceReport;
 
         /// <summary>
         ///   Returns whether a tablet is connected.
@@ -67,11 +69,11 @@ namespace TouchGestures.Lib.Contracts
         /// <summary>
         ///   Start recording (Used for future node-based gesture creation).
         /// </summary>
-        public Task<bool> StartRecording();
+        public Task<bool> StartRecording(SharedTabletReference tablet);
 
         /// <summary>
         ///   Stop recording (Used for future node-based gesture creation).
         /// </summary>
-        public Task<bool> StopRecording();
+        public Task<bool> StopRecording(SharedTabletReference tablet);
     }
 }
