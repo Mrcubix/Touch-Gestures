@@ -32,9 +32,11 @@ I may be able to help you out & your question may help others in the future by b
 
 ## I am a Developer, how can i help?
 
-- Currently i'm having issues dealing with both versions at the same time, mostly because of an ongoing bug in .NET project handling.  
+- Packaging for Linux & MacOS (Binary Tar for each platforms + .deb?)
+
+- ~~Currently i'm having issues dealing with both versions at the same time, mostly because of an ongoing bug in .NET project handling.  
 It seems to be currently impossible to have have a multi-target project & have dependencies change depending on the target framework.  
-What i'm noticing is that, the dependency with the highest version is always used, even if it's not compatible with the framework that is being targeted.
+What i'm noticing is that, the dependency with the highest version is always used, even if it's not compatible with the framework that is being targeted.~~
 
 - You can't use multiple gestures at the same time, as gestures with higher requirements will cancel out the lower ones.
 

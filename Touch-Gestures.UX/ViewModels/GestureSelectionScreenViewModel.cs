@@ -76,15 +76,13 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
 
     #endregion
 
-    #region Events
-
-    public override event EventHandler? BackRequested;
-
-    #endregion
-
     #region Methods
 
-    protected override void GoBack() => BackRequested?.Invoke(this, EventArgs.Empty);
+    public void HideMultiTouchTiles(bool isMultiTouch = true)
+    {
+        foreach (var gestureTileViewModel in CurrentGestureTiles)
+            gestureTileViewModel.IsEnabled = isMultiTouch || gestureTileViewModel.IsMultiTouchOnly == false;
+    }
 
     #endregion
 

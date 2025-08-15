@@ -24,16 +24,16 @@ namespace TouchGestures
     {
         #region Constants
 
-        public const string PLUGIN_NAME = "Touch Gestures";
+        private const string PLUGIN_NAME = "Touch Gestures";
 
         #endregion
 
         #region Fields
 
-        private TouchSettings _touchSettings => TouchSettings.Instance ?? TouchSettings.Default;
-        private GesturesDaemonBase? _daemon;
-        private BindableProfile? _profile;
-        private SharedTabletReference? _tablet;
+        protected TouchSettings _touchSettings => TouchSettings.Instance ?? TouchSettings.Default;
+        protected GesturesDaemonBase? _daemon;
+        protected BindableProfile? _profile;
+        protected SharedTabletReference? _tablet;
         private bool _hasPreviousGestureStarted;
 
         #endregion
@@ -47,7 +47,7 @@ namespace TouchGestures
 #endif
         }
 
-        public void Initialize()
+        public virtual void Initialize()
         {
             if (!_touchSettings.IsTouchToggled)
                 return;
@@ -102,7 +102,7 @@ namespace TouchGestures
 
         public Vector2 Filter(Vector2 input) => input;
 
-        public bool Pass(IDeviceReport report, ref ITabletReport tabletreport)
+        public virtual bool Pass(IDeviceReport report, ref ITabletReport tabletreport)
         {
             if (report is ITouchReport touchReport)
             {
@@ -147,7 +147,7 @@ namespace TouchGestures
 
         #region Events Handlers
 
-        public void OnProfileChanged(object? sender, EventArgs e)
+        public virtual void OnProfileChanged(object? sender, EventArgs e)
         {
             if (_profile == null)
             {
@@ -180,7 +180,7 @@ namespace TouchGestures
             Log.Debug(PLUGIN_NAME, "Settings updated");
         }
 
-        private void SortGestures()
+        protected void SortGestures()
         {
             if (_profile == null)
                 return;
@@ -202,6 +202,9 @@ namespace TouchGestures
             // Unsubscribe from events
             if (_profile != null)
                 _profile.ProfileChanged -= OnProfileChanged;
+
+            if (_tablet != null)
+                _daemon?.RemoveTablet(_tablet);
 
             GC.SuppressFinalize(this);
         }

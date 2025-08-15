@@ -17,6 +17,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     private Gesture _editedGesture = null!;
 
     private Rect _bounds;
+    private bool _isMultiTouch;
 
     #region Observable Fields
 
@@ -36,20 +37,25 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
     #region Constructors
 
-    public GestureSetupWizardViewModel()
+    public GestureSetupWizardViewModel(bool isMultiTouch = true)
     {
         NextViewModel = _gestureSelectionScreenViewModel;
+
+        _isMultiTouch = isMultiTouch;
         
         PropertyChanging += OnPropertyChanging;
         PropertyChanged += OnGestureChanged;
 
         GestureSelectionScreenViewModel.BackRequested += OnBackRequestedAhead;
         GestureSelectionScreenViewModel.GestureSelected += OnGestureSelected;
+        GestureSelectionScreenViewModel.HideMultiTouchTiles(isMultiTouch);
 
-        GestureSetupScreenViewModel.BackRequested += OnBackRequestedAhead;
+        CanGoBack = true;
+
+        //GestureSetupScreenViewModel.BackRequested += OnBackRequestedAhead;
     }
 
-    public GestureSetupWizardViewModel(Rect bounds) : this()
+    public GestureSetupWizardViewModel(Rect bounds, bool isMultiTouch = true) : this(isMultiTouch)
     {
         _bounds = bounds;
     }
@@ -57,8 +63,6 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     #endregion
 
     #region Events
-
-    public override event EventHandler? BackRequested;
 
     public event EventHandler<GestureAddedEventArgs>? SetupCompleted;
 
@@ -70,10 +74,10 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
     protected override void GoBack()
     {
-        if (NextViewModel is GestureSelectionScreenViewModel || (NextViewModel is GestureSetupScreenViewModel && _editedGesture != null))
-            BackRequested?.Invoke(this, EventArgs.Empty);
-        else
+        if (NextViewModel is GestureSetupScreenViewModel && _editedGesture == null)
             NextViewModel = GestureSelectionScreenViewModel;
+        else if (NextViewModel is GestureSelectionScreenViewModel || NextViewModel is GestureSetupScreenViewModel)
+            base.GoBack();
     }
 
     /// <summary>
@@ -105,7 +109,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         // Subscribe to the events
         setupViewModel.EditCompleted += OnEditCompleted;
 
-        GestureSetupScreenViewModel.StartSetup(setupViewModel);
+        GestureSetupScreenViewModel.StartSetup(setupViewModel, _isMultiTouch);
         NextViewModel = GestureSetupScreenViewModel;
     }
 
@@ -131,7 +135,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
         associatedSetup.AreaDisplay = new(_bounds);
 
-        GestureSetupScreenViewModel.StartSetup(associatedSetup);
+        GestureSetupScreenViewModel.StartSetup(associatedSetup, _isMultiTouch);
         NextViewModel = GestureSetupScreenViewModel;
     }
 

@@ -7,7 +7,7 @@ namespace TouchGestures.Lib.Entities
     public class SerializableSettings
     {
         [JsonProperty]
-        public int Version { get; set; }
+        public int Version { get; set; } = 1;
 
         [JsonProperty]
         public List<SerializableProfile> Profiles { get; set; } = new();

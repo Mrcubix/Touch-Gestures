@@ -1,6 +1,8 @@
+using Avalonia.Controls;
+
 namespace TouchGestures.UX.Views.Gestures.Setups;
 
-public partial class SwipeSetup : GestureSetup
+public partial class SwipeSetup : UserControl
 {
     public SwipeSetup()
     {

@@ -71,7 +71,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         IsReady = false;
 
         NextViewModel = this;
-        BackRequested = null!;
     }
 
     public BindingsOverviewViewModel(MainViewModel mainViewModel)
@@ -83,7 +82,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         _parentViewModel.Disconnected += OnDisconnected;
 
         NextViewModel = this;
-        BackRequested = null!;
     }
 
     public BindingsOverviewViewModel(MainViewModel mainViewModel, SerializableSettings settings) : this(mainViewModel)
@@ -94,8 +92,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     #region Events
 
     private event EventHandler? TabletChanged;
-
-    public override event EventHandler? BackRequested;
     public event EventHandler<EventArgs>? SaveRequested;
     public event EventHandler<SerializableProfile>? ProfileChanged;
 
@@ -176,7 +172,10 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
             Tablets.Add(overview);
         }
 
-        SelectedTablet = Tablets.FirstOrDefault();
+        if (SelectedTablet != null)
+            SelectedTablet = Tablets.FirstOrDefault(x => x.Name == SelectedTablet.Name);
+
+        SelectedTablet ??= Tablets.FirstOrDefault();
 
         if (SelectedTablet != null)
             SelectedTabletIndex = Tablets.IndexOf(SelectedTablet);
@@ -214,7 +213,8 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         var x = Math.Round(SelectedTablet.Reference.Size.X, 5);
         var y = Math.Round(SelectedTablet.Reference.Size.Y, 5);
 
-        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y));
+        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y),
+                                                          SelectedTablet.Profile.IsMultiTouch);
 
         setupWizard.SetupCompleted += OnSetupCompleted;
         setupWizard.BackRequested += OnBackRequestedAhead;
@@ -248,7 +248,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         if (string.IsNullOrWhiteSpace(text))
             CurrentGestureBindings.AddRange(SelectedTablet.Gestures);
         else
-            CurrentGestureBindings.AddRange(SelectedTablet.Gestures.Where(x => GestureNameStartsWith(x, text)));
+            CurrentGestureBindings.AddRange(SelectedTablet.Gestures.Where(x => GestureNameContains(x, text)));
     }
 
     /// <summary>
@@ -325,7 +325,8 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         var x = Math.Round(SelectedTablet.Reference.Size.X, 5);
         var y = Math.Round(SelectedTablet.Reference.Size.Y, 5);
 
-        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y));
+        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y),
+                                                          SelectedTablet.Profile.IsMultiTouch);
 
         // We need to check whenever the edit is completed & when te user goes back
         setupWizard.EditCompleted += (s, args) => OnEditCompleted(s, bindingDisplay, args);
@@ -451,6 +452,11 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         return gestureTileViewModel.Description?.StartsWith(text, StringComparison.CurrentCultureIgnoreCase) ?? false;
     }
 
+    private static bool GestureNameContains(GestureBindingDisplayViewModel gestureTileViewModel, string text)
+    {
+        return gestureTileViewModel.Description?.Contains(text, StringComparison.CurrentCultureIgnoreCase) ?? false;
+    }
+
     #endregion
 
     #region Disposal
@@ -476,7 +482,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
         SaveRequested = null;
         ProfileChanged = null;
-        BackRequested = null;
 
         GC.SuppressFinalize(this);
     }

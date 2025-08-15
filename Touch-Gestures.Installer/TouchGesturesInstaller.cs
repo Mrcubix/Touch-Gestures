@@ -26,11 +26,10 @@ namespace TouchGestures.Installer
 
         private static readonly FileInfo location = new(assembly.Location);
         private static readonly DirectoryInfo? pluginsDirectory = location.Directory?.Parent;
-        private static readonly string AssemblySuffix = OTD_VERSION == "0.5.x" ? "" : $"-{OTD_VERSION}";
 
         private readonly DirectoryInfo OTDEnhancedOutputModeDirectory = null!;
 
-        private readonly string dependenciesResourcePath = $"Touch-Gestures.Installer{AssemblySuffix}.Touch-Gestures-{OTD_VERSION}.zip";
+        private readonly string dependenciesResourcePath = $"Touch-Gestures.Installer.Touch-Gestures-{OTD_VERSION}.zip";
 
         public TouchGesturesInstaller()
         {
