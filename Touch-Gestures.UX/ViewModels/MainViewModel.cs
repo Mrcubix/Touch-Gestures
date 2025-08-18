@@ -16,6 +16,7 @@ using Avalonia.Threading;
 using Newtonsoft.Json;
 using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Input;
 
 namespace TouchGestures.UX.ViewModels;
 
@@ -325,6 +326,13 @@ public partial class MainViewModel : NavigableViewModel
             Dispatcher.UIThread.Post(() => OnSettingsChanged(_settings));
             Dispatcher.UIThread.Post(() => BindingsOverviewViewModel.SetTablets(tablets));
         }
+
+        _client.Instance.DeviceReport += OnDeviceReport;
+    }
+
+    private void OnDeviceReport(object? sender, DeviceReportEventArgs e)
+    {
+        
     }
 
     //
