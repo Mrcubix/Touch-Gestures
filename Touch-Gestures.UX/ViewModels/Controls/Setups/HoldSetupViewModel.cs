@@ -29,10 +29,7 @@ public partial class HoldSetupViewModel : TapSetupViewModel
     #region Constructors
 
     /// Design-time constructor
-    public HoldSetupViewModel() : this(false)
-    {
-        IsOptionsSelectionStepActive = true;
-    }
+    public HoldSetupViewModel() : this(false) { }
 
     public HoldSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
@@ -62,6 +59,8 @@ public partial class HoldSetupViewModel : TapSetupViewModel
         CanGoBack = true;
         CanGoNext = true;
 
+        SubscribeToSettingsChanges();
+
         GestureSetupPickText = "Number of holds:";
         GestureSetupPickItems = new ObservableCollection<object>(Enumerable.Range(1, 10).Cast<object>());
 
@@ -81,12 +80,11 @@ public partial class HoldSetupViewModel : TapSetupViewModel
         GestureSetupPickPreviews = new ObservableCollection<Bitmap?>(images);
 
         SelectedGestureSetupPickIndex = 0;
+        MultitouchSteps = [0];
 
         BindingDisplay = new BindingDisplayViewModel("1-Touch Hold", string.Empty, null);
         AreaDisplay = new AreaDisplayViewModel();
         _gesture = new SerializableHoldGesture();
-
-        SubscribeToSettingsChanges();
 
         // A 1s time threshold to trigger the hold
         Deadline = 1000;
@@ -98,24 +96,6 @@ public partial class HoldSetupViewModel : TapSetupViewModel
     #endregion
 
     #region Methods
-
-    protected override void GoNext()
-    {
-        if (IsOptionsSelectionStepActive)
-        {
-            IsOptionsSelectionStepActive = false;
-            IsBindingSelectionStepActive = true;
-
-            var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
-
-            BindingDisplay.Description = $"{value}-Touch Hold";
-        }
-        else if (IsBindingSelectionStepActive)
-        {
-            IsBindingSelectionStepActive = false;
-            IsSettingsTweakingStepActive = true;
-        }
-    }
 
     /// <inheritdoc/>
     public override Gesture? BuildGesture()
@@ -138,10 +118,19 @@ public partial class HoldSetupViewModel : TapSetupViewModel
     #region Events Handlers
 
     /// <inheritdoc/>
-    protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    protected override void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Deadline) || e.PropertyName == nameof(Threshold))
-            AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
+        switch (e.PropertyName)
+        {
+            case nameof(SelectedGestureSetupPickIndex):
+                BindingDisplay.Description = $"{GestureSetupPickItems?[SelectedGestureSetupPickIndex]}-Touch Hold";
+                break;
+            case nameof(Deadline) or nameof(Threshold):
+                AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
+                break;
+        }
+
+        base.OnPropertyChanged(sender, e);
     }
 
     #endregion

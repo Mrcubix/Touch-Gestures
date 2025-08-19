@@ -1,7 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -39,10 +38,7 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
     #region Constructors
 
     /// Design-time constructor
-    public RotateSetupViewModel() : this(false)
-    {
-        IsOptionsSelectionStepActive = true;
-    }
+    public RotateSetupViewModel() : this(false) { }
 
     public RotateSetupViewModel(bool isEditing = false)
     {
@@ -50,6 +46,8 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
 
         CanGoBack = true;
         CanGoNext = true;
+
+        SubscribeToSettingsChanges();
 
         GestureSetupPickText = "Direction the rotation:";
         GestureSetupPickItems = new ObservableCollection<object>(new string[] { "Clockwise", "Counter-Clockwise" });
@@ -63,11 +61,9 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
 
         SelectedGestureSetupPickIndex = 0;
 
-        BindingDisplay = new BindingDisplayViewModel();
+        BindingDisplay = new BindingDisplayViewModel("Clockwise Rotation", string.Empty, null);
         AreaDisplay = new AreaDisplayViewModel();
         _gesture = new SerializablePinchGesture();
-
-        SubscribeToSettingsChanges();
 
         AngleThreshold = 20;
         IsClockwise = false;
@@ -89,50 +85,9 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
         SetupArea(fullArea, serializedTapGesture.Bounds);
     }
 
-    protected override void SubscribeToSettingsChanges()
-    {
-        PropertyChanged += OnSettingsTweaksChanged;
-
-        base.SubscribeToSettingsChanges();
-    }
-
     #endregion
 
     #region Methods
-
-    protected override void GoBack()
-    {
-        if (IsBindingSelectionStepActive) // Step 2
-        {
-            IsBindingSelectionStepActive = false;
-            IsOptionsSelectionStepActive = true;
-        }
-        else if (IsSettingsTweakingStepActive) // Step 3
-        {
-            IsSettingsTweakingStepActive = false;
-            IsBindingSelectionStepActive = true;
-        }
-        else // Step 1
-            base.GoBack();
-    }
-
-    protected override void GoNext()
-    {
-        if (IsOptionsSelectionStepActive)
-        {
-            IsOptionsSelectionStepActive = false;
-            IsBindingSelectionStepActive = true;
-
-            var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
-
-            BindingDisplay.Description = $"{value} Rotation";
-        }
-        else if (IsBindingSelectionStepActive)
-        {
-            IsBindingSelectionStepActive = false;
-            IsSettingsTweakingStepActive = true;
-        }
-    }
 
     /// <inheritdoc/>
     protected override void DoComplete()
@@ -163,13 +118,20 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
     #region Events Handlers
 
     /// <inheritdoc/>
-    protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    protected override void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(AngleThreshold))
-            AreGestureSettingTweaked = AngleThreshold > 0;
+        switch (e.PropertyName)
+        {
+            case nameof(SelectedGestureSetupPickIndex):
+                BindingDisplay.Description = $"{GestureSetupPickItems?[SelectedGestureSetupPickIndex]} Rotation";
+                break;
+            case nameof(AngleThreshold):
+                AreGestureSettingTweaked = AngleThreshold > 0;
+                break;
+        }
+
+        base.OnPropertyChanged(sender, e);
     }
-
-
 
     #endregion
 

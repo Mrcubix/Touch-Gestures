@@ -24,25 +24,28 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
     {
         NextViewModel = gestureSetupViewModel;
         NextViewModel.BackRequested += OnBackRequestedAhead;
+        // TODO : Remove this once a better way to update the current step Template is found
+        NextViewModel.PropertyChanged += OnPropertyChanged;
 
         // There shouldn't be a situation where an unsupported gesture should make its way here normally, 
         // as these are hidden during the selection process.
 
-        gestureSetupViewModel.IsOptionsSelectionStepActive = false;
-
-        // Check if single touch even matters for the setup.
-        if (isMultiTouch || gestureSetupViewModel.SingleTouchOptionSelectionEnabled)
-            gestureSetupViewModel.IsOptionsSelectionStepActive = true;
-        else
-            gestureSetupViewModel.IsBindingSelectionStepActive = true;
-
         gestureSetupViewModel.IsMultiTouchSetup = isMultiTouch;
+
+        gestureSetupViewModel.CurrentStep = -1;
+        gestureSetupViewModel.GoNextCommand.Execute(null);
     }
 
     protected override void GoBack()
     {
         if (NextViewModel != null)
+        {
             NextViewModel.BackRequested -= OnBackRequestedAhead;
+            // TODO : Remove this once a better way to update the current step Template is found
+            NextViewModel.PropertyChanged -= OnPropertyChanged;
+        }
+
+        NextViewModel = null;
 
         base.GoBack();
     }
@@ -64,6 +67,17 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
     }
 
     private void OnBackRequestedAhead(object? sender, EventArgs e) => GoBack();
+
+    // TODO : Remove this once a better way to update the current step Template is found
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(GestureSetupViewModel.CurrentStep) && NextViewModel is GestureSetupViewModel)
+        {
+            var previous = NextViewModel;
+            NextViewModel = null;
+            NextViewModel = previous;
+        }
+    }
 
     #endregion
 }

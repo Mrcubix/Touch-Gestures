@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -23,12 +25,21 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     #endregion
 
+    private int _skippedSteps = 0;
+
     #region Observable Fields
 
     [ObservableProperty]
     private string _gestureSetupPickText = string.Empty;
 
-    private int _selectedGestureSetupPickIndex = 0;
+    [ObservableProperty]
+    private string _backButtonText = "Cancel";
+
+    /// <summary>
+    ///   The index of the selected option on the first step.
+    /// </summary>
+    [ObservableProperty]
+    private int _selectedGestureSetupPickIndex = -1;
 
     // Setting tweaking checks
 
@@ -41,13 +52,7 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     // Steps
 
     [ObservableProperty]
-    private bool _isOptionsSelectionStepActive = false;
-
-    [ObservableProperty]
-    private bool _isBindingSelectionStepActive = false;
-
-    [ObservableProperty]
-    private bool _isSettingsTweakingStepActive = false;
+    private int _currentStep = 0;
 
     // Editing
 
@@ -89,6 +94,8 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     protected virtual void SubscribeToSettingsChanges()
     {
+        PropertyChanging += OnPropertyChanging;
+        PropertyChanged += OnPropertyChanged;
         BindingDisplay.PropertyChanged += OnBindingDisplayPropertyChanged;
     }
 
@@ -104,24 +111,10 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     #region Properties
 
-    public bool CanGoNext { get; init; }
-
     /// <summary>
-    ///   The index of the selected optino on the first step.
+    ///   Whether the user can go to the next step.
     /// </summary>
-    public int SelectedGestureSetupPickIndex
-    {
-        get => _selectedGestureSetupPickIndex;
-        set
-        {
-            SetProperty(ref _selectedGestureSetupPickIndex, value);
-
-            if (value >= 0 && value < GestureSetupPickPreviews!.Count)
-                SelectedSetupPickPreview = GestureSetupPickPreviews[value] ?? _placeholderImage;
-            else
-                SelectedSetupPickPreview = _placeholderImage;
-        }
-    }
+    public bool CanGoNext { get; init; }
 
     /// <summary>
     ///   Whether single touch gestures are supported for this setup.
@@ -138,12 +131,53 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     /// </summary>
     public bool IsMultiTouchSetup { get; set; } = true;
 
+    /// <summary>
+    ///   The steps that should be skipped when the device is single-touch.
+    /// </summary>
+    public IEnumerable<int> MultitouchSteps { get; protected set; } = [];
+
     #endregion
 
     #region Methods
 
     [RelayCommand(CanExecute = nameof(CanGoNext))]
-    protected virtual void GoNext() => throw new NotImplementedException("GoNext has not been overriden.");
+    protected virtual void GoNext()
+    {
+        CurrentStep++;
+
+        // Skip multi-touch steps if the device is single-touch
+        if (IsMultiTouchSetup == false && MultitouchSteps.Contains(CurrentStep))
+        {
+            _skippedSteps++;
+            GoNext();
+        }
+
+        if (CurrentStep - _skippedSteps > 0)
+            BackButtonText = "Back";
+    }
+
+    protected override void GoBack()
+    {
+        CurrentStep--;
+
+        // Skip multi-touch steps if the device is single-touch
+        if (IsMultiTouchSetup == false && MultitouchSteps.Contains(CurrentStep))
+        {
+            _skippedSteps--;
+            GoBack();
+        }
+
+        // Next step will be below 0, so exit the setup
+        if (CurrentStep == -1)
+        {
+            CurrentStep = 0;
+            base.GoBack();
+        }
+
+        // Back Button Text should be cancel if we skipped the first steps
+        if (CurrentStep - _skippedSteps < 1)
+            BackButtonText = "Cancel";
+    }
 
     /// <summary>
     ///   Complete the gesture setup process.
@@ -206,18 +240,31 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     protected virtual void OnBindingDisplayPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(BindingDisplayViewModel.PluginProperty))
-        {
             IsGestureBindingSet = BindingDisplay.PluginProperty != null;
+    }
+
+    protected virtual void OnPropertyChanging(object? sender, PropertyChangingEventArgs e)
+    { 
+        switch (e.PropertyName)
+        {
+            case nameof(BindingDisplay) when BindingDisplay != null:
+                BindingDisplay.PropertyChanged -= OnBindingDisplayPropertyChanged;
+                break;
         }
     }
 
-    /// <summary>
-    ///   Handle the event when the settings are being tweaked. <br/>
-    ///   Setups need to make use of this to enable the user to proceed to the next step or complete the setup.
-    /// </summary>
-    protected virtual void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    protected virtual void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        throw new NotImplementedException("OnSettingsTweakingCompleted has not been overriden.");
+        switch (e.PropertyName)
+        {
+            case nameof(SelectedGestureSetupPickIndex):
+                SelectedSetupPickPreview = GestureSetupPickPreviews?.ElementAtOrDefault(SelectedGestureSetupPickIndex) 
+                ?? _placeholderImage;
+                break;
+            case nameof(BindingDisplay) when BindingDisplay != null:
+                BindingDisplay.PropertyChanged += OnBindingDisplayPropertyChanged;
+                break;
+        }
     }
 
     #endregion

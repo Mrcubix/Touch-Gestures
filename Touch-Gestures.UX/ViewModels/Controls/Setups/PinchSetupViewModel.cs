@@ -1,7 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -41,10 +40,7 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
     #region Constructors
 
     /// Design-time constructor
-    public PinchSetupViewModel() : this(false)
-    {
-        IsOptionsSelectionStepActive = true;
-    }
+    public PinchSetupViewModel() : this(false) { }
 
     public PinchSetupViewModel(bool isEditing = false)
     {
@@ -52,6 +48,8 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
 
         CanGoBack = true;
         CanGoNext = true;
+
+        SubscribeToSettingsChanges();
 
         GestureSetupPickText = "Direction of pinch:";
         GestureSetupPickItems = new ObservableCollection<object>(new string[] { "Inner", "Outer" });
@@ -65,11 +63,9 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
 
         SelectedGestureSetupPickIndex = 0;
 
-        BindingDisplay = new BindingDisplayViewModel();
+        BindingDisplay = new BindingDisplayViewModel("Inner Pinch", string.Empty, null);
         AreaDisplay = new AreaDisplayViewModel();
         _gesture = new SerializablePinchGesture();
-
-        SubscribeToSettingsChanges();
 
         DistanceThreshold = 20;
         IsInner = false;
@@ -91,50 +87,9 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
         SetupArea(fullArea, serializedTapGesture.Bounds);
     }
 
-    protected override void SubscribeToSettingsChanges()
-    {
-        PropertyChanged += OnSettingsTweaksChanged;
-
-        base.SubscribeToSettingsChanges();
-    }
-
     #endregion
 
     #region Methods
-
-    protected override void GoBack()
-    {
-        if (IsBindingSelectionStepActive) // Step 2
-        {
-            IsBindingSelectionStepActive = false;
-            IsOptionsSelectionStepActive = true;
-        }
-        else if (IsSettingsTweakingStepActive) // Step 3
-        {
-            IsSettingsTweakingStepActive = false;
-            IsBindingSelectionStepActive = true;
-        }
-        else // Step 1
-            base.GoBack();
-    }
-
-    protected override void GoNext()
-    {
-        if (IsOptionsSelectionStepActive)
-        {
-            IsOptionsSelectionStepActive = false;
-            IsBindingSelectionStepActive = true;
-
-            var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
-
-            BindingDisplay.Description = $"{value} Pinch";
-        }
-        else if (IsBindingSelectionStepActive)
-        {
-            IsBindingSelectionStepActive = false;
-            IsSettingsTweakingStepActive = true;
-        }
-    }
 
     /// <inheritdoc/>
     protected override void DoComplete()
@@ -165,10 +120,19 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
     #region Events Handlers
 
     /// <inheritdoc/>
-    protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    protected override void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(DistanceThreshold))
-            AreGestureSettingTweaked = DistanceThreshold > 0;
+        switch (e.PropertyName)
+        {
+            case nameof(SelectedGestureSetupPickIndex):
+                BindingDisplay.Description = $"{GestureSetupPickItems?[SelectedGestureSetupPickIndex]} Pinch";
+                break;
+            case nameof(DistanceThreshold):
+                AreGestureSettingTweaked = DistanceThreshold > 0;
+                break;
+        }
+
+        base.OnPropertyChanged(sender, e);
     }
 
     #endregion

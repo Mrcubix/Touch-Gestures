@@ -39,10 +39,7 @@ public partial class TapSetupViewModel : GestureSetupViewModel
     #region Constructors
 
     /// Design-time constructor
-    public TapSetupViewModel() : this(false)
-    {
-        IsOptionsSelectionStepActive = true;
-    }
+    public TapSetupViewModel() : this(false) { }
 
     public TapSetupViewModel(bool isEditing = false)
     {
@@ -50,6 +47,8 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
         CanGoBack = true;
         CanGoNext = true;
+
+        SubscribeToSettingsChanges();
 
         GestureSetupPickText = "Number of touches:";
         GestureSetupPickItems = new ObservableCollection<object>(Enumerable.Range(1, 10).Cast<object>());
@@ -70,12 +69,11 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         GestureSetupPickPreviews = new ObservableCollection<Bitmap?>(images);
 
         SelectedGestureSetupPickIndex = 0;
+        MultitouchSteps = [0];
 
         BindingDisplay = new BindingDisplayViewModel("1-Touch Tap", string.Empty, null);
         AreaDisplay = new AreaDisplayViewModel();
         _gesture = new SerializableTapGesture();
-
-        SubscribeToSettingsChanges();
 
         // A 80ms deadline is the minimum required for taps for work properly and about consistently
         Deadline = 80;
@@ -102,13 +100,6 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         SetupArea(fullArea, serializedTapGesture.Bounds);
     }
 
-    protected override void SubscribeToSettingsChanges()
-    {
-        PropertyChanged += OnSettingsTweaksChanged;
-
-        base.SubscribeToSettingsChanges();
-    }
-
     #endregion
 
     #region Properties
@@ -118,41 +109,6 @@ public partial class TapSetupViewModel : GestureSetupViewModel
     #endregion
 
     #region Methods
-
-    protected override void GoBack()
-    {
-        // We skip the option selection in the case a setup is single-touch. (Pen) 
-        if (IsBindingSelectionStepActive && IsMultiTouchSetup) // Step 2
-        {
-            IsBindingSelectionStepActive = false;
-            IsOptionsSelectionStepActive = true;
-        }
-        else if (IsSettingsTweakingStepActive) // Step 3
-        {
-            IsSettingsTweakingStepActive = false;
-            IsBindingSelectionStepActive = true;
-        }
-        else // Step 1
-            base.GoBack();
-    }
-
-    protected override void GoNext()
-    {
-        if (IsOptionsSelectionStepActive)
-        {
-            IsOptionsSelectionStepActive = false;
-            IsBindingSelectionStepActive = true;
-
-            var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
-
-            BindingDisplay.Description = $"{value}-Touch Tap";
-        }
-        else if (IsBindingSelectionStepActive)
-        {
-            IsBindingSelectionStepActive = false;
-            IsSettingsTweakingStepActive = true;
-        }
-    }
 
     /// <inheritdoc/>
     protected override void DoComplete()
@@ -183,12 +139,19 @@ public partial class TapSetupViewModel : GestureSetupViewModel
     #region Events Handlers
 
     /// <inheritdoc/>
-    protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    protected override void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Deadline))
+        switch (e.PropertyName)
         {
-            AreGestureSettingTweaked = Deadline > 0;
+            case nameof(SelectedGestureSetupPickIndex):
+                BindingDisplay.Description = $"{GestureSetupPickItems?[SelectedGestureSetupPickIndex]}-Touch Tap";
+                break;
+            case nameof(Deadline):
+                AreGestureSettingTweaked = Deadline > 0;
+                break;
         }
+
+        base.OnPropertyChanged(sender, e);
     }
 
     #endregion

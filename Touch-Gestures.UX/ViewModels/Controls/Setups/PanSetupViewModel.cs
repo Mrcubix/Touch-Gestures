@@ -39,6 +39,8 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
         CanGoBack = true;
         CanGoNext = true;
 
+        SubscribeToSettingsChanges();
+
         GestureSetupPickText = "Direction of the Pan:";
 
         GestureSetupPickItems = new ObservableCollection<object>(Enum.GetValues<SwipeDirection>().Cast<object>());
@@ -56,12 +58,13 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
 
         GestureSetupPickPreviews = new ObservableCollection<Bitmap?>(images);
 
+        RequiredTouchesCount = 1;
         SelectedGestureSetupPickIndex = 0;
+        // TODO : Add the step to be skipped once we know which steps to skip
+        MultitouchSteps = [1];
 
-        BindingDisplay = new BindingDisplayViewModel();
+        BindingDisplay = new BindingDisplayViewModel("Up 1-Touch Pan", string.Empty, null);
         _gesture = new SerializablePanGesture();
-
-        SubscribeToSettingsChanges();
 
         Deadline = 150;
         Threshold = 20;
@@ -78,6 +81,7 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
         Deadline = serializedPanGesture.Deadline;
 
         SelectedGestureSetupPickIndex = (int)serializedPanGesture.Direction;
+        RequiredTouchesCount = serializedPanGesture.RequiredTouchesCount;
 
         BindingDisplay.PluginProperty = serializedPanGesture.PluginProperty;
 
@@ -87,24 +91,6 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
     #endregion
 
     #region Methods
-
-    protected override void GoNext()
-    {
-        if (IsOptionsSelectionStepActive)
-        {
-            IsOptionsSelectionStepActive = false;
-            IsBindingSelectionStepActive = true;
-
-            var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
-
-            BindingDisplay.Description = $"{value} Pan";
-        }
-        else if (IsBindingSelectionStepActive)
-        {
-            IsBindingSelectionStepActive = false;
-            IsSettingsTweakingStepActive = true;
-        }
-    }
 
     /// <inheritdoc/>
     public override Gesture? BuildGesture()
@@ -117,6 +103,7 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
         _gesture.Deadline = Deadline;
         _gesture.Direction = option;
         _gesture.PluginProperty = BindingDisplay.PluginProperty;
+        _gesture.RequiredTouchesCount = RequiredTouchesCount;
 
         return _gesture;
     }
@@ -124,10 +111,19 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
     #region Events Handlers
 
     /// <inheritdoc/>
-    protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    protected override void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Deadline) || e.PropertyName == nameof(Threshold))
-            AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
+        switch (e.PropertyName)
+        {
+            case nameof(SelectedGestureSetupPickIndex) or nameof(RequiredTouchesCount):
+                BindingDisplay.Description = $"{GestureSetupPickItems?[SelectedGestureSetupPickIndex]} {RequiredTouchesCount}-Touch Pan";
+                break;
+            case nameof(Deadline) or nameof(Threshold):
+                AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
+                break;
+        }
+
+        base.OnPropertyChanged(sender, e);
     }
 
     #endregion
