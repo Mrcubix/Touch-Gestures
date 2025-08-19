@@ -24,6 +24,17 @@ fi
     output="../hashes.txt"
 
     (
+        cd ./plugin
+
+        # Compute all Plugin Hashes
+        for version in "${versions[@]}"
+        do
+            echo "Computing Touch-Gestures-$version.zip"
+            sha256sum $version/Touch-Gestures-$version.zip >> $output
+        done
+    )
+
+    (
         cd ./installer
 
         # Compute all Plugin Hashes
