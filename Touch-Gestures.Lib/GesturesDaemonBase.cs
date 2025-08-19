@@ -297,7 +297,7 @@ namespace TouchGestures.Lib
         {
             Log.Write("Gestures Daemon", "Checking if tablet is connected...");
 
-            return Task.FromResult(_tablets.Any());
+            return Task.FromResult(_tablets.Count > 0);
         }
 
         /// <inheritdoc />
