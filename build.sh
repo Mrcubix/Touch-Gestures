@@ -34,6 +34,8 @@ fi
         done
     )
 
+    echo "" >> hashes.txt
+
     (
         cd ./installer
 
