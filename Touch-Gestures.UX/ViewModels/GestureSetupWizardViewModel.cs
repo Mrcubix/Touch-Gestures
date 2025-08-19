@@ -14,10 +14,10 @@ namespace TouchGestures.UX.ViewModels;
 
 public partial class GestureSetupWizardViewModel : NavigableViewModel
 {
-    private Gesture _editedGesture = null!;
+    private readonly Rect _bounds;
+    private readonly bool _isMultiTouch;
 
-    private Rect _bounds;
-    private bool _isMultiTouch;
+    private Gesture _editedGesture = null!;
 
     #region Observable Fields
 
@@ -27,11 +27,6 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
     [ObservableProperty]
     private GestureSetupScreenViewModel _gestureSetupScreenViewModel = new();
-
-    // Step 2 : Change Gesture Trigger (Gesture Setup)
-
-
-    // Step 3 : Set Gesture Binding (Gesture Setup)
 
     #endregion
 

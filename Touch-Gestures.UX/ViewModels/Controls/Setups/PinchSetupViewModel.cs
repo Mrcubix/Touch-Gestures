@@ -33,8 +33,6 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
     [ObservableProperty]
     protected bool _isInner;
 
-    public override bool SingleTouchSupported { get; } = false;
-
     #endregion
 
     #region Constructors
@@ -52,7 +50,7 @@ public partial class PinchSetupViewModel : GestureSetupViewModel
         SubscribeToSettingsChanges();
 
         GestureSetupPickText = "Direction of pinch:";
-        GestureSetupPickItems = new ObservableCollection<object>(new string[] { "Inner", "Outer" });
+        GestureSetupPickItems = new ObservableCollection<object>(["Inner", "Outer"]);
 
         Bitmap?[] images = LoadBitmaps(
             "Assets/Setups/Pinch/pinch_inner.png",

@@ -330,10 +330,7 @@ public partial class MainViewModel : NavigableViewModel
         _client.Instance.DeviceReport += OnDeviceReport;
     }
 
-    private void OnDeviceReport(object? sender, DeviceReportEventArgs e)
-    {
-        
-    }
+    private void OnDeviceReport(object? sender, DeviceReportEventArgs e) { }
 
     //
     // UX Event Handlers

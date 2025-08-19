@@ -25,7 +25,11 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     #endregion
 
+    #region Fields
+
     private int _skippedSteps = 0;
+
+    #endregion
 
     #region Observable Fields
 
@@ -36,7 +40,7 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     private string _backButtonText = "Cancel";
 
     /// <summary>
-    ///   The index of the selected option on the first step.
+    ///   The index of the selected option, usually modified during the first step.
     /// </summary>
     [ObservableProperty]
     private int _selectedGestureSetupPickIndex = -1;
@@ -59,7 +63,7 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     [ObservableProperty]
     private bool _isEditing;
 
-    // Visual Parts
+    // Previews
 
     [ObservableProperty]
     private Bitmap? _selectedSetupPickPreview = _placeholderImage;
@@ -69,6 +73,8 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     [ObservableProperty]
     private ObservableCollection<Bitmap?>? _gestureSetupPickPreviews;
+
+    // Binding & Area Displays
 
     [ObservableProperty]
     private BindingDisplayViewModel _bindingDisplay;
@@ -115,16 +121,6 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     ///   Whether the user can go to the next step.
     /// </summary>
     public bool CanGoNext { get; init; }
-
-    /// <summary>
-    ///   Whether single touch gestures are supported for this setup.
-    /// </summary>
-    public virtual bool SingleTouchSupported { get; } = true;
-
-    /// <summary>
-    ///   Whether option selection is enabled for this setup when not multi-touch.
-    /// </summary>
-    public virtual bool SingleTouchOptionSelectionEnabled { get; } = true;
 
     /// <summary>
     ///   Whether this setup is for a multi-touch gesture or not.

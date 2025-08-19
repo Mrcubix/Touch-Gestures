@@ -303,7 +303,7 @@ namespace TouchGestures.Lib
         /// <inheritdoc />
         public virtual Task<IEnumerable<SharedTabletReference>> GetTablets()
         {
-            if (!_tablets.Any())
+            if (_tablets.Count == 0)
                 return Task.FromResult(Array.Empty<SharedTabletReference>().AsEnumerable());
 
             Log.Write("Gestures Daemon", "Getting tablets...");

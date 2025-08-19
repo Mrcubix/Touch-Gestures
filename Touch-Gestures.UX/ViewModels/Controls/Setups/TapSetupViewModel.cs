@@ -102,12 +102,6 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
     #endregion
 
-    #region Properties
-
-    public override bool SingleTouchOptionSelectionEnabled { get; } = false;
-
-    #endregion
-
     #region Methods
 
     /// <inheritdoc/>

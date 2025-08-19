@@ -447,11 +447,6 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
     #region Static Methods
 
-    private static bool GestureNameStartsWith(GestureBindingDisplayViewModel gestureTileViewModel, string text)
-    {
-        return gestureTileViewModel.Description?.StartsWith(text, StringComparison.CurrentCultureIgnoreCase) ?? false;
-    }
-
     private static bool GestureNameContains(GestureBindingDisplayViewModel gestureTileViewModel, string text)
     {
         return gestureTileViewModel.Description?.Contains(text, StringComparison.CurrentCultureIgnoreCase) ?? false;
