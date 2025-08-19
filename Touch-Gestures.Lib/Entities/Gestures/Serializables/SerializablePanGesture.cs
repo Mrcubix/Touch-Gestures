@@ -41,6 +41,7 @@ namespace TouchGestures.Lib.Serializables.Gestures
         public SerializablePanGesture(SwipeGesture gesture)
             : base(gesture.Threshold, gesture.Deadline, gesture.Direction, gesture.Bounds)
         {
+            RequiredTouchesCount = gesture.RequiredTouchesCount;
         }
 
         #endregion
@@ -53,7 +54,7 @@ namespace TouchGestures.Lib.Serializables.Gestures
         [JsonProperty]
         public SerializablePluginSettings? PluginProperty { get; set; }
 
-        public string Name => $"{Direction} Pan";
+        public string Name => $"{Direction} {RequiredTouchesCount}-Touch Pan";
 
         #endregion
     }

@@ -30,6 +30,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         public BindablePanGesture(SerializablePanGesture swipeGesture)
             : base(swipeGesture.Threshold, swipeGesture.Deadline, swipeGesture.Direction, swipeGesture.Bounds)
         {
+            RequiredTouchesCount = swipeGesture.RequiredTouchesCount;
         }
 
         public BindablePanGesture(Vector2 threshold) : base(threshold)
