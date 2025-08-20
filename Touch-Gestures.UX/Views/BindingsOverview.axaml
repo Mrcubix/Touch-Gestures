@@ -144,10 +144,8 @@
   <Grid RowDefinitions="*, Auto">
     <!-- Body -->
     <ContentControl Content="{Binding NextViewModel}" Grid.Row="0" />
-
-    <!-- Tablet Selector Footer -->
+    <!-- Footer -->
     <controls:TabletSelectorBar Name="VIEW_TabletSelector" Grid.Row="1"/>
-
   </Grid>
 
 </UserControl>
