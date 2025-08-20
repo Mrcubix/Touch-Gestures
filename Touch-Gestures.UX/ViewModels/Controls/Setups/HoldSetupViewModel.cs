@@ -17,8 +17,6 @@ namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
 using static AssetLoaderExtensions;
 
-#nullable enable
-
 [Name("Hold"), Icon("Assets/Setups/Hold/hold.png"),
  Description("A gesture completed by holding any specified number of fingers down for a specified amount of time"),
  MultiTouchOnly(false)]
@@ -49,7 +47,7 @@ public partial class HoldSetupViewModel : TapSetupViewModel
         BindingDisplay.PluginProperty = serializedHoldGesture.PluginProperty;
         BindingDisplay.Description = $"{serializedHoldGesture.RequiredTouchesCount}-Touch Hold";
 
-        SetupArea(fullArea, serializedHoldGesture.Bounds);
+        AreaDisplay = SetupArea(fullArea, serializedHoldGesture.Bounds);
     }
 
     public HoldSetupViewModel(bool isEditing = false)

@@ -8,8 +8,6 @@ using TouchGestures.UX.ViewModels.Controls.Nodes;
 
 namespace TouchGestures.UX.Controls.Containers;
 
-#nullable enable
-
 public partial class NewNodeCanvas : UserControl
 {
     private Rect _baseBounds = default;

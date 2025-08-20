@@ -60,7 +60,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel, ITouchesCountD
 
         BindingDisplay.PluginProperty = serializedSwipeGesture.PluginProperty;
 
-        SetupArea(fullArea, serializedSwipeGesture.Bounds);
+        AreaDisplay = SetupArea(fullArea, serializedSwipeGesture.Bounds);
     }
 
     public SwipeSetupViewModel(bool isEditing = false)

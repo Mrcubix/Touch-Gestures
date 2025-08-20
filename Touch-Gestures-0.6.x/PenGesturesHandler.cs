@@ -104,8 +104,6 @@ namespace TouchGestures
                     foreach (var gesture in NonConflictingGestures)
                         gesture.OnInput(_stubReport.Touches);
                 }
-
-                // TODO : Maybe prevent touch report from spreading if more than 2 touches are detected
             }
 
             return true;

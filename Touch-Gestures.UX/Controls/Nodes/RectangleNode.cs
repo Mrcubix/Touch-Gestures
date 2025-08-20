@@ -3,8 +3,6 @@ using Avalonia.Media;
 
 namespace TouchGestures.UX.Controls.Nodes;
 
-#nullable enable
-
 public class RectangleNode : DraggableNode
 {
     static RectangleNode()

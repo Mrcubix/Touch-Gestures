@@ -17,8 +17,6 @@ namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
 using static AssetLoaderExtensions;
 
-#nullable enable
-
 [Name("Tap"), Icon("Assets/Setups/Tap/tap_triple.png"),
  Description("A gesture completed by tapping with any specified number of fingers"),
  MultiTouchOnly(false)]
@@ -97,7 +95,7 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
         BindingDisplay.Description = $"{serializedTapGesture.RequiredTouchesCount}-Touch Tap";
 
-        SetupArea(fullArea, serializedTapGesture.Bounds);
+        AreaDisplay = SetupArea(fullArea, serializedTapGesture.Bounds);
     }
 
     #endregion

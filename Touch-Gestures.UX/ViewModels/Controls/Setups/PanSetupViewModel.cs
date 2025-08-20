@@ -60,7 +60,6 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
 
         RequiredTouchesCount = 1;
         SelectedGestureSetupPickIndex = 0;
-        // TODO : Add the step to be skipped once we know which steps to skip
         MultitouchSteps = [1];
 
         BindingDisplay = new BindingDisplayViewModel("Up 1-Touch Pan", string.Empty, null);
@@ -85,7 +84,7 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
 
         BindingDisplay.PluginProperty = serializedPanGesture.PluginProperty;
 
-        SetupArea(fullArea, serializedPanGesture.Bounds);
+        AreaDisplay = SetupArea(fullArea, serializedPanGesture.Bounds);
     }
 
     #endregion

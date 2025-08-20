@@ -16,8 +16,6 @@ namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
 using static AssetLoaderExtensions;
 
-#nullable enable
-
 [Name("Rotation"), Icon("Assets/Setups/Rotation/rotation_clockwise.png"),
  Description("A gesture completed by pinching & rotating 2 fingers, simillar to how you would rotate a map in various application"),
  MultiTouchOnly(true)]
@@ -82,7 +80,7 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
 
         BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
 
-        SetupArea(fullArea, serializedTapGesture.Bounds);
+        AreaDisplay = SetupArea(fullArea, serializedTapGesture.Bounds);
     }
 
     #endregion

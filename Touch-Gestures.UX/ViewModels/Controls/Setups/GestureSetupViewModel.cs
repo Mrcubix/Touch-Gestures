@@ -14,8 +14,6 @@ using TouchGestures.Lib.Entities.Gestures.Bases;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
-#nullable enable
-
 public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 {
     #region Constants
@@ -187,29 +185,6 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     /// <returns>The gesture that was built.</returns>
     public virtual Gesture? BuildGesture() => throw new NotImplementedException("BuildGesture has not been overriden.");
 
-    /// <summary>
-    ///   Convert an area received remotely into a <see cref="AreaDisplayViewModel"/> that we can update in real-time.
-    /// </summary>
-    public virtual void SetupArea(Rect fullArea, SharedArea? mapped = null)
-    {
-        if (mapped != null && mapped.IsZero() == false)
-        {
-            // Let's use the area that is provided
-            var nativeAreaPosition = mapped.Position;
-
-            var converted = new Area(Math.Round(nativeAreaPosition.X, 5), Math.Round(nativeAreaPosition.Y, 5),
-                                     Math.Round(mapped.Width, 5), Math.Round(mapped.Height, 5),
-                                     Math.Round(mapped.Rotation, 5), true);
-
-            AreaDisplay = new AreaDisplayViewModel(fullArea, converted);
-        }
-        else
-        {
-            // We default to the full area
-            AreaDisplay = new AreaDisplayViewModel(fullArea);
-        }
-    }
-
     #endregion
 
     #region Event Handlers
@@ -270,6 +245,33 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     public virtual void Dispose()
     {
         _placeholderImage.Dispose();
+    }
+
+    #endregion
+
+    #region Static Methods
+
+    /// <summary>
+    ///   Convert an area received remotely into a <see cref="AreaDisplayViewModel"/> that we can update in real-time.
+    /// </summary>
+    public static AreaDisplayViewModel SetupArea(Rect fullArea, SharedArea? mapped = null)
+    {
+        if (mapped != null && mapped.IsZero() == false)
+        {
+            // Let's use the area that is provided
+            var nativeAreaPosition = mapped.Position;
+
+            var converted = new Area(Math.Round(nativeAreaPosition.X, 5), Math.Round(nativeAreaPosition.Y, 5),
+                                     Math.Round(mapped.Width, 5), Math.Round(mapped.Height, 5),
+                                     Math.Round(mapped.Rotation, 5), true);
+
+            return new AreaDisplayViewModel(fullArea, converted);
+        }
+        else
+        {
+            // We default to the full area
+            return new AreaDisplayViewModel(fullArea);
+        }
     }
 
     #endregion

@@ -2,8 +2,6 @@ using TouchGestures.UX.ViewModels.Controls.Setups;
 
 namespace TouchGestures.UX.ViewModels.Controls.Tiles;
 
-#nullable enable
-
 public partial class NodeTileViewModel : GestureTileViewModel<GestureSetupViewModel>
 {
     public NodeTileViewModel()

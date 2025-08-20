@@ -9,8 +9,6 @@ using TouchGestures.UX.ViewModels.Controls.Nodes;
 
 namespace TouchGestures.UX.Controls.Nodes;
 
-#nullable enable
-
 /// <summary>
 ///   A Control that can be dragged around by the user.
 /// </summary>

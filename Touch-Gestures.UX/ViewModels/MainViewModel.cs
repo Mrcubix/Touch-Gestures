@@ -20,8 +20,6 @@ using TouchGestures.Lib.Input;
 
 namespace TouchGestures.UX.ViewModels;
 
-#nullable enable
-
 public partial class MainViewModel : NavigableViewModel
 {
     #region Fields
@@ -330,7 +328,8 @@ public partial class MainViewModel : NavigableViewModel
         _client.Instance.DeviceReport += OnDeviceReport;
     }
 
-    private void OnDeviceReport(object? sender, DeviceReportEventArgs e) { }
+    private void OnDeviceReport(object? sender, DeviceReportEventArgs e) 
+        => BindingsOverviewViewModel.DebuggerViewModel.OnDeviceReport(sender, e);
 
     //
     // UX Event Handlers

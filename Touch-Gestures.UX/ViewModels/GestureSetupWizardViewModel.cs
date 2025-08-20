@@ -10,8 +10,6 @@ using TouchGestures.UX.ViewModels.Controls.Tiles;
 
 namespace TouchGestures.UX.ViewModels;
 
-#nullable enable
-
 public partial class GestureSetupWizardViewModel : NavigableViewModel
 {
     private readonly Rect _bounds;
@@ -111,6 +109,8 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     #endregion
 
     #region Event Handlers
+
+    // TODO : REPLACE THIS GARBAGE WITH ASYNC TASK WAITING FOR GESTURE TO COMPLETE
 
     /// <summary>
     ///   Handle the event when a gesture is selected on the <see cref="GestureSelectionScreen"/>.

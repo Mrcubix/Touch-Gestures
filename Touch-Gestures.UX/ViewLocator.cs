@@ -5,7 +5,6 @@ using TouchGestures.UX.ViewModels;
 
 namespace TouchGestures.UX;
 
-#nullable enable
 #pragma warning disable IL2057
 
 public class ViewLocator : IDataTemplate

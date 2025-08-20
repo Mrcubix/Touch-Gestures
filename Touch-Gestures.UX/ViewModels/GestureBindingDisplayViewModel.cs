@@ -9,8 +9,6 @@ using TouchGestures.UX.Events;
 
 namespace TouchGestures.UX.ViewModels;
 
-#nullable enable
-
 public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel, IDisposable
 {
     #region Fields

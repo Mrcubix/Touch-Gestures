@@ -9,8 +9,6 @@ using static TouchGestures.UX.Extentions.ObservableCollectionExtensions;
 
 namespace TouchGestures.UX.ViewModels;
 
-#nullable enable
-
 public partial class GestureSelectionScreenViewModel : NavigableViewModel
 {
     #region Fields
