@@ -20,11 +20,11 @@ using Rect = Avalonia.Rect;
 
 namespace TouchGestures.UX.ViewModels;
 
-#nullable enable
-
 public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 {
     #region Fields
+
+    private string _searchText = "";
 
     private readonly MainViewModel _parentViewModel;
 
@@ -47,7 +47,8 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     [ObservableProperty]
     private bool _isEmpty = true;
 
-    private string _searchText = "";
+    [ObservableProperty]
+    private bool _setupNotInProgress = true;
 
     [ObservableProperty]
     private ObservableCollection<TabletGesturesOverview> _tablets = new();
@@ -98,6 +99,8 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     #endregion
 
     #region Properties
+
+    public GestureDebuggerViewModel DebuggerViewModel { get; } = new();
 
     public Interaction<TwoChoiceDialogViewModel, bool> ConfirmationDialog { get; } = new();
 
@@ -219,6 +222,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         setupWizard.SetupCompleted += OnSetupCompleted;
         setupWizard.BackRequested += OnBackRequestedAhead;
 
+        SetupNotInProgress = false;
         NextViewModel = setupWizard;
     }
 
@@ -264,6 +268,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         IsEmpty = !SelectedTablet.Gestures.Any();
 
         OnSearchTextChanged(SearchText);
+        DebuggerViewModel.SelectedTablet = SelectedTablet;
     }
 
     //
@@ -277,6 +282,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
         NextViewModel.BackRequested -= OnBackRequestedAhead;
         NextViewModel = this;
+        SetupNotInProgress = true;
     }
 
     #region Gesture Changes
@@ -295,6 +301,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
         NextViewModel.BackRequested -= OnBackRequestedAhead;
         NextViewModel = this;
+        SetupNotInProgress = false;
 
         // We build the binding display using content from the plugin property & returned data from the binding dialog
         var bindingDisplay = SetupNewBindingDisplay(e.Gesture!);
@@ -334,6 +341,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
         setupWizard.Edit(bindingDisplay);
 
+        SetupNotInProgress = false;
         NextViewModel = setupWizard;
     }
 
@@ -362,6 +370,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         setupWizard.BackRequested -= OnBackRequestedAhead;
 
         NextViewModel = this;
+        SetupNotInProgress = true;
 
         ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }

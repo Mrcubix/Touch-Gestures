@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:otdextcontrols="clr-namespace:OpenTabletDriver.External.Avalonia.Controls;assembly=OpenTabletDriver.External.Avalonia"
+             xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels"
+             xmlns:views="clr-namespace:TouchGestures.UX.Views"
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="314"
+             x:DataType="vm:GestureDebuggerViewModel"
+             x:Class="TouchGestures.UX.Views.GestureDebuggerView">
+
+  <Design.DataContext>
+    <vm:GestureDebuggerViewModel />
+  </Design.DataContext>
+
+  <otdextcontrols:AreaDisplay Name="Area" Grid.Row="0" DataContext="{Binding SelectedTabletArea}" Height="180"/>
+
+</UserControl>
