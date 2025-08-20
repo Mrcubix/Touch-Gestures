@@ -24,6 +24,88 @@
     <vm:BindingsOverviewViewModel />
   </Design.DataContext>
 
+  <UserControl.DataTemplates>
+    <DataTemplate DataType="vm:BindingsOverviewViewModel">
+      <Grid RowDefinitions="Auto, *" Grid.Row="0">
+
+        <!-- Header -->
+        <Grid Name="VIEW_Header" ColumnDefinitions="Auto, *, Auto" Grid.Row="0" Margin="0, 32">
+
+          <Button Name="VIEW_Adder" Command="{Binding StartSetupWizardCommand}" Grid.Column="0" ToolTip.Tip="Setup a new gesture">
+            <Grid>
+              <Image Source="/Assets/Icons/Add.png" Margin="1, 1, 0, 0" IsVisible="{Binding IsReady}" />
+              <Image Source="/Assets/Icons/Add_disabled.png" Margin="1, 1, 0, 0" IsVisible="{Binding !IsReady}" />
+            </Grid>
+          </Button>
+
+          <TextBox Name="VIEW_SearchBar" Watermark="Search..." Text="{Binding SearchText}" Grid.Column="1" />
+          <TextBlock Text="" Width="35" Height="36" Grid.Column="2"/>
+
+        </Grid>
+
+        <!-- Body : List of Gestures -->
+        <ScrollViewer Grid.Row="1" Margin="23, 0" Grid.IsSharedSizeScope="True">
+          <ItemsControl Name="VIEW_Body" ItemsSource="{Binding CurrentGestureBindings}" Padding="32, 0">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="vm:GestureBindingDisplayViewModel">
+                <containers:GestureBindingDisplay />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+
+        <Grid Name="VIEW_BodyNoElements" RowDefinitions="Auto, Auto, Auto" Grid.Row="1">
+
+          <!-- Body : No elements or no tablet connected -->
+          <TextBlock Text="You don't have any gestures set up yet." FontSize="16" FontWeight="Bold" Grid.Row="0">
+            <TextBlock.Margin>
+              <MultiBinding Converter="{StaticResource TogglableMarginConverter}">
+                <Binding Source="0, 0, 0, 16" />
+                <Binding Path="IsReady" />
+              </MultiBinding>
+            </TextBlock.Margin>
+          </TextBlock>
+
+          <TextBlock Text="The daemon is currently not running." Foreground="Red" Grid.Row="1" 
+                     IsVisible="{Binding !IsReady}" HorizontalAlignment="Center" Margin="0, 0, 0, 16"/>
+          <TextBlock Text="Please plug in a touch tablet." Foreground="Red" Grid.Row="1"  
+                     HorizontalAlignment="Center" Margin="0, 0, 0, 16">
+            <TextBlock.IsVisible>
+              <MultiBinding Converter="{x:Static BoolConverters.And}">
+                <Binding Path="IsReady" />
+                <Binding Path="IsTabletsEmpty" />
+              </MultiBinding>
+            </TextBlock.IsVisible>
+          </TextBlock>
+
+          <!-- Body : No gestures but tablet connected -->
+          <Button Command="{Binding StartSetupWizardCommand}" Content="Setup a new Gesture" Grid.Row="2" HorizontalAlignment="Center">
+            <Button.IsVisible>
+              <MultiBinding Converter="{x:Static BoolConverters.And}">
+                <Binding Path="IsReady" />
+                <Binding Path="!IsTabletsEmpty" />
+              </MultiBinding>
+            </Button.IsVisible>
+            <Button.IsEnabled>
+              <MultiBinding Converter="{x:Static BoolConverters.And}">
+                <Binding Source="IsReady" />
+                <Binding Source="!IsTabletsEmpty" />
+              </MultiBinding>
+            </Button.IsEnabled>
+          </Button>
+          
+        </Grid>
+
+      </Grid>
+    </DataTemplate>
+    <DataTemplate DataType="vm:GestureDebuggerViewModel">
+      <views:GestureDebuggerView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:GestureSetupWizardViewModel">
+      <gestures-views:GestureSetupWizard />
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
   <UserControl.Styles>
     <Style Selector="Button#VIEW_Adder">
       <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -64,90 +146,10 @@
   </UserControl.Styles>
 
   <Grid RowDefinitions="*, Auto">
-    <ContentControl Content="{Binding NextViewModel}" Grid.Row="0">
-      <ContentControl.DataTemplates>
-        <DataTemplate DataType="vm:BindingsOverviewViewModel">
-          <Grid RowDefinitions="Auto, *" Grid.Row="0">
+    <!-- Body -->
+    <ContentControl Content="{Binding NextViewModel}" Grid.Row="0" />
 
-            <!-- Header -->
-            <Grid Name="VIEW_Header" ColumnDefinitions="Auto, *, Auto" Grid.Row="0" Margin="0, 32">
-
-              <Button Name="VIEW_Adder" Command="{Binding StartSetupWizardCommand}" Grid.Column="0" ToolTip.Tip="Setup a new gesture">
-                <Grid>
-                  <Image Source="/Assets/Icons/Add.png" Margin="1, 1, 0, 0" IsVisible="{Binding IsReady}" />
-                  <Image Source="/Assets/Icons/Add_disabled.png" Margin="1, 1, 0, 0" IsVisible="{Binding !IsReady}" />
-                </Grid>
-              </Button>
-              <TextBox Name="VIEW_SearchBar" Watermark="Search..." Text="{Binding SearchText}" Grid.Column="1" />
-              <TextBlock Text="" Width="35" Height="36" Grid.Column="2"/>
-
-            </Grid>
-
-            <!-- Body : List of Gestures -->
-            <ScrollViewer Grid.Row="1" Margin="23, 0" Grid.IsSharedSizeScope="True">
-              <ItemsControl Name="VIEW_Body" ItemsSource="{Binding CurrentGestureBindings}" Padding="32, 0">
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate DataType="vm:GestureBindingDisplayViewModel">
-                    <containers:GestureBindingDisplay />
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-            </ScrollViewer>
-
-            <!-- Body : No elements or no tablet connected -->
-            <Grid Name="VIEW_BodyNoElements" RowDefinitions="Auto, Auto, Auto" Grid.Row="1">
-
-              <!-- Margin of 0, 0, 0, 16 if IsReady is true -->
-              <TextBlock Text="You don't have any gestures set up yet." FontSize="16" FontWeight="Bold" Grid.Row="0">
-                <TextBlock.Margin>
-                  <MultiBinding Converter="{StaticResource TogglableMarginConverter}">
-                    <Binding Source="0, 0, 0, 16" />
-                    <Binding Path="IsReady" />
-                  </MultiBinding>
-                </TextBlock.Margin>
-              </TextBlock>
-
-              <TextBlock Text="The daemon is currently not running." Foreground="Red" Grid.Row="1" 
-                        IsVisible="{Binding !IsReady}" HorizontalAlignment="Center" Margin="0, 0, 0, 16"/>
-              <TextBlock Text="Please plug in a touch tablet." Foreground="Red" Grid.Row="1"  
-                        HorizontalAlignment="Center" Margin="0, 0, 0, 16">
-                <TextBlock.IsVisible>
-                  <MultiBinding Converter="{x:Static BoolConverters.And}">
-                    <Binding Path="IsReady" />
-                    <Binding Path="IsTabletsEmpty" />
-                  </MultiBinding>
-                </TextBlock.IsVisible>
-              </TextBlock>
-
-              <!-- Body : No gestures but tablet connected -->
-              <Button Command="{Binding StartSetupWizardCommand}" Content="Setup a new Gesture" Grid.Row="2" HorizontalAlignment="Center">
-                <Button.IsVisible>
-                  <MultiBinding Converter="{x:Static BoolConverters.And}">
-                    <Binding Path="IsReady" />
-                    <Binding Path="!IsTabletsEmpty" />
-                  </MultiBinding>
-                </Button.IsVisible>
-                <Button.IsEnabled>
-                  <MultiBinding Converter="{x:Static BoolConverters.And}">
-                    <Binding Source="IsReady" />
-                    <Binding Source="!IsTabletsEmpty" />
-                  </MultiBinding>
-                </Button.IsEnabled>
-              </Button>
-
-            </Grid>
-          </Grid>
-        </DataTemplate>
-        <DataTemplate DataType="vm:GestureDebuggerViewModel">
-          <views:GestureDebuggerView />
-        </DataTemplate>
-        <DataTemplate DataType="vm:GestureSetupWizardViewModel">
-          <gestures-views:GestureSetupWizard />
-        </DataTemplate>
-      </ContentControl.DataTemplates>
-    </ContentControl>
-
-    <!-- Tablet Selector -->
+    <!-- Tablet Selector Footer -->
     <Border Name="VIEW_TabletSelector" Background="{StaticResource AccentColorBrush}" BorderThickness="0,2,0,0" Grid.Row="1" Padding="4">
       <Grid>
         <ComboBox ItemsSource="{Binding Tablets}" SelectedIndex="{Binding SelectedTabletIndex}" 
