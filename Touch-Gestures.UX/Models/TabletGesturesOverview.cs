@@ -63,9 +63,7 @@ public partial class TabletGesturesOverview : ObservableObject, IDisposable
     public void Dispose()
     {
         foreach (var gesture in Gestures)
-        {
             gesture.Dispose();
-        }
 
         Gestures.Clear();
     }

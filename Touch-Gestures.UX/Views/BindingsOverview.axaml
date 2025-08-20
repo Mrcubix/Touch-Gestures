@@ -6,19 +6,15 @@
              xmlns:views="clr-namespace:TouchGestures.UX.Views"
              xmlns:gestures-views="clr-namespace:TouchGestures.UX.Views.Gestures"
              xmlns:containers="clr-namespace:TouchGestures.UX.Controls.Containers"
+             xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
              xmlns:converters="clr-namespace:TouchGestures.UX.Converters"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
              x:DataType="vm:BindingsOverviewViewModel"
              x:Class="TouchGestures.UX.Views.BindingsOverview">
 
   <UserControl.Resources>
     <converters:TogglableMarginConverter x:Key="TogglableMarginConverter" />
   </UserControl.Resources>
-
-  <!-- Currently, applying a background from here cause a wall of a stacktrace to appear -->
-  <!--<Design.PreviewWith>
-    <views:BindingsOverview Background="{StaticResource BodyColorBrush}" />
-  </Design.PreviewWith>-->
 
   <Design.DataContext>
     <vm:BindingsOverviewViewModel />
@@ -93,7 +89,7 @@
               </MultiBinding>
             </Button.IsEnabled>
           </Button>
-          
+
         </Grid>
 
       </Grid>
@@ -140,7 +136,7 @@
       <Setter Property="VerticalAlignment" Value="Center" />
       <Setter Property="Margin" Value="0, 0, 0, 32" />
     </Style>
-    <Style Selector="Border#VIEW_TabletSelector">
+    <Style Selector="controls|TabletSelectorBar#VIEW_TabletSelector">
       <Setter Property="IsVisible" Value="{Binding SetupNotInProgress}" />
     </Style>
   </UserControl.Styles>
@@ -150,13 +146,7 @@
     <ContentControl Content="{Binding NextViewModel}" Grid.Row="0" />
 
     <!-- Tablet Selector Footer -->
-    <Border Name="VIEW_TabletSelector" Background="{StaticResource AccentColorBrush}" BorderThickness="0,2,0,0" Grid.Row="1" Padding="4">
-      <Grid>
-        <ComboBox ItemsSource="{Binding Tablets}" SelectedIndex="{Binding SelectedTabletIndex}" 
-                  IsEnabled="{Binding IsReady}" HorizontalAlignment="Left" />
-        <Button Command="{Binding RequestSave}" Content="Save" IsEnabled="{Binding IsReady}" HorizontalAlignment="Right" />
-      </Grid>
-    </Border>
+    <controls:TabletSelectorBar Name="VIEW_TabletSelector" Grid.Row="1"/>
 
   </Grid>
 
