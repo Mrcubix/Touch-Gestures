@@ -93,7 +93,7 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not string option)
             return;
 
-        OnSetupCompleted(this);
+        _completionSource.TrySetResult();
     }
 
     /// <inheritdoc/>

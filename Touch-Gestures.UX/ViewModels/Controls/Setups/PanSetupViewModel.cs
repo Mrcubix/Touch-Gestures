@@ -107,6 +107,8 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
         return _gesture;
     }
 
+    #endregion
+
     #region Events Handlers
 
     /// <inheritdoc/>
@@ -124,8 +126,6 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
 
         base.OnPropertyChanged(sender, e);
     }
-
-    #endregion
 
     #endregion
 }

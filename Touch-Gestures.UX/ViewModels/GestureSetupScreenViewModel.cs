@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using TouchGestures.UX.ViewModels.Controls.Setups;
 
 namespace TouchGestures.UX.ViewModels;
@@ -18,7 +19,7 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
     ///   Start the gesture setup process.
     /// </summary>
     /// <param name="gestureSetupViewModel">The view model to start the setup with.</param>
-    public void StartSetup(GestureSetupViewModel gestureSetupViewModel, bool isMultiTouch = false)
+    public async Task StartSetup(GestureSetupViewModel gestureSetupViewModel, bool isMultiTouch = false)
     {
         NextViewModel = gestureSetupViewModel;
         NextViewModel.BackRequested += OnBackRequestedAhead;
@@ -32,6 +33,8 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
 
         gestureSetupViewModel.CurrentStep = -1;
         gestureSetupViewModel.GoNextCommand.Execute(null);
+
+        await gestureSetupViewModel.Complete;
     }
 
     protected override void GoBack()
@@ -52,6 +55,8 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
 
     #region Event Handlers
 
+    private void OnBackRequestedAhead(object? sender, EventArgs e) => GoBack();
+
     private void OnCurrentGestureSetupChanging(object? sender, PropertyChangingEventArgs e)
     {
         if (NextViewModel != null)
@@ -63,8 +68,6 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
         if (NextViewModel != null)
             NextViewModel.BackRequested += OnBackRequestedAhead;
     }
-
-    private void OnBackRequestedAhead(object? sender, EventArgs e) => GoBack();
 
     // TODO : Remove this once a better way to update the current step Template is found
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)

@@ -1,10 +1,10 @@
 using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Serializables.Gestures;
-using TouchGestures.UX.Events;
 using TouchGestures.UX.ViewModels.Controls.Setups;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
 
@@ -12,16 +12,21 @@ namespace TouchGestures.UX.ViewModels;
 
 public partial class GestureSetupWizardViewModel : NavigableViewModel
 {
+    #region Fields
+
+    protected readonly TaskCompletionSource<GestureSetupViewModel> _selectionCompletionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly Rect _bounds;
     private readonly bool _isMultiTouch;
 
     private Gesture _editedGesture = null!;
 
+    #endregion
+
     #region Observable Fields
 
     // Step 1 : Select Gesture
     [ObservableProperty]
-    private GestureSelectionScreenViewModel _gestureSelectionScreenViewModel = new();
+    private GestureSelectionScreenViewModel _gestureSelectionScreenViewModel;
 
     [ObservableProperty]
     private GestureSetupScreenViewModel _gestureSetupScreenViewModel = new();
@@ -32,20 +37,18 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
     public GestureSetupWizardViewModel(bool isMultiTouch = true)
     {
-        NextViewModel = _gestureSelectionScreenViewModel;
-
+        _gestureSelectionScreenViewModel = new(isMultiTouch);
         _isMultiTouch = isMultiTouch;
+
+        NextViewModel = _gestureSelectionScreenViewModel;
 
         PropertyChanging += OnPropertyChanging;
         PropertyChanged += OnGestureChanged;
 
         GestureSelectionScreenViewModel.BackRequested += OnBackRequestedAhead;
         GestureSelectionScreenViewModel.GestureSelected += OnGestureSelected;
-        GestureSelectionScreenViewModel.HideMultiTouchTiles(isMultiTouch);
 
         CanGoBack = true;
-
-        //GestureSetupScreenViewModel.BackRequested += OnBackRequestedAhead;
     }
 
     public GestureSetupWizardViewModel(Rect bounds, bool isMultiTouch = true) : this(isMultiTouch)
@@ -55,11 +58,9 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
     #endregion
 
-    #region Events
+    #region Properties
 
-    public event EventHandler<GestureAddedEventArgs>? SetupCompleted;
-
-    public event EventHandler<GestureChangedEventArgs>? EditCompleted;
+    public Task<GestureSetupViewModel> SelectionComplete => _selectionCompletionSource.Task;
 
     #endregion
 
@@ -74,11 +75,22 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     }
 
     /// <summary>
+    ///   Start the gesture setup process.
+    /// </summary>
+    /// <param name="setupViewModel">The view model to start the setup with.</param>
+    public async Task<Gesture> Start(GestureSetupViewModel setupViewModel)
+    {
+        NextViewModel = GestureSetupScreenViewModel;
+        await GestureSetupScreenViewModel.StartSetup(setupViewModel, _isMultiTouch);
+        return setupViewModel.BuildGesture() ?? throw new InvalidOperationException("The gesture cannot be null.");
+    }
+
+    /// <summary>
     ///   Start editing a specified gesture.
     /// </summary>
     /// <param name="bindingDisplay">The binding display to edit.</param>
     /// <exception cref="ArgumentNullException"/>
-    public void Edit(GestureBindingDisplayViewModel bindingDisplay)
+    public async Task<Gesture> Edit(GestureBindingDisplayViewModel bindingDisplay)
     {
         if (bindingDisplay == null)
             throw new ArgumentNullException(nameof(bindingDisplay), "A binding display cannot be null.");
@@ -99,18 +111,12 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
         setupViewModel.BindingDisplay = new(bindingDisplay.Description!, bindingDisplay.Content!, bindingDisplay.PluginProperty);
 
-        // Subscribe to the events
-        setupViewModel.EditCompleted += OnEditCompleted;
-
-        GestureSetupScreenViewModel.StartSetup(setupViewModel, _isMultiTouch);
-        NextViewModel = GestureSetupScreenViewModel;
+        return await Start(setupViewModel);
     }
 
     #endregion
 
     #region Event Handlers
-
-    // TODO : REPLACE THIS GARBAGE WITH ASYNC TASK WAITING FOR GESTURE TO COMPLETE
 
     /// <summary>
     ///   Handle the event when a gesture is selected on the <see cref="GestureSelectionScreen"/>.
@@ -125,49 +131,12 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
         var associatedSetup = selectedTile.AssociatedSetup;
 
-        associatedSetup.SetupCompleted += OnSetupCompleted;
-        associatedSetup.EditCompleted += OnEditCompleted;
-
         associatedSetup.AreaDisplay = new(_bounds);
 
-        GestureSetupScreenViewModel.StartSetup(associatedSetup, _isMultiTouch);
-        NextViewModel = GestureSetupScreenViewModel;
+        _selectionCompletionSource.TrySetResult(associatedSetup);
     }
 
     private void OnBackRequestedAhead(object? sender, EventArgs e) => GoBack();
-
-    private void OnSetupCompleted(object? sender, EventArgs e)
-    {
-        if (sender is not GestureSetupViewModel setup)
-            throw new InvalidOperationException("The sender must be a GestureSetupViewModel.");
-
-        // Unsubscribe from the events
-        setup.SetupCompleted -= OnSetupCompleted;
-        setup.EditCompleted -= OnEditCompleted;
-
-        var args = new GestureAddedEventArgs(setup);
-
-        SetupCompleted?.Invoke(this, args);
-    }
-
-    private void OnEditCompleted(object? sender, EventArgs e)
-    {
-        if (sender is not GestureSetupViewModel setup)
-            throw new InvalidOperationException("The sender must be a GestureSetupViewModel.");
-
-        if (_editedGesture == null)
-            throw new InvalidOperationException("The edited gesture cannot be null.");
-
-        // Unsubscribe from the events
-        setup.SetupCompleted -= OnSetupCompleted;
-        setup.EditCompleted -= OnEditCompleted;
-
-        var gesture = setup.BuildGesture() ?? throw new InvalidOperationException("The gesture cannot be null.");
-
-        var args = new GestureChangedEventArgs(_editedGesture, gesture);
-
-        EditCompleted?.Invoke(this, args);
-    }
 
     private void OnPropertyChanging(object? sender, PropertyChangingEventArgs e)
     {

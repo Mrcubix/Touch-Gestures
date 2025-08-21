@@ -110,7 +110,7 @@ public partial class GestureDebuggerViewModel : NavigableViewModel
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        switch(e.PropertyName)
+        switch (e.PropertyName)
         {
             case nameof(SelectedTablet):
                 OnGestureChanged(sender, e);

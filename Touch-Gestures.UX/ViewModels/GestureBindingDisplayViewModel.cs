@@ -38,22 +38,6 @@ public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel, I
         Initialize();
     }
 
-    public GestureBindingDisplayViewModel(GestureAddedEventArgs e)
-    {
-        ArgumentNullException.ThrowIfNull(e.Gesture);
-
-        if (e.Gesture is not ISerializable)
-            throw new ArgumentException("Gesture must implement ISerializable");
-
-        Description = e.BindingDisplay.Description;
-        Content = e.BindingDisplay.Content;
-        PluginProperty = e.BindingDisplay.PluginProperty;
-
-        AssociatedGesture = e.Gesture;
-
-        Initialize();
-    }
-
     private void Initialize()
     {
         PropertyChanged += OnPropertyChanged;

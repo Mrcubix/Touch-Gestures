@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -20,6 +21,8 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     private static readonly Uri _placeholderImageUri = new("avares://Touch-Gestures.UX/Assets/Displays/placeholder.png");
     private static readonly Bitmap _placeholderImage = new(AssetLoader.Open(_placeholderImageUri));
+
+    protected readonly TaskCompletionSource _completionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     #endregion
 
@@ -105,15 +108,12 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
 
     #endregion
 
-    #region Events
-
-    public event EventHandler? SetupCompleted;
-
-    public event EventHandler? EditCompleted;
-
-    #endregion
-
     #region Properties
+
+    /// <summary>
+    ///   The task that is marked as completed when the gesture setup is complete.
+    /// </summary>
+    public Task Complete => _completionSource.Task;
 
     /// <summary>
     ///   Whether the user can go to the next step.
@@ -190,21 +190,6 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     #region Event Handlers
 
     /// <summary>
-    ///   Handle setup completion.
-    /// </summary>
-    /// <remarks>
-    ///   A different event will be invoked depending on whether the setup is being edited or not.
-    /// </remarks>
-    /// <param name="sender"></param>
-    protected virtual void OnSetupCompleted(GestureSetupViewModel sender)
-    {
-        if (!IsEditing)
-            SetupCompleted?.Invoke(sender, EventArgs.Empty);
-        else
-            EditCompleted?.Invoke(sender, EventArgs.Empty);
-    }
-
-    /// <summary>
     ///   Handle the event when the binding display property changes. <br/>
     ///   If not done, it will prevent the user from proceeding to the next step.
     /// </summary>
@@ -215,7 +200,7 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     }
 
     protected virtual void OnPropertyChanging(object? sender, PropertyChangingEventArgs e)
-    { 
+    {
         switch (e.PropertyName)
         {
             case nameof(BindingDisplay) when BindingDisplay != null:
@@ -229,7 +214,7 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
         switch (e.PropertyName)
         {
             case nameof(SelectedGestureSetupPickIndex):
-                SelectedSetupPickPreview = GestureSetupPickPreviews?.ElementAtOrDefault(SelectedGestureSetupPickIndex) 
+                SelectedSetupPickPreview = GestureSetupPickPreviews?.ElementAtOrDefault(SelectedGestureSetupPickIndex)
                 ?? _placeholderImage;
                 break;
             case nameof(BindingDisplay) when BindingDisplay != null:

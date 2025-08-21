@@ -110,7 +110,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel, ITouchesCountD
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not SwipeDirection option)
             return;
 
-        OnSetupCompleted(this);
+        _completionSource.TrySetResult();
     }
 
     /// <inheritdoc/>

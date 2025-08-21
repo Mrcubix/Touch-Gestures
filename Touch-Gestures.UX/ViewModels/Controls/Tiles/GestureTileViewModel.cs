@@ -45,9 +45,6 @@ namespace TouchGestures.UX.ViewModels.Controls.Tiles
         [ObservableProperty]
         private GestureSetupViewModel _associatedSetup = new();
 
-        [ObservableProperty]
-        private bool _isEnabled = true;
-
         public bool IsMultiTouchOnly { get; init; }
 
         public event EventHandler? Selected;

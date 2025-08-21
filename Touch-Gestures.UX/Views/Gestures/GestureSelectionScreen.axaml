@@ -59,8 +59,8 @@
           </ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <controls:GestureTile GestureName="{Binding GestureName}" Description="{Binding Description}" Icon="{Binding Icon}" 
-                                    Command="{Binding SelectGestureCommand}" IsEnabled="{Binding IsEnabled}" IsVisible="{Binding IsEnabled}" Margin="4" />
+              <controls:GestureTile GestureName="{Binding GestureName}" Description="{Binding Description}"
+                                    Icon="{Binding Icon}" Command="{Binding SelectGestureCommand}" Margin="4" />
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -60,6 +61,12 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
     [ObservableProperty]
     private ObservableCollection<GestureBindingDisplayViewModel> _currentGestureBindings = new();
+
+    #region Cancellation Tokens
+
+    private CancellationTokenSource _setupToken = new();
+
+    #endregion
 
     #endregion
 
@@ -205,10 +212,15 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     }
 
     /// <summary>
-    ///   Start the gesture setup process of a new gesture.
+    ///   Start the gesture setup process of a new gesture. <br/>
+    ///   The Gesture Selection Menu will be shown.
     /// </summary>
+    /// 
     [RelayCommand(CanExecute = nameof(IsReady))]
     public void StartSetupWizard()
+        => _ = Dispatcher.UIThread.InvokeAsync(StartSetupWizardAsync, DispatcherPriority.Input, _setupToken.Token);
+
+    private async Task StartSetupWizardAsync()
     {
         if (SelectedTablet == null)
             throw new InvalidOperationException("No tablet selected.");
@@ -219,11 +231,72 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y),
                                                           SelectedTablet.Profile.IsMultiTouch);
 
-        setupWizard.SetupCompleted += OnSetupCompleted;
+        SetupNotInProgress = false;
+        NextViewModel = setupWizard;
+
         setupWizard.BackRequested += OnBackRequestedAhead;
+
+        var setup = await setupWizard.SelectionComplete;
+        var gesture = await setupWizard.Start(setup);
+
+        setupWizard.BackRequested -= OnBackRequestedAhead;
+
+        // We build the binding display using content from the plugin property & returned data from the binding dialog
+        var bindingDisplay = SetupNewBindingDisplay(gesture);
+
+        // We add the binding to the list of bindings, we may need to insert it instead to avoid having to re-sort the list
+        SelectedTablet.Add(bindingDisplay);
+
+        NextViewModel = this;
+
+        IsEmpty = false;
+        SetupNotInProgress = true;
+
+        ProfileChanged?.Invoke(this, SelectedTablet.Profile);
+    }
+
+    /// <summary>
+    ///   Start the gesture editing process.
+    /// </summary>
+    /// <param name="bindingDisplay">The Display containing the gesture to edit.</param>
+    private async Task StartSetupWizardAsync(GestureBindingDisplayViewModel bindingDisplay)
+    {
+        if (SelectedTablet == null)
+            throw new InvalidOperationException("No tablet selected.");
+
+        var x = Math.Round(SelectedTablet.Reference.Size.X, 5);
+        var y = Math.Round(SelectedTablet.Reference.Size.Y, 5);
+
+        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y),
+                                                          SelectedTablet.Profile.IsMultiTouch);
 
         SetupNotInProgress = false;
         NextViewModel = setupWizard;
+
+        // We need to cancel the setup when the Cancel button is pressed
+        setupWizard.BackRequested += OnBackRequestedAhead;
+
+        var gesture = await setupWizard.Edit(bindingDisplay);
+
+        // Unsubscribe to avoid accidents
+        setupWizard.BackRequested -= OnBackRequestedAhead;
+
+        if (gesture is not ISerializable serializable)
+            throw new ArgumentException("The edited gesture must be serializable.");
+
+        if (gesture is not INamed named)
+            throw new ArgumentException("The edited gesture must be named.");
+
+        // The edit was completed, we need to update the binding display
+        bindingDisplay.AssociatedGesture = gesture;
+        bindingDisplay.PluginProperty = serializable.PluginProperty;
+        bindingDisplay.Description = named.Name;
+        bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(serializable.PluginProperty);
+
+        NextViewModel = this;
+        SetupNotInProgress = true;
+
+        ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }
 
     /// <summary>
@@ -271,10 +344,17 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         DebuggerViewModel.SelectedTablet = SelectedTablet;
     }
 
-    //
-    // Navigation
-    //
+    #region Navigation
 
+    private void OnEditRequested(object? sender, EventArgs e)
+    {
+        if (sender is not GestureBindingDisplayViewModel bindingDisplay)
+            throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
+
+        _ = Dispatcher.UIThread.InvokeAsync(() => StartSetupWizardAsync(bindingDisplay), DispatcherPriority.Input, _setupToken.Token);
+    }
+
+    // Setup Cancelled
     private void OnBackRequestedAhead(object? sender, EventArgs e)
     {
         if (NextViewModel is not GestureSetupWizardViewModel)
@@ -285,97 +365,10 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         SetupNotInProgress = true;
     }
 
+    #endregion
+
     #region Gesture Changes
 
-    //
-    // Additions
-    //
-
-    private void OnSetupCompleted(object? sender, GestureAddedEventArgs e)
-    {
-        if (NextViewModel is not GestureSetupWizardViewModel)
-            throw new InvalidOperationException();
-
-        if (SelectedTablet == null)
-            return;
-
-        NextViewModel.BackRequested -= OnBackRequestedAhead;
-        NextViewModel = this;
-        SetupNotInProgress = false;
-
-        // We build the binding display using content from the plugin property & returned data from the binding dialog
-        var bindingDisplay = SetupNewBindingDisplay(e.Gesture!);
-
-        //bindingDisplay.Description = e.BindingDisplay.Description;    
-        //bindingDisplay.PluginProperty = e.BindingDisplay.PluginProperty;       
-
-        // We add the binding to the list of bindings, we may need to insert it instead to avoid having to re-sort the list
-        SelectedTablet.Add(bindingDisplay);
-
-        IsEmpty = !SelectedTablet.Gestures.Any();
-
-        ProfileChanged?.Invoke(this, SelectedTablet.Profile);
-    }
-
-    //
-    // Changes
-    //
-
-    private void OnEditRequested(object? sender, EventArgs e)
-    {
-        if (sender is not GestureBindingDisplayViewModel bindingDisplay)
-            throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
-
-        if (SelectedTablet == null)
-            return;
-
-        var x = Math.Round(SelectedTablet.Reference.Size.X, 5);
-        var y = Math.Round(SelectedTablet.Reference.Size.Y, 5);
-
-        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y),
-                                                          SelectedTablet.Profile.IsMultiTouch);
-
-        // We need to check whenever the edit is completed & when te user goes back
-        setupWizard.EditCompleted += (s, args) => OnEditCompleted(s, bindingDisplay, args);
-        setupWizard.BackRequested += OnBackRequestedAhead;
-
-        setupWizard.Edit(bindingDisplay);
-
-        SetupNotInProgress = false;
-        NextViewModel = setupWizard;
-    }
-
-    private void OnEditCompleted(object? sender, GestureBindingDisplayViewModel bindingDisplay, GestureChangedEventArgs args)
-    {
-        if (NextViewModel is not GestureSetupWizardViewModel setupWizard)
-            throw new InvalidOperationException();
-
-        if (args.NewValue is not ISerializable serialized)
-            throw new ArgumentException("The edited gesture must be serializable.");
-
-        if (args.NewValue is not INamed named)
-            throw new ArgumentException("The edited gesture must be named.");
-
-        if (SelectedTablet == null)
-            return;
-
-        // The edit was completed, we need to update the binding display
-        bindingDisplay.AssociatedGesture = args.NewValue;
-        bindingDisplay.PluginProperty = serialized.PluginProperty;
-        bindingDisplay.Description = named.Name;
-        bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(serialized.PluginProperty);
-
-        // We need to unsubscribe from the events
-        setupWizard.EditCompleted -= (s, args) => OnEditCompleted(s, bindingDisplay, args);
-        setupWizard.BackRequested -= OnBackRequestedAhead;
-
-        NextViewModel = this;
-        SetupNotInProgress = true;
-
-        ProfileChanged?.Invoke(this, SelectedTablet.Profile);
-    }
-
-    // TODO: Ideally it should OnEditCompleted & OnGestureBindingsChanged should be merged into one event handler
     private void OnGestureBindingsChanged(object? sender, GestureBindingsChangedArgs e)
     {
         if (sender is not GestureBindingDisplayViewModel bindingDisplay)
@@ -385,32 +378,21 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
             return;
 
         // We need to update the content of the binding display
-        var args = new GestureChangedEventArgs(bindingDisplay.AssociatedGesture, bindingDisplay.AssociatedGesture);
         bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
 
         ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }
-
-    //
-    // Deletion
-    //
 
     private async Task OnDeletionRequested(object? sender, EventArgs e)
     {
         if (sender is not GestureBindingDisplayViewModel bindingDisplay)
             throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
 
-        IsEmpty = !SelectedTablet?.Gestures.Any() ?? true;
-
         if (SelectedTablet == null)
             return;
 
-        var res = await ConfirmationDialog.Handle(_confirmationDialogData).ToTask();
-
-        if (!res)
+        if (await ConfirmationDialog.Handle(_confirmationDialogData).ToTask() == false)
             return;
-
-        //SelectedTabletIndex = Math.Min(SelectedTabletIndex, Tablets.Count - 2);
 
         SelectedTablet.Remove(bindingDisplay);
 

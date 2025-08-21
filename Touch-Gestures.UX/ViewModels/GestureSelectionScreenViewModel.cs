@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -13,8 +12,9 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
 {
     #region Fields
 
+    private readonly bool _isMultiTouchDevice;
     private string _searchText = string.Empty;
-
+    
     /// <summary>
     ///   This array contains setup for different gestures, using different view models
     /// </summary>
@@ -27,8 +27,7 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
         new PinchTileViewModel(),
         new RotateTileViewModel(),
 
-        /*new RotateTileViewModel(),
-          new NodeTileViewModel()*/
+        //new NodeTileViewModel()
     ];
 
     [ObservableProperty]
@@ -38,9 +37,10 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
 
     #region Constructors
 
-    public GestureSelectionScreenViewModel()
+    public GestureSelectionScreenViewModel(bool isMultiTouch = true)
     {
-        CurrentGestureTiles.AddRange(_gestureTileViewModels);
+        _isMultiTouchDevice = isMultiTouch;
+        AddAllTiles();
 
         foreach (var gestureTileViewModel in CurrentGestureTiles)
             gestureTileViewModel.Selected += OnGestureSelected;
@@ -76,10 +76,12 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
 
     #region Methods
 
-    public void HideMultiTouchTiles(bool isMultiTouch = true)
+    private void AddAllTiles()
     {
-        foreach (var gestureTileViewModel in CurrentGestureTiles)
-            gestureTileViewModel.IsEnabled = isMultiTouch || gestureTileViewModel.IsMultiTouchOnly == false;
+        if (_isMultiTouchDevice)
+            CurrentGestureTiles.AddRange(_gestureTileViewModels);
+        else
+            CurrentGestureTiles.AddRange(_gestureTileViewModels.Where(x => IsMultiTouchGesture(false, x)));
     }
 
     #endregion
@@ -95,9 +97,9 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
         CurrentGestureTiles.Clear();
 
         if (string.IsNullOrWhiteSpace(text))
-            CurrentGestureTiles.AddRange(_gestureTileViewModels);
+            AddAllTiles();
         else
-            CurrentGestureTiles.AddRange(_gestureTileViewModels.Where(x => GestureNameStartsWith(x, text)));
+            CurrentGestureTiles.AddRange(_gestureTileViewModels.Where(x => GestureNameStartsWith(x, text) && IsMultiTouchGesture(_isMultiTouchDevice, x)));
     }
 
     private void OnGestureSelected(object? sender, EventArgs e)
@@ -112,7 +114,12 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
 
     private static bool GestureNameStartsWith(GestureTileViewModel gestureTileViewModel, string text)
     {
-        return gestureTileViewModel.GestureName.ToLower().StartsWith(text.ToLower());
+        return gestureTileViewModel.GestureName.StartsWith(text.ToLower(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsMultiTouchGesture(bool isMultiTouchDevice, GestureTileViewModel gestureTileViewModel)
+    {
+        return isMultiTouchDevice || gestureTileViewModel.IsMultiTouchOnly == false;
     }
 
     #endregion
