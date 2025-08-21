@@ -182,6 +182,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
             Tablets.Add(overview);
         }
 
+        // If a tablet was selected, re-select it if it still exists
         if (SelectedTablet != null)
             SelectedTablet = Tablets.FirstOrDefault(x => x.Name == SelectedTablet.Name);
 
@@ -211,6 +212,19 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         return bindingDisplay;
     }
 
+    #region Commands
+
+    /// <summary>
+    ///   Go back to the previous view model.
+    /// </summary>
+    protected override void GoBack() => throw new InvalidOperationException();
+
+    /// <summary>
+    ///   Request the save of the current bindings.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(IsReady))]
+    public void RequestSave() => SaveRequested?.Invoke(this, EventArgs.Empty);
+    
     /// <summary>
     ///   Start the gesture setup process of a new gesture. <br/>
     ///   The Gesture Selection Menu will be shown.
@@ -220,19 +234,16 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     public void StartSetupWizard()
         => _ = Dispatcher.UIThread.InvokeAsync(StartSetupWizardAsync, DispatcherPriority.Input, _setupToken.Token);
 
+    #endregion
+
+    #region Setup Methods
+
     private async Task StartSetupWizardAsync()
     {
         if (SelectedTablet == null)
             throw new InvalidOperationException("No tablet selected.");
 
-        var x = Math.Round(SelectedTablet.Reference.Size.X, 5);
-        var y = Math.Round(SelectedTablet.Reference.Size.Y, 5);
-
-        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y),
-                                                          SelectedTablet.Profile.IsMultiTouch);
-
-        SetupNotInProgress = false;
-        NextViewModel = setupWizard;
+        var setupWizard = PrepareSetupWizard();
 
         setupWizard.BackRequested += OnBackRequestedAhead;
 
@@ -264,14 +275,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         if (SelectedTablet == null)
             throw new InvalidOperationException("No tablet selected.");
 
-        var x = Math.Round(SelectedTablet.Reference.Size.X, 5);
-        var y = Math.Round(SelectedTablet.Reference.Size.Y, 5);
-
-        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y),
-                                                          SelectedTablet.Profile.IsMultiTouch);
-
-        SetupNotInProgress = false;
-        NextViewModel = setupWizard;
+        var setupWizard = PrepareSetupWizard();
 
         // We need to cancel the setup when the Cancel button is pressed
         setupWizard.BackRequested += OnBackRequestedAhead;
@@ -299,13 +303,23 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }
 
-    /// <summary>
-    ///   Request the save of the current bindings.
-    /// </summary>
-    [RelayCommand(CanExecute = nameof(IsReady))]
-    public void RequestSave() => SaveRequested?.Invoke(this, EventArgs.Empty);
+    private GestureSetupWizardViewModel PrepareSetupWizard()
+    {
+        if (SelectedTablet == null)
+            throw new InvalidOperationException("No tablet selected.");
 
-    protected override void GoBack() => throw new InvalidOperationException();
+        var x = Math.Round(SelectedTablet.Reference.Size.X, 5);
+        var y = Math.Round(SelectedTablet.Reference.Size.Y, 5);
+
+        var setupWizard = new GestureSetupWizardViewModel(new Rect(0, 0, x, y),
+                                                          SelectedTablet.Profile.IsMultiTouch);
+
+        SetupNotInProgress = false;
+        NextViewModel = setupWizard;
+        return setupWizard;
+    }
+
+    #endregion
 
     #endregion
 
