@@ -15,7 +15,7 @@
 
 ### Bindings Rework
 
-- [ ] Wrap different versions of Binding under a single generic interface, with a `Press()` and `Release()` method.
+- [x] Wrap different versions of Binding under a single generic interface, with a `Press()` and `Release()` method.
 
 ### Debugger
 
@@ -23,7 +23,7 @@
 
 ### Support for multiple Plugin Properties
 
-- [ ] Implement having multiple settings per binding as done in OpenTabletDriver 
+- [x] Implement having multiple settings per binding as done in OpenTabletDriver 
     (will make it easier to convert settings to serializable form, ~~because i won't have to check which property is the validated property~~ will still have to do so when serializing)
     ~~(This will be harder to handle on the UX side as i now need to create a viewmodel & control for each setting, depending on the plugin)~~
     Handled in OpenTabletDriver.External/property-serialization
