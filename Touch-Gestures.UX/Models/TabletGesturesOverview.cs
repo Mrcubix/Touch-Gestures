@@ -16,7 +16,7 @@ public partial class TabletGesturesOverview : ObservableObject, IDisposable
     private SharedTabletReference _reference = null!;
 
     [ObservableProperty]
-    private SerializableProfile _profile = null!;
+    private GestureProfile _profile = null!;
 
     [ObservableProperty]
     private ObservableCollection<GestureBindingDisplayViewModel> _gestures = new();
@@ -30,7 +30,7 @@ public partial class TabletGesturesOverview : ObservableObject, IDisposable
         Name = name;
     }
 
-    public TabletGesturesOverview(SerializableProfile profile)
+    public TabletGesturesOverview(GestureProfile profile)
     {
         Name = profile.Name;
     }
@@ -41,7 +41,7 @@ public partial class TabletGesturesOverview : ObservableObject, IDisposable
         Reference = tablet;
     }
 
-    public TabletGesturesOverview(SharedTabletReference tablet, SerializableProfile profile)
+    public TabletGesturesOverview(SharedTabletReference tablet, GestureProfile profile)
     {
         Name = profile.Name;
         Reference = tablet;

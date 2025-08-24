@@ -46,6 +46,8 @@ namespace TouchGestures.Lib.Entities.Gestures
         [JsonProperty]
         public override GestureType Type => GestureType.Pan;
 
+        public override string DisplayName => $"{RequiredTouchesCount}-Touch {Direction} Pan";
+
         #endregion
 
         #region Methods
@@ -54,6 +56,12 @@ namespace TouchGestures.Lib.Entities.Gestures
         {
             HasActivated = true;
             StartPosition = _lastPosition;
+
+            if (Binding != null)
+            {
+                Binding.Press(null!);
+                Binding.Release(null!);
+            }
         }
 
         #endregion

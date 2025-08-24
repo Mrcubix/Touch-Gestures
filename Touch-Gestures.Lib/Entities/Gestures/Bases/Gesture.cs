@@ -1,7 +1,10 @@
 using System;
 using System.Numerics;
 using Newtonsoft.Json;
+using OpenTabletDriver.Desktop.Reflection;
+using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin.Tablet.Touch;
+using TouchGestures.Lib.Bindings;
 using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Input;
 using TouchGestures.Lib.Interfaces;
@@ -56,10 +59,6 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
         /// <inheritdoc />
         public abstract bool HasCompleted { get; protected set; }
 
-        /// <inheritdoc />
-        [JsonProperty]
-        public abstract GestureType Type { get; }
-
         /// <summary>
         ///    Check whether a situation needs to start in a specific area.
         /// </summary>
@@ -89,6 +88,26 @@ namespace TouchGestures.Lib.Entities.Gestures.Bases
                     Bounds = oldBounds;
             }
         }
+
+        /// <inheritdoc />
+        [JsonProperty]
+        public abstract GestureType Type { get; }
+
+        /// <summary>
+        ///    The serializable store containing plugin settings for the UX to use.
+        /// </summary>
+        [JsonProperty]
+        public SerializablePluginSettingsStore? Store { get; set; }
+
+        /// <summary>
+        ///   The binding associated with the gesture.
+        /// </summary>
+        public Binding? Binding { get; set; }
+
+        /// <summary>
+        ///   The display text of the gesture.
+        /// </summary>
+        public abstract string DisplayName { get; }
 
         #endregion
 

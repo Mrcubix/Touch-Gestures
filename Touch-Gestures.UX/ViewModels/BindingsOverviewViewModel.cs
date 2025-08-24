@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OpenTabletDriver.External.Common.Serializables;
 using ReactiveUI;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Entities.Tablet;
-using TouchGestures.Lib.Interfaces;
 using TouchGestures.UX.Events;
 using TouchGestures.UX.Extentions;
 using TouchGestures.UX.Models;
@@ -37,7 +37,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         NegativeChoice = "No"
     };
 
-    private SerializableSettings _settings = new();
+    private Settings _settings = new();
 
     [ObservableProperty]
     private bool _isReady = false;
@@ -50,6 +50,9 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
     [ObservableProperty]
     private bool _setupNotInProgress = true;
+
+    [ObservableProperty]
+    private ObservableCollection<SerializablePlugin> _plugins = new();
 
     [ObservableProperty]
     private ObservableCollection<TabletGesturesOverview> _tablets = new();
@@ -92,7 +95,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         NextViewModel = this;
     }
 
-    public BindingsOverviewViewModel(MainViewModel mainViewModel, SerializableSettings settings) : this(mainViewModel)
+    public BindingsOverviewViewModel(MainViewModel mainViewModel, Settings settings) : this(mainViewModel)
         => SetSettings(settings);
 
     #endregion
@@ -101,7 +104,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
     private event EventHandler? TabletChanged;
     public event EventHandler<EventArgs>? SaveRequested;
-    public event EventHandler<SerializableProfile>? ProfileChanged;
+    public event EventHandler<GestureProfile>? ProfileChanged;
 
     #endregion
 
@@ -144,7 +147,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     ///   Set the settings of the view model.
     /// </summary>
     /// <param name="settings">The settings to set.</param>
-    public void SetSettings(SerializableSettings settings)
+    public void SetSettings(Settings settings)
     {
         // Dispose of previous bindings beforehand
         DisposeCurrentContext();
@@ -202,7 +205,8 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     {
         var bindingDisplay = new GestureBindingDisplayViewModel(gesture);
 
-        bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
+        bindingDisplay.Content = bindingDisplay.Store?.GetHumanReadableString();
+        bindingDisplay.Description = gesture.DisplayName;
 
         bindingDisplay.IsReady = _parentViewModel.IsReady;
         bindingDisplay.EditRequested += OnEditRequested;
@@ -224,7 +228,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
     /// </summary>
     [RelayCommand(CanExecute = nameof(IsReady))]
     public void RequestSave() => SaveRequested?.Invoke(this, EventArgs.Empty);
-    
+
     /// <summary>
     ///   Start the gesture setup process of a new gesture. <br/>
     ///   The Gesture Selection Menu will be shown.
@@ -252,16 +256,19 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
         setupWizard.BackRequested -= OnBackRequestedAhead;
 
+        NextViewModel = this;
+        SetupNotInProgress = true;
+
+        if (gesture == null)
+            return;
+
         // We build the binding display using content from the plugin property & returned data from the binding dialog
         var bindingDisplay = SetupNewBindingDisplay(gesture);
 
         // We add the binding to the list of bindings, we may need to insert it instead to avoid having to re-sort the list
         SelectedTablet.Add(bindingDisplay);
 
-        NextViewModel = this;
-
         IsEmpty = false;
-        SetupNotInProgress = true;
 
         ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }
@@ -285,21 +292,16 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         // Unsubscribe to avoid accidents
         setupWizard.BackRequested -= OnBackRequestedAhead;
 
-        if (gesture is not ISerializable serializable)
-            throw new ArgumentException("The edited gesture must be serializable.");
-
-        if (gesture is not INamed named)
-            throw new ArgumentException("The edited gesture must be named.");
-
-        // The edit was completed, we need to update the binding display
-        bindingDisplay.AssociatedGesture = gesture;
-        bindingDisplay.PluginProperty = serializable.PluginProperty;
-        bindingDisplay.Description = named.Name;
-        bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(serializable.PluginProperty);
-
         NextViewModel = this;
         SetupNotInProgress = true;
 
+        if (gesture == null)
+            return;
+
+        // The edit was completed, we need to update the binding display
+        bindingDisplay.Store = gesture.Store;
+        bindingDisplay.Content = gesture.Store?.GetHumanReadableString();
+        
         ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }
 
@@ -385,14 +387,8 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
 
     private void OnGestureBindingsChanged(object? sender, GestureBindingsChangedArgs e)
     {
-        if (sender is not GestureBindingDisplayViewModel bindingDisplay)
-            throw new ArgumentException("Sender must be a GestureBindingDisplayViewModel");
-
         if (SelectedTablet == null)
             return;
-
-        // We need to update the content of the binding display
-        bindingDisplay.Content = _parentViewModel.GetFriendlyContentFromProperty(bindingDisplay.PluginProperty);
 
         ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }

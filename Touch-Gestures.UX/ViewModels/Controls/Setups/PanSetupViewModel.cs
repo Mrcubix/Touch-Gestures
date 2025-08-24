@@ -6,13 +6,13 @@ using Avalonia.Media.Imaging;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
-using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Attributes;
 using TouchGestures.UX.Extentions;
 using Rect = Avalonia.Rect;
 using DescriptionAttribute = TouchGestures.UX.Attributes.DescriptionAttribute;
 using System.Numerics;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
+using TouchGestures.Lib.Entities.Gestures;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
@@ -23,7 +23,7 @@ using static AssetLoaderExtensions;
  MultiTouchOnly(false)]
 public partial class PanSetupViewModel : SwipeSetupViewModel
 {
-    private readonly SerializablePanGesture _gesture;
+    private readonly PanGesture _gesture;
 
     #region Constructors
 
@@ -62,8 +62,8 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
         SelectedGestureSetupPickIndex = 0;
         MultitouchSteps = [1];
 
-        BindingDisplay = new BindingDisplayViewModel("Up 1-Touch Pan", string.Empty, null);
-        _gesture = new SerializablePanGesture();
+        BindingDisplay = new BindingDisplayViewModel("Up 1-Touch Pan", string.Empty, null!);
+        _gesture = new PanGesture();
 
         Deadline = 150;
         Threshold = 20;
@@ -71,7 +71,7 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
 
     public PanSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
-        if (gesture is not SerializablePanGesture serializedPanGesture)
+        if (gesture is not PanGesture serializedPanGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
 
         _gesture = serializedPanGesture;
@@ -82,7 +82,9 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
         SelectedGestureSetupPickIndex = (int)serializedPanGesture.Direction;
         RequiredTouchesCount = serializedPanGesture.RequiredTouchesCount;
 
-        BindingDisplay.PluginProperty = serializedPanGesture.PluginProperty;
+        BindingDisplay.Store = serializedPanGesture.Store;
+        BindingDisplay.Content = serializedPanGesture.Store?.GetHumanReadableString();
+        BindingDisplay.Description = gesture.DisplayName;
 
         AreaDisplay = SetupArea(fullArea, serializedPanGesture.Bounds);
     }
@@ -101,7 +103,7 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
         _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
         _gesture.Deadline = Deadline;
         _gesture.Direction = option;
-        _gesture.PluginProperty = BindingDisplay.PluginProperty;
+        _gesture.Store = BindingDisplay.Store;
         _gesture.RequiredTouchesCount = RequiredTouchesCount;
 
         return _gesture;

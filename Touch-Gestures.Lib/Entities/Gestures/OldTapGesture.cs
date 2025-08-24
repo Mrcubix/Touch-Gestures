@@ -145,9 +145,6 @@ namespace TouchGestures.Lib.Entities.Gestures
             }
         }
 
-        [JsonProperty]
-        public override GestureType Type => GestureType.Tap;
-
         /// <inheritdoc/>
         [JsonProperty]
         public override Vector2 Threshold { get; set; }
@@ -183,6 +180,11 @@ namespace TouchGestures.Lib.Entities.Gestures
                 //_currentTouches = new List<int>(value);
             }
         }
+
+        [JsonProperty]
+        public override GestureType Type => GestureType.Tap;
+
+        public override string DisplayName => $"{RequiredTouchesCount}-Touch Tap (Old)";
 
         #endregion
 

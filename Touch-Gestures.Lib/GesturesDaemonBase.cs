@@ -7,11 +7,10 @@ using System.Numerics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using OpenTabletDriver.External.Common.RPC;
 using OpenTabletDriver.External.Common.Serializables;
 using OpenTabletDriver.Plugin;
-using TouchGestures.Lib.Converters;
+using TouchGestures.Lib.Converters.Json;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
 using TouchGestures.Lib.Input;
@@ -29,18 +28,6 @@ namespace TouchGestures.Lib
         public const string PLUGIN_NAME = "Touch Gestures Daemon";
 
         protected readonly string _settingsPath = Path.Combine(OpenTabletDriver.Desktop.AppInfo.Current.AppDataDirectory, "Touch-Gestures.json");
-
-        protected readonly JsonSerializerSettings _serializerSettings = new()
-        {
-            Formatting = Formatting.Indented,
-            NullValueHandling = NullValueHandling.Ignore,
-            Converters = new List<JsonConverter>
-            {
-                new PluginSettingStoreConverter(),
-                new PluginSettingConverter(),
-                new SharedAreaConverter()
-            }
-        };
 
         #endregion
 
@@ -69,7 +56,7 @@ namespace TouchGestures.Lib
                 return false;
             }
 
-            _ = Task.Run(() => _rpcServer.MainAsync());
+            _ = Task.Run(_rpcServer.MainAsync);
 
             Log.Write(PLUGIN_NAME, "Initialized");
 
@@ -78,6 +65,14 @@ namespace TouchGestures.Lib
 
         protected virtual void Initialize(bool doLoadSettings = true)
         {
+            // identify plugins
+            IdentifyPlugins();
+            SerializePlugins();
+
+            Settings.Converters.Add(
+                new SerializablePluginSettingsStoreConverter(Plugins)
+            );
+
             if (doLoadSettings)
                 LoadSettings(_settingsPath);
 
@@ -86,12 +81,6 @@ namespace TouchGestures.Lib
                 Log.Write("Gestures Daemon", "Failed to load settings, aborting initialization.");
                 return;
             }
-
-            // identify plugins
-            IdentifyPlugins();
-
-            // construct bindings
-            //TouchGestureSettings?.ConstructBindings();
 
             SettingsChanged?.Invoke(this, TouchGestureSettings);
 
@@ -122,6 +111,9 @@ namespace TouchGestures.Lib
             }
         }
 
+        protected virtual void SerializePlugins()
+            => throw new NotImplementedException();
+
         #endregion
 
         #region Events
@@ -141,6 +133,8 @@ namespace TouchGestures.Lib
 
         #region Properties
 
+        public List<SerializablePlugin> Plugins { get; private set; } = new();
+
         public Dictionary<int, TypeInfo> IdentifierToPluginConversion = new();
 
         public Settings? TouchGestureSettings { get; protected set; } = Settings.Default;
@@ -158,14 +152,15 @@ namespace TouchGestures.Lib
         /// </summary>
         /// <param name="name">The name of the tablet.</param>
         /// <returns>The settings for the tablet.</returns>
-        public virtual BindableProfile GetSettingsForTablet(string name)
+        public virtual GestureProfile GetSettingsForTablet<T>(string name)
+            where T : GestureProfile, new()
         {
             var tablet = _tablets.Find(t => t.Name == name);
 
             if (tablet == null)
                 return null!;
 
-            return TouchGestureSettings?.Profiles.Find(p => p.Name == tablet.Name) ?? CreateProfileForTablet(tablet);
+            return TouchGestureSettings?.Profiles.Find(p => p.Name == tablet.Name) ?? CreateProfileForTablet<T>(tablet);
         }
 
         public void AddTablet(SharedTabletReference tablet)
@@ -199,12 +194,13 @@ namespace TouchGestures.Lib
                 RemoveTablet(tablet);
         }
 
-        private BindableProfile CreateProfileForTablet(SharedTabletReference tablet)
+        private GestureProfile CreateProfileForTablet<T>(SharedTabletReference tablet)
+            where T : GestureProfile, new()
         {
             if (TouchGestureSettings == null)
                 return null!;
 
-            var profile = new BindableProfile
+            var profile = new T
             {
                 Name = tablet.Name
             };
@@ -239,15 +235,8 @@ namespace TouchGestures.Lib
         {
             Log.Write("Gestures Daemon", "Saving settings...");
 
-            try
-            {
-                File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(TouchGestureSettings, _serializerSettings));
-                return true;
-            }
-            catch (Exception e)
-            {
-                Log.Write("Gestures Daemon", $"Failed to save settings: {e.Message}", LogLevel.Error);
-            }
+            if (TouchGestureSettings != null)
+                return Settings.TrySaveTo(_settingsPath, TouchGestureSettings);
 
             return false;
         }
@@ -290,7 +279,11 @@ namespace TouchGestures.Lib
         /// </remarks>
         /// <returns>The available plugins.</returns>
         public virtual Task<List<SerializablePlugin>> GetPlugins()
-            => throw new NotImplementedException();
+        {
+            Log.Write("Gestures Daemon", "Getting plugins...");
+
+            return Task.FromResult(Plugins);
+        }
 
         /// <inheritdoc />
         public virtual Task<bool> IsTabletConnected()
@@ -320,37 +313,35 @@ namespace TouchGestures.Lib
             => throw new NotImplementedException();
 
         /// <inheritdoc />
-        public virtual Task<SerializableSettings> GetSettings()
+        public virtual Task<Settings> GetSettings()
         {
             Log.Write("Gestures Daemon", "Converting Settings into a serializable form...");
 
             if (TouchGestureSettings == null)
-                return Task.FromResult<SerializableSettings>(null!);
+                Log.Write("Gestures Daemon", "Settings are null", LogLevel.Error);
 
-            var serializedSettings = Settings.ToSerializable(TouchGestureSettings, IdentifierToPluginConversion);
-
-            return Task.FromResult(serializedSettings);
+            return Task.FromResult(TouchGestureSettings!);
         }
 
         /// <inheritdoc />
         public virtual Task<bool> SaveSettings() => Task.FromResult(SaveSettingsCore());
 
         /// <inheritdoc />
-        public virtual Task<bool> UpdateSettings(SerializableSettings settings)
+        public virtual Task<bool> UpdateSettings(Settings settings)
         {
             Log.Write("Gestures Daemon", "Updating settings...");
 
             if (settings == null)
                 return Task.FromResult(false);
 
-            TouchGestureSettings = Settings.FromSerializable(settings, IdentifierToPluginConversion);
+            TouchGestureSettings = settings;
             SettingsChanged?.Invoke(this, TouchGestureSettings);
 
             return Task.FromResult(true);
         }
 
         /// <inheritdoc />
-        public virtual Task<bool> UpdateProfile(SerializableProfile profile)
+        public virtual Task<bool> UpdateProfile(GestureProfile profile)
         {
             Log.Write("Gestures Daemon", "Updating profile...");
 
@@ -363,7 +354,7 @@ namespace TouchGestures.Lib
             if (bindableProfile == null || tablet == null)
                 return Task.FromResult(false);
 
-            bindableProfile.Update(profile, tablet, IdentifierToPluginConversion);
+            bindableProfile.Update(profile, tablet);
 
             return Task.FromResult(true);
         }

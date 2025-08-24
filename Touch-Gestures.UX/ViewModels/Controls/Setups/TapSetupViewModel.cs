@@ -6,8 +6,8 @@ using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OpenTabletDriver.External.Avalonia.ViewModels;
+using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
-using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Attributes;
 using TouchGestures.UX.Extentions;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
@@ -22,7 +22,7 @@ using static AssetLoaderExtensions;
  MultiTouchOnly(false)]
 public partial class TapSetupViewModel : GestureSetupViewModel
 {
-    private readonly SerializableTapGesture _gesture;
+    private readonly TapGesture _gesture;
 
     #region Observable Fields
 
@@ -69,9 +69,9 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         SelectedGestureSetupPickIndex = 0;
         MultitouchSteps = [0];
 
-        BindingDisplay = new BindingDisplayViewModel("1-Touch Tap", string.Empty, null);
+        BindingDisplay = new BindingDisplayViewModel("1-Touch Tap", string.Empty, null!);
         AreaDisplay = new AreaDisplayViewModel();
-        _gesture = new SerializableTapGesture();
+        _gesture = new TapGesture();
 
         // A 80ms deadline is the minimum required for taps for work properly and about consistently
         Deadline = 80;
@@ -79,7 +79,7 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
     public TapSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
-        if (gesture is not SerializableTapGesture serializedTapGesture)
+        if (gesture is not TapGesture serializedTapGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
 
         _gesture = serializedTapGesture;
@@ -92,8 +92,9 @@ public partial class TapSetupViewModel : GestureSetupViewModel
 
         SelectedGestureSetupPickIndex = serializedTapGesture.RequiredTouchesCount - 1;
 
-        BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
-        BindingDisplay.Description = $"{serializedTapGesture.RequiredTouchesCount}-Touch Tap";
+        BindingDisplay.Store = serializedTapGesture.Store;
+        BindingDisplay.Content = serializedTapGesture.Store?.GetHumanReadableString();
+        BindingDisplay.Description = gesture.DisplayName;
 
         AreaDisplay = SetupArea(fullArea, serializedTapGesture.Bounds);
     }
@@ -121,7 +122,7 @@ public partial class TapSetupViewModel : GestureSetupViewModel
         _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
         _gesture.Deadline = Deadline;
         _gesture.RequiredTouchesCount = option;
-        _gesture.PluginProperty = BindingDisplay.PluginProperty;
+        _gesture.Store = BindingDisplay.Store;
 
         return _gesture;
     }

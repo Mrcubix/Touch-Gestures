@@ -5,8 +5,8 @@ namespace TouchGestures.Lib.Interfaces
     public interface ISerializable
     {
         /// <summary>
-        ///  The gesture's property, used to store the gesture's settings.
+        ///    The serializable store containing plugin settings for the UX to use.
         /// </summary>
-        public SerializablePluginSettings? PluginProperty { get; set; }
+        public SerializablePluginSettingsStore? Store { get; set; }
     }
 }

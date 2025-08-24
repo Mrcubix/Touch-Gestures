@@ -25,7 +25,7 @@ namespace TouchGestures.Lib
         #region Fields
 
         protected GesturesDaemonBase? _daemon;
-        protected BindableProfile? _profile;
+        protected GestureProfile? _profile;
         protected SharedTabletReference? _tablet;
         private bool _hasPreviousGestureStarted;
         private bool _isRecording;
@@ -84,6 +84,9 @@ namespace TouchGestures.Lib
 
             foreach (var gesture in gestures)
             {
+                if (gesture == null)
+                    continue;
+
                 gesture.OnInput(touchReport.Touches);
 
                 // TODO: Ending it might not be the best move as simillar gesture might not work at all
@@ -160,6 +163,11 @@ namespace TouchGestures.Lib
             NonConflictingGestures.AddRange(_profile.PanGestures);
             NonConflictingGestures.AddRange(_profile.PinchGestures);
             NonConflictingGestures.AddRange(_profile.RotateGestures);
+
+            Log.Debug(PLUGIN_NAME, $"Gestures for '{_tablet?.Name}':");
+
+            foreach (var gesture in _profile)
+                Log.Debug(PLUGIN_NAME, $"{gesture.DisplayName}: [{gesture.Binding}]");
         }
 
         protected virtual void OnRecordingRequested(object? sender, SharedTabletReference e)
@@ -198,6 +206,8 @@ namespace TouchGestures.Lib
 
         #endregion
 
+        #region Static Methods
+
         private static void WaitForDebugger()
         {
             Console.WriteLine("Waiting for debugger to attach...");
@@ -207,5 +217,7 @@ namespace TouchGestures.Lib
                 Thread.Sleep(100);
             }
         }
+
+        #endregion
     }
 }

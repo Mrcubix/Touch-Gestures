@@ -172,9 +172,6 @@ namespace TouchGestures.Lib.Entities.Gestures
             }
         }
 
-        [JsonProperty]
-        public override GestureType Type => GestureType.Tap;
-
         /// <inheritdoc/>
         [JsonProperty]
         public override double Deadline { get; set; }
@@ -184,6 +181,11 @@ namespace TouchGestures.Lib.Entities.Gestures
         ///   Unused for TapGesture
         /// </remarks>
         public override Vector2 Threshold { get; set; }
+
+        [JsonProperty]
+        public override GestureType Type => GestureType.Tap;
+        
+        public override string DisplayName => $"{RequiredTouchesCount}-Touch Tap";
 
         #endregion
 
@@ -232,9 +234,21 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         protected virtual void CompleteGesture() => HasCompleted = true;
 
-        protected virtual void Press() => HasActivated = true;
+        protected virtual void Press()
+        {
+            if (!HasActivated)
+                Binding?.Press(null!);
 
-        protected virtual void Release() => CompleteGesture();
+            HasActivated = true;
+        }
+
+        protected virtual void Release()
+        {
+            if (HasActivated)
+                Binding?.Release(null!);
+
+            CompleteGesture();
+        }
 
         #endregion
 

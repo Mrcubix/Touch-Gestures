@@ -3,8 +3,8 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
+using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
-using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.ViewModels.Controls.Setups;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
 
@@ -78,11 +78,16 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     ///   Start the gesture setup process.
     /// </summary>
     /// <param name="setupViewModel">The view model to start the setup with.</param>
-    public async Task<Gesture> Start(GestureSetupViewModel setupViewModel)
+    public async Task<Gesture?> Start(GestureSetupViewModel setupViewModel)
     {
         NextViewModel = GestureSetupScreenViewModel;
         await GestureSetupScreenViewModel.StartSetup(setupViewModel, _isMultiTouch);
-        return setupViewModel.BuildGesture() ?? throw new InvalidOperationException("The gesture cannot be null.");
+
+        // Setup might have been cancelled
+        if (setupViewModel.Cancel.IsCompleted)
+            return null;
+        else
+            return setupViewModel.BuildGesture() ?? throw new InvalidOperationException("The gesture cannot be null.");
     }
 
     /// <summary>
@@ -90,7 +95,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
     /// </summary>
     /// <param name="bindingDisplay">The binding display to edit.</param>
     /// <exception cref="ArgumentNullException"/>
-    public async Task<Gesture> Edit(GestureBindingDisplayViewModel bindingDisplay)
+    public async Task<Gesture?> Edit(GestureBindingDisplayViewModel bindingDisplay)
     {
         if (bindingDisplay == null)
             throw new ArgumentNullException(nameof(bindingDisplay), "A binding display cannot be null.");
@@ -100,16 +105,14 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
         // now we need to generate the correct setup view model
         GestureSetupViewModel setupViewModel = _editedGesture switch
         {
-            SerializableTapGesture => new TapSetupViewModel(_editedGesture, _bounds),
-            SerializableHoldGesture => new HoldSetupViewModel(_editedGesture, _bounds),
-            SerializableSwipeGesture => new SwipeSetupViewModel(_editedGesture, _bounds),
-            SerializablePanGesture => new PanSetupViewModel(_editedGesture, _bounds),
-            SerializablePinchGesture pinchGesture => DifferentiatePinchFromRotation(pinchGesture, _bounds),
+            HoldGesture => new HoldSetupViewModel(_editedGesture, _bounds),
+            TapGesture => new TapSetupViewModel(_editedGesture, _bounds),
+            PanGesture => new PanSetupViewModel(_editedGesture, _bounds),
+            SwipeGesture => new SwipeSetupViewModel(_editedGesture, _bounds),
+            PinchGesture pinchGesture => DifferentiatePinchFromRotation(pinchGesture, _bounds),
 
             _ => new GestureSetupViewModel()
         };
-
-        setupViewModel.BindingDisplay = new(bindingDisplay.Description!, bindingDisplay.Content!, bindingDisplay.PluginProperty);
 
         return await Start(setupViewModel);
     }
@@ -154,7 +157,7 @@ public partial class GestureSetupWizardViewModel : NavigableViewModel
 
     #region static Methods
 
-    public static GestureSetupViewModel DifferentiatePinchFromRotation(SerializablePinchGesture gesture, Rect bounds)
+    public static GestureSetupViewModel DifferentiatePinchFromRotation(PinchGesture gesture, Rect bounds)
     {
         return gesture.DistanceThreshold > 0
             ? new PinchSetupViewModel(gesture, bounds)

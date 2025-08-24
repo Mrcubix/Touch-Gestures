@@ -78,9 +78,6 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         #region Parents Implementation
 
-        [JsonProperty]
-        public override GestureType Type => GestureType.Hold;
-
         /// <summary>
         ///   The amount of time the user has to keep the touch points pressed to trigger the hold.
         /// </summary>
@@ -93,6 +90,11 @@ namespace TouchGestures.Lib.Entities.Gestures
         /// </remarks>
         [JsonProperty]
         public override Vector2 Threshold { get; set; }
+
+        [JsonProperty]
+        public override GestureType Type => GestureType.Hold;
+
+        public override string DisplayName => $"{RequiredTouchesCount}-Touch Hold";
 
         #endregion
 

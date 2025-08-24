@@ -1,5 +1,3 @@
-using System.Numerics;
-using Newtonsoft.Json;
 using OpenTabletDriver.Desktop.Reflection;
 using TouchGestures.Lib.Entities.Tablet;
 

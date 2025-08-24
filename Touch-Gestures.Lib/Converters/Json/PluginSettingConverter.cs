@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenTabletDriver.Desktop.Reflection;
 
-namespace TouchGestures.Lib.Converters
+namespace TouchGestures.Lib.Converters.Json
 {
     public class PluginSettingConverter : JsonConverter<PluginSetting>
     {

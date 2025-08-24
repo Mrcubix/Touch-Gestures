@@ -186,9 +186,6 @@ namespace TouchGestures.Lib.Entities.Gestures
             }
         }
 
-        [JsonProperty]
-        public override GestureType Type => GestureType.Swipe;
-
         /// <inheritdoc/>
         [JsonProperty]
         public override Vector2 Threshold { get; set; }
@@ -196,6 +193,11 @@ namespace TouchGestures.Lib.Entities.Gestures
         /// <inheritdoc/>
         [JsonProperty]
         public override double Deadline { get; set; }
+
+        [JsonProperty]
+        public override GestureType Type => GestureType.Swipe;
+
+        public override string DisplayName => $"{RequiredTouchesCount}-Touch {Direction} Swipe";
 
         #endregion
 
@@ -245,6 +247,12 @@ namespace TouchGestures.Lib.Entities.Gestures
         {
             HasActivated = true;
             HasCompleted = true;
+
+            if (Binding != null)
+            {
+                Binding.Press(null!);
+                Binding.Release(null!);
+            }
         }
 
         #endregion

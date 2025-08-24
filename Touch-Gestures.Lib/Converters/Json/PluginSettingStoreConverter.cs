@@ -9,7 +9,7 @@ using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin;
 
-namespace TouchGestures.Lib.Converters
+namespace TouchGestures.Lib.Converters.Json
 {
     public class PluginSettingStoreConverter : JsonConverter<PluginSettingStore>
     {

@@ -14,7 +14,7 @@ public partial class GestureSelectionScreenViewModel : NavigableViewModel
 
     private readonly bool _isMultiTouchDevice;
     private string _searchText = string.Empty;
-    
+
     /// <summary>
     ///   This array contains setup for different gestures, using different view models
     /// </summary>

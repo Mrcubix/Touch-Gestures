@@ -46,7 +46,7 @@ namespace TouchGestures.Lib.Contracts
         /// <summary>
         ///   Request settings in serializable form.
         /// </summary>
-        public Task<SerializableSettings> GetSettings();
+        public Task<Settings> GetSettings();
 
         /// <summary>
         ///   Save settings.
@@ -57,14 +57,14 @@ namespace TouchGestures.Lib.Contracts
         /// <summary>
         ///   Update All settings.
         /// </summary>
-        public Task<bool> UpdateSettings(SerializableSettings settings);
+        public Task<bool> UpdateSettings(Settings settings);
 
         /// <summary>
         ///   Update a specific profile.
         /// </summary>
         /// <param name="profile">The profile to update.</param>
         /// <returns>True if the profile was updated successfully, false otherwise.</returns>
-        public Task<bool> UpdateProfile(SerializableProfile profile);
+        public Task<bool> UpdateProfile(GestureProfile profile);
 
         /// <summary>
         ///   Start recording (Used for future node-based gesture creation).

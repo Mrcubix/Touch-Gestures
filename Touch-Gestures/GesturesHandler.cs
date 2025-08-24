@@ -7,6 +7,7 @@ using OTD.EnhancedOutputMode.Lib.Interface;
 using OTD.EnhancedOutputMode.Lib.Tools;
 using TouchGestures.Extensions;
 using TouchGestures.Lib;
+using TouchGestures.Lib.Entities;
 
 namespace TouchGestures
 {
@@ -34,7 +35,7 @@ namespace TouchGestures
             {
                 _tablet = Info.Driver.Tablet.ToShared(_touchSettings);
                 _daemon.AddTablet(_tablet);
-                _profile = _daemon.GetSettingsForTablet(_tablet.Name);
+                _profile = _daemon.GetSettingsForTablet<StableGestureProfile>(_tablet.Name);
 
                 if (_profile != null)
                 {

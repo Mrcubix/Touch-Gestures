@@ -59,7 +59,7 @@ namespace TouchGestures
             if (_daemon != null)
             {
                 _daemon.AddTablet(_tablet);
-                _profile = _daemon.GetSettingsForTablet(_tablet.Name);
+                _profile = _daemon.GetSettingsForTablet<BulletproofGestureProfile>(_tablet.Name);
 
                 if (_profile != null)
                 {

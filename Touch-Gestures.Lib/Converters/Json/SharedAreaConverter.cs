@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TouchGestures.Lib.Entities;
 
-namespace TouchGestures.Lib.Converters
+namespace TouchGestures.Lib.Converters.Json
 {
     public class SharedAreaConverter : JsonConverter<SharedArea>
     {

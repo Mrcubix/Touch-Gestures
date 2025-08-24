@@ -19,7 +19,7 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
     ///   Start the gesture setup process.
     /// </summary>
     /// <param name="gestureSetupViewModel">The view model to start the setup with.</param>
-    public async Task StartSetup(GestureSetupViewModel gestureSetupViewModel, bool isMultiTouch = false)
+    public Task StartSetup(GestureSetupViewModel gestureSetupViewModel, bool isMultiTouch = false)
     {
         NextViewModel = gestureSetupViewModel;
         NextViewModel.BackRequested += OnBackRequestedAhead;
@@ -34,7 +34,7 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
         gestureSetupViewModel.CurrentStep = -1;
         gestureSetupViewModel.GoNextCommand.Execute(null);
 
-        await gestureSetupViewModel.Complete;
+        return Task.WhenAny(gestureSetupViewModel.Complete, gestureSetupViewModel.Cancel);
     }
 
     protected override void GoBack()

@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <RootNamespace>TouchGestures.Lib</RootNamespace>
     <NoWarn>$(NoWarn); NETSDK1138; VSTHRD200</NoWarn>
     <Nullable>enable</Nullable>

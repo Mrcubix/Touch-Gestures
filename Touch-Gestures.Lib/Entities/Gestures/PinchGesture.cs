@@ -193,6 +193,23 @@ namespace TouchGestures.Lib.Entities.Gestures
         [JsonProperty]
         public override GestureType Type => DistanceThreshold > 0 ? GestureType.Pinch : GestureType.Rotate;
 
+        public override string DisplayName
+        {
+            get
+            {
+                if (AngleThreshold == 0)
+                {
+                    var direction = IsInner ? "Inner" : "Outer";
+                    return $"{direction} Pinch";
+                }
+                else
+                {
+                    var direction = IsClockwise ? "Clockwise" : "Counter-Clockwise";
+                    return $"{direction} Rotation";
+                }
+            }
+        }
+
         #endregion
 
         #region Dependencies
@@ -245,6 +262,12 @@ namespace TouchGestures.Lib.Entities.Gestures
         protected virtual void CompleteGesture()
         {
             HasCompleted = true;
+
+            if (Binding != null)
+            {
+                Binding.Press(null!);
+                Binding.Release(null!);
+            }
         }
 
         #region Gesture Specific Methods

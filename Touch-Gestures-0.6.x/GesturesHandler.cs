@@ -11,6 +11,7 @@ using OTD.EnhancedOutputMode.Lib.Tools;
 using TouchGestures.Entities;
 using TouchGestures.Extensions;
 using TouchGestures.Lib;
+using TouchGestures.Lib.Entities;
 
 namespace TouchGestures
 {
@@ -31,8 +32,6 @@ namespace TouchGestures
         {
             GesturesDaemonBase.DaemonLoaded += OnDaemonLoaded;
             _awaitingDaemon = true;
-
-            BulletproofBindingBuilder.ChooseAsBuilder();
         }
 
         public override void Initialize()
@@ -65,7 +64,7 @@ namespace TouchGestures
             if (_daemon != null)
             {
                 _daemon.AddTablet(_tablet);
-                _profile = _daemon.GetSettingsForTablet(_tablet.Name);
+                _profile = _daemon.GetSettingsForTablet<BulletproofGestureProfile>(_tablet.Name);
 
                 if (_profile != null)
                 {

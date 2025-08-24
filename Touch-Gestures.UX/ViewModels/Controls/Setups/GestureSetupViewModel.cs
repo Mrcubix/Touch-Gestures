@@ -23,6 +23,7 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     private static readonly Bitmap _placeholderImage = new(AssetLoader.Open(_placeholderImageUri));
 
     protected readonly TaskCompletionSource _completionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    protected readonly TaskCompletionSource _cancelSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     #endregion
 
@@ -116,6 +117,11 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     public Task Complete => _completionSource.Task;
 
     /// <summary>
+    ///   The task that is marked as completed when the gesture setup is cancelled.
+    /// </summary>
+    public Task Cancel => _cancelSource.Task;
+
+    /// <summary>
     ///   Whether the user can go to the next step.
     /// </summary>
     public bool CanGoNext { get; init; }
@@ -164,6 +170,8 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
         // Next step will be below 0, so exit the setup
         if (CurrentStep == -1)
         {
+            _cancelSource.TrySetResult();
+            
             CurrentStep = 0;
             base.GoBack();
         }
@@ -195,8 +203,8 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
     /// </summary>
     protected virtual void OnBindingDisplayPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(BindingDisplayViewModel.PluginProperty))
-            IsGestureBindingSet = BindingDisplay.PluginProperty != null;
+        if (e.PropertyName == nameof(BindingDisplayViewModel.Store))
+            IsGestureBindingSet = BindingDisplay.Store != null;
     }
 
     protected virtual void OnPropertyChanging(object? sender, PropertyChangingEventArgs e)

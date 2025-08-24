@@ -2,10 +2,13 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using OpenTabletDriver.External.Avalonia.Dialogs;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using OpenTabletDriver.External.Avalonia.Views;
+using OpenTabletDriver.External.Common.Enums;
 using OpenTabletDriver.External.Common.Serializables;
 using ReactiveUI;
 using TouchGestures.UX.ViewModels;
@@ -38,18 +41,18 @@ public partial class MainWindow : AppMainWindow
             }
 
             if (_registeredHandlers == false)
-                _bindingsOverviewViewModel?.ConfirmationDialog.RegisterHandler(ShowConfirmationDialogAsync);
+                _bindingsOverviewViewModel?.ConfirmationDialog.RegisterHandler((context) => ShowConfirmationDialogAsync(context));
         }
 
         base.OnDataContextChanged(e);
     }
 
-    public async Task ShowConfirmationDialogAsync(InteractionContext<TwoChoiceDialogViewModel, bool> interaction)
+    public async Task ShowConfirmationDialogAsync(IInteractionContext<TwoChoiceDialogViewModel, bool> interaction)
     {
         await Dispatcher.UIThread.Invoke(async () => await ShowConfirmationDialogCoreAsync(interaction));
     }
 
-    private async Task ShowConfirmationDialogCoreAsync(InteractionContext<TwoChoiceDialogViewModel, bool> interaction)
+    private async Task ShowConfirmationDialogCoreAsync(IInteractionContext<TwoChoiceDialogViewModel, bool> interaction)
     {
         var dialog = new TwoChoiceDialog()
         {
@@ -76,19 +79,28 @@ public partial class MainWindow : AppMainWindow
         {
             _isEditorDialogOpen = true;
 
-            // Now we setup the dialog
+            // Now we set the view model's properties
 
+            var plugins = vm.BindingsOverviewViewModel.Plugins;
+
+            var bindingPlugins = plugins.Where(p => p.Type == PluginType.Binding).ToList();
+            var selectedPlugin = bindingPlugins.FirstOrDefault(p => p.Identifier == e.Store?.Identifier);
+
+            _bindingEditorDialogViewModel.Store = e.Store;
+
+            // Now we setup the dialog
             var dialog = new BindingEditorDialog()
             {
-                Plugins = vm.Plugins,
+                Plugins = plugins,
                 DataContext = _bindingEditorDialogViewModel
             };
 
-            // Now we show the dialog
+#if DEBUG
+            dialog.AttachDevTools();
+#endif
 
-            var res = await dialog.ShowDialog<SerializablePluginSettings>(this);
-
-            HandleBindingEditorResult(res, e);
+            // Now we show & handle the dialog
+            await HandleBindingEditorDialog(dialog, e);
         }
     }
 
@@ -98,62 +110,50 @@ public partial class MainWindow : AppMainWindow
         {
             _isEditorDialogOpen = true;
 
-            // Fetch some data from the plugins
+            // Now we set the view model's properties
 
-            var types = vm.Plugins.Select(p => p.PluginName ?? p.FullName ?? "Unknown").ToList();
+            var plugins = vm.BindingsOverviewViewModel.Plugins;
 
-            var currentPlugin = vm.Plugins.FirstOrDefault(p => p.Identifier == e.PluginProperty?.Identifier);
-            var selectedType = currentPlugin?.PluginName ?? currentPlugin?.FullName ?? "Unknown";
-
-            var validProperties = currentPlugin?.ValidProperties ?? new string[0];
-            var selectedProperty = e.PluginProperty?.Value ?? "";
+            var bindingPlugins = plugins.Where(p => p.Type == PluginType.Binding).ToList();
+            var selectedPlugin = bindingPlugins.FirstOrDefault(p => p.Identifier == e.Store?.Identifier);
+            
+            var settingsStoreEditor = new PluginSettingStoreEditorViewModel()
+            {
+                Properties = selectedPlugin?.Properties ?? [],
+                Store = e.Store
+            };
 
             // Now we set the view model's properties
 
-            _advancedBindingEditorDialogViewModel.Types = new ObservableCollection<string>(types);
-            _advancedBindingEditorDialogViewModel.SelectedType = selectedType;
-            _advancedBindingEditorDialogViewModel.ValidProperties = new ObservableCollection<string>(validProperties);
-            _advancedBindingEditorDialogViewModel.SelectedProperty = selectedProperty;
-
-            // Now we setup the dialog
-
-            var dialog = new AdvancedBindingEditorDialog()
+            var advancedBindingEditorDialogViewModel = new AdvancedBindingEditorDialogViewModel([.. bindingPlugins], settingsStoreEditor)
             {
-                DataContext = _advancedBindingEditorDialogViewModel,
-                Plugins = vm.Plugins
+                SelectedBindingType = selectedPlugin,
             };
 
-            // Now we show the dialog
+            // Now we setup the dialog
+            var dialog = new AdvancedBindingEditorDialog()
+            {
+                DataContext = advancedBindingEditorDialogViewModel,
+                Plugins = plugins
+            };
 
-            var res = await dialog.ShowDialog<SerializablePluginSettings>(this);
+#if DEBUG
+            dialog.AttachDevTools();
+#endif
 
-            HandleBindingEditorResult(res, e);
+            // Now we show & handle the dialog
+            await HandleBindingEditorDialog(dialog, e);
         }
     }
 
-    private void HandleBindingEditorResult(SerializablePluginSettings result, BindingDisplayViewModel e)
+    private async Task HandleBindingEditorDialog(Window dialog, BindingDisplayViewModel e)
     {
-        if (DataContext is MainViewModel vm)
-        {
-            _isEditorDialogOpen = false;
+        var res = await dialog.ShowDialog<SerializablePluginSettingsStore>(this);
 
-            // We handle the result
+        _isEditorDialogOpen = false;
 
-            // The dialog was closed or the cancel button was pressed
-            if (result == null)
-                return;
-
-            // The user selected "Clear"
-            if (result.Identifier == -1 || result.Value == "None")
-            {
-                e.PluginProperty = null;
-                e.Content = "";
-            }
-            else
-            {
-                e.PluginProperty = result;
-                e.Content = vm.GetFriendlyContentFromProperty(result);
-            }
-        }
+        // We handle the result
+        e.Store = res;
+        e.Content = res?.GetHumanReadableString();
     }
 }

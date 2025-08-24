@@ -5,8 +5,8 @@ using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OpenTabletDriver.External.Avalonia.ViewModels;
+using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
-using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Attributes;
 using TouchGestures.UX.Extentions;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
@@ -21,7 +21,7 @@ using static AssetLoaderExtensions;
  MultiTouchOnly(true)]
 public partial class RotateSetupViewModel : PinchSetupViewModel
 {
-    private readonly SerializablePinchGesture _gesture;
+    private readonly PinchGesture _gesture;
 
     #region Observable Fields
 
@@ -59,9 +59,9 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
 
         SelectedGestureSetupPickIndex = 0;
 
-        BindingDisplay = new BindingDisplayViewModel("Clockwise Rotation", string.Empty, null);
+        BindingDisplay = new BindingDisplayViewModel("Clockwise Rotation", string.Empty, null!);
         AreaDisplay = new AreaDisplayViewModel();
-        _gesture = new SerializablePinchGesture();
+        _gesture = new PinchGesture();
 
         AngleThreshold = 20;
         IsClockwise = false;
@@ -70,7 +70,7 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
     /// Constructor used when editing a gesture
     public RotateSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
-        if (gesture is not SerializablePinchGesture serializedTapGesture)
+        if (gesture is not PinchGesture serializedTapGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
 
         _gesture = serializedTapGesture;
@@ -78,7 +78,9 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
         AngleThreshold = serializedTapGesture.AngleThreshold;
         IsClockwise = serializedTapGesture.IsClockwise;
 
-        BindingDisplay.PluginProperty = serializedTapGesture.PluginProperty;
+        BindingDisplay.Store = serializedTapGesture.Store;
+        BindingDisplay.Content = serializedTapGesture.Store?.GetHumanReadableString();
+        BindingDisplay.Description = gesture.DisplayName;
 
         AreaDisplay = SetupArea(fullArea, serializedTapGesture.Bounds);
     }
@@ -106,7 +108,7 @@ public partial class RotateSetupViewModel : PinchSetupViewModel
         _gesture.IsClockwise = option == "Clockwise";
 
         _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
-        _gesture.PluginProperty = BindingDisplay.PluginProperty;
+        _gesture.Store = BindingDisplay.Store;
 
         return _gesture;
     }

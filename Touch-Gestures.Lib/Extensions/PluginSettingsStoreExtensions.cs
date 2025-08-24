@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json.Linq;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin.Attributes;
 
@@ -58,7 +59,7 @@ namespace TouchGestures.Lib.Extensions
 
 #endif
 
-        public static bool SetBindingValue(this PluginSettingStore store, TypeInfo plugin, string? value)
+        public static bool SetBindingValue(this PluginSettingStore store, TypeInfo plugin, JToken? value)
         {
             if (store.Settings.Any())
             {
@@ -85,7 +86,7 @@ namespace TouchGestures.Lib.Extensions
 
 #if NET6_0
 
-        private static bool SetBindingValueCore06(this PluginSettingStore store, TypeInfo plugin, string? value)
+        private static bool SetBindingValueCore06(this PluginSettingStore store, TypeInfo plugin, JToken? value)
         {
             var valueProperty = plugin.FindPropertyWithAttribute<PropertyAttribute>();
             var validatedProperty = plugin.FindPropertyWithAttribute<PropertyValidatedAttribute>();
@@ -97,7 +98,7 @@ namespace TouchGestures.Lib.Extensions
             if (valueProperty != validatedProperty)
                 return false;
 
-            store.Settings.Single(s => s.Property == valueProperty.Name).SetValue(value);
+            store.Settings.Single(s => s.Property == valueProperty.Name).Value = value!;
 
             return true;
         }

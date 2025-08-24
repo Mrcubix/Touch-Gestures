@@ -8,13 +8,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
-using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Attributes;
 using TouchGestures.UX.Extentions;
 using Rect = Avalonia.Rect;
 using DescriptionAttribute = TouchGestures.UX.Attributes.DescriptionAttribute;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
 using TouchGestures.Lib.Interfaces;
+using TouchGestures.Lib.Entities.Gestures;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
@@ -25,7 +25,7 @@ using static AssetLoaderExtensions;
  MultiTouchOnly(false)]
 public partial class SwipeSetupViewModel : GestureSetupViewModel, ITouchesCountDependant
 {
-    private readonly SerializableSwipeGesture _gesture;
+    private readonly SwipeGesture _gesture;
 
     #region Observable Fields
 
@@ -47,7 +47,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel, ITouchesCountD
 
     public SwipeSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
-        if (gesture is not SerializableSwipeGesture serializedSwipeGesture)
+        if (gesture is not SwipeGesture serializedSwipeGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
 
         _gesture = serializedSwipeGesture;
@@ -58,7 +58,9 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel, ITouchesCountD
         SelectedGestureSetupPickIndex = (int)serializedSwipeGesture.Direction;
         RequiredTouchesCount = serializedSwipeGesture.RequiredTouchesCount;
 
-        BindingDisplay.PluginProperty = serializedSwipeGesture.PluginProperty;
+        BindingDisplay.Store = serializedSwipeGesture.Store;
+        BindingDisplay.Content = serializedSwipeGesture.Store?.GetHumanReadableString();
+        BindingDisplay.Description = gesture.DisplayName;
 
         AreaDisplay = SetupArea(fullArea, serializedSwipeGesture.Bounds);
     }
@@ -93,8 +95,8 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel, ITouchesCountD
         SelectedGestureSetupPickIndex = 0;
         MultitouchSteps = [1];
 
-        BindingDisplay = new BindingDisplayViewModel("Up 1-Touch Swipe", string.Empty, null);
-        _gesture = new SerializableSwipeGesture();
+        BindingDisplay = new BindingDisplayViewModel("Up 1-Touch Swipe", string.Empty, null!);
+        _gesture = new SwipeGesture();
 
         Deadline = 150;
         Threshold = 40;
@@ -123,7 +125,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel, ITouchesCountD
         _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
         _gesture.Deadline = Deadline;
         _gesture.Direction = option;
-        _gesture.PluginProperty = BindingDisplay.PluginProperty;
+        _gesture.Store = BindingDisplay.Store;
         _gesture.RequiredTouchesCount = RequiredTouchesCount;
 
         return _gesture;

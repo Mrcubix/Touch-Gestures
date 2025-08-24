@@ -6,8 +6,8 @@ using System.Numerics;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using OpenTabletDriver.External.Avalonia.ViewModels;
+using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
-using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Attributes;
 using TouchGestures.UX.Extentions;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
@@ -22,7 +22,7 @@ using static AssetLoaderExtensions;
  MultiTouchOnly(false)]
 public partial class HoldSetupViewModel : TapSetupViewModel
 {
-    private readonly SerializableHoldGesture _gesture;
+    private readonly HoldGesture _gesture;
 
     #region Constructors
 
@@ -31,7 +31,7 @@ public partial class HoldSetupViewModel : TapSetupViewModel
 
     public HoldSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
-        if (gesture is not SerializableHoldGesture serializedHoldGesture)
+        if (gesture is not HoldGesture serializedHoldGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
 
         _gesture = serializedHoldGesture;
@@ -44,8 +44,9 @@ public partial class HoldSetupViewModel : TapSetupViewModel
 
         SelectedGestureSetupPickIndex = serializedHoldGesture.RequiredTouchesCount - 1;
 
-        BindingDisplay.PluginProperty = serializedHoldGesture.PluginProperty;
-        BindingDisplay.Description = $"{serializedHoldGesture.RequiredTouchesCount}-Touch Hold";
+        BindingDisplay.Store = serializedHoldGesture.Store;
+        BindingDisplay.Content = serializedHoldGesture.Store?.GetHumanReadableString();
+        BindingDisplay.Description = gesture.DisplayName;
 
         AreaDisplay = SetupArea(fullArea, serializedHoldGesture.Bounds);
     }
@@ -80,9 +81,9 @@ public partial class HoldSetupViewModel : TapSetupViewModel
         SelectedGestureSetupPickIndex = 0;
         MultitouchSteps = [0];
 
-        BindingDisplay = new BindingDisplayViewModel("1-Touch Hold", string.Empty, null);
+        BindingDisplay = new BindingDisplayViewModel("1-Touch Hold", string.Empty, null!);
         AreaDisplay = new AreaDisplayViewModel();
-        _gesture = new SerializableHoldGesture();
+        _gesture = new HoldGesture();
 
         // A 1s time threshold to trigger the hold
         Deadline = 1000;
@@ -106,7 +107,7 @@ public partial class HoldSetupViewModel : TapSetupViewModel
 
         _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
         _gesture.RequiredTouchesCount = option;
-        _gesture.PluginProperty = BindingDisplay.PluginProperty;
+        _gesture.Store = BindingDisplay.Store;
 
         return _gesture;
     }
