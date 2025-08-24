@@ -18,16 +18,16 @@ namespace TouchGestures.Lib.Converters.Json
             var value = JObject.Load(reader);
 
             if (value == null)
-                return null!;
+                return null;
 
             if (!value.TryGetValue("Property", out var property))
-                return null!;
+                return null;
 
             if (!value.TryGetValue("Value", out var settingValue))
-                return null!;
+                return null;
 
             if (property == null || settingValue == null)
-                return null!;
+                return null;
 
             return new SerializablePluginSettings(property.Value<string>() ?? "Unknown Property", -1, settingValue);
         }

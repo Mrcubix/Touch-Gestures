@@ -11,7 +11,7 @@ using TouchGestures.Lib.Extensions.Reflection;
 
 namespace TouchGestures.Bindings
 {
-    public class BulletproofThresholdBinding : ThresholdBinding, IBulletproofBinding
+    public class BulletproofThresholdBinding : ThresholdBinding
     {
         public BulletproofThresholdBinding() { }
 

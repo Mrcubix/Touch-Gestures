@@ -13,9 +13,9 @@ namespace TouchGestures.Lib.Converters.Json
             var value = JObject.Load(reader);
 
             if (value == null)
-                return null!;
+                return null;
 
-            SerializableProperty? property = null;
+            SerializableProperty? property;
 
             if (value.ContainsKey("Values"))
                 property = new SerializableValidatedProperty(string.Empty, JTokenType.Null, Array.Empty<object>(), Array.Empty<SerializableAttributeModifier>());
@@ -25,7 +25,7 @@ namespace TouchGestures.Lib.Converters.Json
                 property = new SerializableProperty(string.Empty, JTokenType.Null, Array.Empty<SerializableAttributeModifier>());
 
             if (property == null)
-                return null!;
+                return null;
 
             serializer.Populate(value.CreateReader(), property);
             return property;

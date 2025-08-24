@@ -10,7 +10,7 @@ using TouchGestures.Lib.Extensions.Reflection;
 
 namespace TouchGestures.Bindings
 {
-    public class BulletproofBinding : Binding, IBulletproofBinding
+    public class BulletproofBinding : Binding
     {
         public BulletproofBinding() { }
 
