@@ -57,7 +57,7 @@ namespace TouchGestures.Extensions.Reflection
                 // Get the name of the property holding the valid keys
                 var validKeysPropertyName = validatedPropertyAttribute.MemberName;
                 var owningType = property.DeclaringType!;
-                
+
                 var validKeysProperty = owningType.GetProperty(validKeysPropertyName);
                 var validKeys = validatedPropertyAttribute?.GetValue<IEnumerable>(validKeysProperty).Cast<object>().ToArray() ?? Array.Empty<object>();
 
@@ -68,7 +68,7 @@ namespace TouchGestures.Extensions.Reflection
         internal static IEnumerable<SerializableAttributeModifier> SerializeModifiers(this PropertyInfo property)
         {
             var modifiers = new List<SerializableAttributeModifier>();
-            
+
             if (property.GetCustomAttribute<UnitAttribute>() is { } unitAttribute)
                 modifiers.Add(new SerializableAttributeModifier(AttributeModifierType.Unit, unitAttribute.Unit));
 

@@ -68,7 +68,7 @@ namespace TouchGestures.Extensions.Reflection
         internal static IEnumerable<SerializableAttributeModifier> SerializeModifiers(this PropertyInfo property)
         {
             var modifiers = new List<SerializableAttributeModifier>();
-            
+
             if (property.GetCustomAttribute<UnitAttribute>() is { } unitAttribute)
                 modifiers.Add(new SerializableAttributeModifier(AttributeModifierType.Unit, unitAttribute.Unit));
 

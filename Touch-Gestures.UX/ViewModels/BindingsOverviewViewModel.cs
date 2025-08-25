@@ -301,7 +301,7 @@ public partial class BindingsOverviewViewModel : NavigableViewModel, IDisposable
         // The edit was completed, we need to update the binding display
         bindingDisplay.Store = gesture.Store;
         bindingDisplay.Content = gesture.Store?.GetHumanReadableString();
-        
+
         ProfileChanged?.Invoke(this, SelectedTablet.Profile);
     }
 

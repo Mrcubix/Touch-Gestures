@@ -116,7 +116,7 @@ public partial class MainWindow : AppMainWindow
 
             var bindingPlugins = plugins.Where(p => p.Type == PluginType.Binding).ToList();
             var selectedPlugin = bindingPlugins.FirstOrDefault(p => p.Identifier == e.Store?.Identifier);
-            
+
             var settingsStoreEditor = new PluginSettingStoreEditorViewModel()
             {
                 Properties = selectedPlugin?.Properties ?? [],

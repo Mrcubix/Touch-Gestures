@@ -184,7 +184,7 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         [JsonProperty]
         public override GestureType Type => GestureType.Tap;
-        
+
         public override string DisplayName => $"{RequiredTouchesCount}-Touch Tap";
 
         #endregion

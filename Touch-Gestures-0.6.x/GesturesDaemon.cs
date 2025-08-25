@@ -35,7 +35,7 @@ namespace TouchGestures
                 _rpcServer.Converters.Add(new SharedAreaConverter());
                 _rpcServer.Converters.Add(_profileConverter);
             }
-            
+
             Settings.Converters.Add(_profileConverter);
 
             Instance ??= this;

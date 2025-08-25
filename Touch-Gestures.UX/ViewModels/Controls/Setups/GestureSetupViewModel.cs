@@ -171,7 +171,7 @@ public partial class GestureSetupViewModel : NavigableViewModel, IDisposable
         if (CurrentStep == -1)
         {
             _cancelSource.TrySetResult();
-            
+
             CurrentStep = 0;
             base.GoBack();
         }

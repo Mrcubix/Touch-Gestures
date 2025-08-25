@@ -123,7 +123,7 @@ namespace TouchGestures.Lib.Entities
                 return false;
             }
         }
-        
+
         #endregion
     }
 }
