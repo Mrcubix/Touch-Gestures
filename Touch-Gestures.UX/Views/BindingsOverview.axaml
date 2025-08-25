@@ -130,6 +130,9 @@
       <Setter Property="IsVisible" Value="{Binding !IsEmpty}" />
       <Setter Property="IsEnabled" Value="{Binding !IsEmpty}" />
     </Style>
+    <Style Selector="ItemsControl#VIEW_Body">
+      <Setter Property="IsEnabled" Value="{Binding IsReady}" />
+    </Style>
     <Style Selector="Grid#VIEW_BodyNoElements">
       <Setter Property="IsVisible" Value="{Binding IsEmpty}" />
       <Setter Property="IsEnabled" Value="{Binding IsEmpty}" />
