@@ -30,6 +30,16 @@ namespace TouchGestures.Extensions
 
             if (tablet.DeviceIdentifier != null)
             {
+                var featureInitReportHasElement = tablet.DeviceIdentifier.FeatureInitReport != null
+                                               && tablet.DeviceIdentifier.FeatureInitReport.Count > 0;
+
+                var outputInitReportHasElement = tablet.DeviceIdentifier.OutputInitReport != null
+                                              && tablet.DeviceIdentifier.OutputInitReport.Count > 0;
+
+                byte[] featureInitReport = featureInitReportHasElement ? tablet.DeviceIdentifier.FeatureInitReport![0] : Array.Empty<byte>();
+
+                byte[] outputInitReport = outputInitReportHasElement ? tablet.DeviceIdentifier.OutputInitReport![0] : Array.Empty<byte>();
+
                 identifier = new DeviceIdentifier()
                 {
                     VendorID = tablet.DeviceIdentifier.VendorID,
@@ -37,8 +47,8 @@ namespace TouchGestures.Extensions
                     InputReportLength = tablet.DeviceIdentifier.InputReportLength,
                     OutputReportLength = tablet.DeviceIdentifier.OutputReportLength,
                     ReportParser = tablet.DeviceIdentifier.ReportParser,
-                    FeatureInitReport = tablet.DeviceIdentifier.FeatureInitReport?[0] ?? Array.Empty<byte>(),
-                    OutputInitReport = tablet.DeviceIdentifier.OutputInitReport?[0] ?? Array.Empty<byte>(),
+                    FeatureInitReport = featureInitReport,
+                    OutputInitReport = outputInitReport,
                     DeviceStrings = tablet.DeviceIdentifier.DeviceStrings,
                     InitializationStrings = tablet.DeviceIdentifier.InitializationStrings
                 };

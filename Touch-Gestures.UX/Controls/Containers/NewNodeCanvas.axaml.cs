@@ -8,8 +8,6 @@ using TouchGestures.UX.ViewModels.Controls.Nodes;
 
 namespace TouchGestures.UX.Controls.Containers;
 
-#nullable enable
-
 public partial class NewNodeCanvas : UserControl
 {
     private Rect _baseBounds = default;
@@ -74,24 +72,24 @@ public partial class NewNodeCanvas : UserControl
         switch (e.Action)
         {
             case NotifyCollectionChangedAction.Add:
-                
+
                 // Add the items to the canvas
                 var itemsAdded = e.NewItems;
 
                 break;
             case NotifyCollectionChangedAction.Remove:
-            
+
                 // Remove the items from the canvas
                 var itemsRemoved = e.OldItems;
 
                 break;
             case NotifyCollectionChangedAction.Replace:
-                
+
                 // Rebuild the canvas
 
                 break;
             case NotifyCollectionChangedAction.Reset:
-                
+
                 // Rebuild the canvas
 
                 break;

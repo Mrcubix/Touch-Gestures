@@ -11,6 +11,7 @@ namespace TouchGestures.Tests.Lib
 {
     using static TouchGestures.Tests.Samples.SwipeSamples;
 
+    [Collection("Pan Gesture Tests")]
     public class PanGestureTest
     {
         /*
@@ -22,11 +23,11 @@ namespace TouchGestures.Tests.Lib
 
         #region Constants & readonly fields
 
-        private const double DEADLINE = 50;
+        private const double DEADLINE = 200;
 
         private readonly Vector2 THRESHOLD = new(30, 30);
 
-        private readonly Rectangle EXAMPLE_BOUNDS = new(0, 0, 400, 400);
+        private readonly Rectangle EXAMPLE_BOUNDS = new(-200, -200, 400, 400);
 
         #endregion
 
@@ -51,7 +52,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void LeftPanGesture()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.Left);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.Left, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.Left);
 
@@ -62,8 +63,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Left Pan Sample Data passed to OnInput");
 
             Assert.True(gesture.HasStarted);
+            Assert.True(gesture.HasActivated);
             Assert.False(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.False(gesture.HasCompleted);
 
             TestReleasedSampleData(gesture);
 
@@ -78,7 +80,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void UpPanGesture()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.Up);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.Up, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.Up);
 
@@ -89,8 +91,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Up Swipe Sample Data passed to OnInput");
 
             Assert.True(gesture.HasStarted);
+            Assert.True(gesture.HasActivated);
             Assert.False(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.False(gesture.HasCompleted);
 
             TestReleasedSampleData(gesture);
 
@@ -105,7 +108,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void RightPanGesture()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.Right);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.Right, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.Right);
 
@@ -116,8 +119,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Right Swipe Sample Data passed to OnInput");
 
             Assert.True(gesture.HasStarted);
+            Assert.True(gesture.HasActivated);
             Assert.False(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.False(gesture.HasCompleted);
 
             TestReleasedSampleData(gesture);
 
@@ -132,7 +136,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void DownPanGesture()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.Down);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.Down, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.Down);
 
@@ -143,8 +147,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Down Swipe Sample Data passed to OnInput");
 
             Assert.True(gesture.HasStarted);
+            Assert.True(gesture.HasActivated);
             Assert.False(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.False(gesture.HasCompleted);
 
             TestReleasedSampleData(gesture);
 
@@ -159,7 +164,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void LeftUpPanGesture()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.UpLeft);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.UpLeft, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.UpLeft);
 
@@ -170,8 +175,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Left Up Swipe Sample Data passed to OnInput");
 
             Assert.True(gesture.HasStarted);
+            Assert.True(gesture.HasActivated);
             Assert.False(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.False(gesture.HasCompleted);
 
             TestReleasedSampleData(gesture);
 
@@ -186,7 +192,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void RightUpPanGesture()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.UpRight);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.UpRight, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.UpRight);
 
@@ -197,8 +203,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Right Up Swipe Sample Data passed to OnInput");
 
             Assert.True(gesture.HasStarted);
+            Assert.True(gesture.HasActivated);
             Assert.False(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.False(gesture.HasCompleted);
 
             TestReleasedSampleData(gesture);
 
@@ -213,7 +220,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void LeftDownPanGesture()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.DownLeft);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.DownLeft, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.DownLeft);
 
@@ -224,8 +231,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Left Down Swipe Sample Data passed to OnInput");
 
             Assert.True(gesture.HasStarted);
+            Assert.True(gesture.HasActivated);
             Assert.False(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.False(gesture.HasCompleted);
 
             TestReleasedSampleData(gesture);
 
@@ -240,7 +248,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void RightDownPanGesture()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.DownRight);
 
@@ -251,8 +259,9 @@ namespace TouchGestures.Tests.Lib
             _output.WriteLine($"Right Down Swipe Sample Data passed to OnInput");
 
             Assert.True(gesture.HasStarted);
+            Assert.True(gesture.HasActivated);
             Assert.False(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+            Assert.False(gesture.HasCompleted);
 
             TestReleasedSampleData(gesture);
 
@@ -273,7 +282,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void AbsoluteGestureStartedWithinBounds()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS, 1);
 
             TestOriginSampleData(gesture);
 
@@ -286,7 +295,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void AbsoluteGestureNotStartedOutsideBounds()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS, 1);
 
             //TestOriginSampleData(gesture);
             gesture.OnInput(OriginAbsoluteFaultyData);
@@ -310,21 +319,14 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void ReleasedPanGesture()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.Left);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.Left, EXAMPLE_BOUNDS, 1);
 
-            SubscribeToCompletion(gesture, SwipeDirection.DownRight);
+            SubscribeToCompletion(gesture, SwipeDirection.Left);
 
             TestOriginSampleData(gesture);
+            TestReleasedSampleData(gesture, false);
 
-            gesture.OnInput(ReleasedSampleData);
-
-            _output.WriteLine($"Released Swipe Sample Data passed to OnInput");
-
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
-            Assert.False(gesture.HasCompleted);
-
-            UnsubscribeToCompletion(gesture, SwipeDirection.DownRight);
+            UnsubscribeToCompletion(gesture, SwipeDirection.Left);
 
             _output.WriteLine($"Releasing the active touch point ended the gesture as expected");
         }
@@ -335,7 +337,7 @@ namespace TouchGestures.Tests.Lib
         [Fact]
         public void CompletedAfterDeadline()
         {
-            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight);
+            var gesture = new PanGesture(THRESHOLD, DEADLINE, SwipeDirection.DownRight, EXAMPLE_BOUNDS, 1);
 
             SubscribeToCompletion(gesture, SwipeDirection.DownRight);
 
@@ -347,9 +349,12 @@ namespace TouchGestures.Tests.Lib
 
             _output.WriteLine($"Right Down Swipe Sample Data passed to OnInput");
 
-            Assert.False(gesture.HasStarted);
-            Assert.True(gesture.HasEnded);
+            Assert.True(gesture.HasStarted);
+            Assert.True(gesture.IsInvalidState);
+            Assert.False(gesture.HasEnded);
             Assert.False(gesture.HasCompleted);
+
+            TestReleasedSampleData(gesture, false);
 
             UnsubscribeToCompletion(gesture, SwipeDirection.DownRight);
 
@@ -373,7 +378,7 @@ namespace TouchGestures.Tests.Lib
             Assert.False(gesture.HasCompleted);
         }
 
-        private void TestReleasedSampleData(PanGesture gesture)
+        private void TestReleasedSampleData(PanGesture gesture, bool needsToBeCompleted = true)
         {
             gesture.OnInput(ReleasedSampleData);
 
@@ -381,7 +386,11 @@ namespace TouchGestures.Tests.Lib
 
             Assert.False(gesture.HasStarted);
             Assert.True(gesture.HasEnded);
-            Assert.True(gesture.HasCompleted);
+
+            if (needsToBeCompleted)
+                Assert.True(gesture.HasCompleted);
+            else
+                Assert.False(gesture.HasCompleted);
         }
 
         private void SubscribeToCompletion(PanGesture gesture, SwipeDirection direction)

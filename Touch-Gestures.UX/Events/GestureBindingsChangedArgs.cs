@@ -5,11 +5,11 @@ namespace TouchGestures.UX.Events;
 
 public class GestureBindingsChangedArgs : EventArgs
 {
-    public SerializablePluginSettings? OldValue { get; }
+    public SerializablePluginSettingsStore? OldValue { get; }
 
-    public SerializablePluginSettings? NewValue { get; }
+    public SerializablePluginSettingsStore? NewValue { get; }
 
-    public GestureBindingsChangedArgs(SerializablePluginSettings? oldValue, SerializablePluginSettings? newValue)
+    public GestureBindingsChangedArgs(SerializablePluginSettingsStore? oldValue, SerializablePluginSettingsStore? newValue)
     {
         OldValue = oldValue;
         NewValue = newValue;

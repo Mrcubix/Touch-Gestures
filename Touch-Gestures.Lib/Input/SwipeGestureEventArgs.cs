@@ -10,7 +10,7 @@ namespace TouchGestures.Lib.Input
         {
         }
 
-        public SwipeGestureEventArgs(bool hasStarted, bool hasEnded, bool hasCompleted, SwipeDirection direction) : base(hasStarted, hasEnded, hasCompleted)
+        public SwipeGestureEventArgs(bool hasStarted, bool hasActivated, bool hasEnded, bool hasCompleted, SwipeDirection direction) : base(hasStarted, hasActivated, hasEnded, hasCompleted)
         {
             Direction = direction;
         }

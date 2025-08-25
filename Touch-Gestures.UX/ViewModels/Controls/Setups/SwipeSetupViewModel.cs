@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -9,12 +8,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
-using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Attributes;
 using TouchGestures.UX.Extentions;
 using Rect = Avalonia.Rect;
 using DescriptionAttribute = TouchGestures.UX.Attributes.DescriptionAttribute;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
+using TouchGestures.Lib.Interfaces;
+using TouchGestures.Lib.Entities.Gestures;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
@@ -23,9 +23,9 @@ using static AssetLoaderExtensions;
 [Name("Swipe"), Icon("Assets/Setups/Swipe/swipe_up.png"),
  Description("A gesture completed by swiping in a specified direction, then releasing the touch point."),
  MultiTouchOnly(false)]
-public partial class SwipeSetupViewModel : GestureSetupViewModel
+public partial class SwipeSetupViewModel : GestureSetupViewModel, ITouchesCountDependant
 {
-    private readonly SerializableSwipeGesture _gesture;
+    private readonly SwipeGesture _gesture;
 
     #region Observable Fields
 
@@ -35,19 +35,19 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
     [ObservableProperty]
     private double _deadline;
 
+    [ObservableProperty]
+    private int _requiredTouchesCount = 1;
+
     #endregion
 
     #region Constructors
 
     /// Design-time constructor
-    public SwipeSetupViewModel() : this(false) 
-    { 
-        IsOptionsSelectionStepActive = true;
-    }
+    public SwipeSetupViewModel() : this(false) { }
 
     public SwipeSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
-        if (gesture is not SerializableSwipeGesture serializedSwipeGesture)
+        if (gesture is not SwipeGesture serializedSwipeGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
 
         _gesture = serializedSwipeGesture;
@@ -56,10 +56,13 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
         Deadline = serializedSwipeGesture.Deadline;
 
         SelectedGestureSetupPickIndex = (int)serializedSwipeGesture.Direction;
+        RequiredTouchesCount = serializedSwipeGesture.RequiredTouchesCount;
 
-        BindingDisplay.PluginProperty = serializedSwipeGesture.PluginProperty;
+        BindingDisplay.Store = serializedSwipeGesture.Store;
+        BindingDisplay.Content = serializedSwipeGesture.Store?.GetHumanReadableString();
+        BindingDisplay.Description = gesture.DisplayName;
 
-        SetupArea(fullArea, serializedSwipeGesture.Bounds);
+        AreaDisplay = SetupArea(fullArea, serializedSwipeGesture.Bounds);
     }
 
     public SwipeSetupViewModel(bool isEditing = false)
@@ -68,6 +71,8 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
 
         CanGoBack = true;
         CanGoNext = true;
+
+        SubscribeToSettingsChanges();
 
         GestureSetupPickText = "Direction of the Swipe:";
 
@@ -86,61 +91,20 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
 
         GestureSetupPickPreviews = new ObservableCollection<Bitmap?>(images);
 
+        RequiredTouchesCount = 1;
         SelectedGestureSetupPickIndex = 0;
+        MultitouchSteps = [1];
 
-        BindingDisplay = new BindingDisplayViewModel();
-        _gesture = new SerializableSwipeGesture();
-
-        SubscribeToSettingsChanges();
+        BindingDisplay = new BindingDisplayViewModel("Up 1-Touch Swipe", string.Empty, null!);
+        _gesture = new SwipeGesture();
 
         Deadline = 150;
         Threshold = 40;
     }
 
-    protected override void SubscribeToSettingsChanges()
-    {
-        PropertyChanged += OnSettingsTweaksChanged;
-
-        base.SubscribeToSettingsChanges();
-    }
-
     #endregion
 
     #region Methods
-
-    protected override void GoBack()
-    {
-        if (IsBindingSelectionStepActive) // Step 2
-        {
-            IsBindingSelectionStepActive = false;
-            IsOptionsSelectionStepActive = true;
-        }
-        else if (IsSettingsTweakingStepActive) // Step 3
-        {
-            IsSettingsTweakingStepActive = false;
-            IsBindingSelectionStepActive = true;
-        }
-        else // Step 1
-            base.GoBack();
-    }
-
-    protected override void GoNext()
-    {
-        if (IsOptionsSelectionStepActive)
-        {
-            IsOptionsSelectionStepActive = false;
-            IsBindingSelectionStepActive = true;
-
-            var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
-
-            BindingDisplay.Description = $"{value} Swipe";
-        }
-        else if (IsBindingSelectionStepActive)
-        {
-            IsBindingSelectionStepActive = false;
-            IsSettingsTweakingStepActive = true;
-        }
-    }
 
     /// <inheritdoc/>
     protected override void DoComplete()
@@ -148,7 +112,7 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
         if (GestureSetupPickItems?[SelectedGestureSetupPickIndex] is not SwipeDirection option)
             return;
 
-        OnSetupCompleted(this);
+        _completionSource.TrySetResult();
     }
 
     /// <inheritdoc/>
@@ -161,7 +125,8 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
         _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
         _gesture.Deadline = Deadline;
         _gesture.Direction = option;
-        _gesture.PluginProperty = BindingDisplay.PluginProperty;
+        _gesture.Store = BindingDisplay.Store;
+        _gesture.RequiredTouchesCount = RequiredTouchesCount;
 
         return _gesture;
     }
@@ -171,10 +136,19 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
     #region Events Handlers
 
     /// <inheritdoc/>
-    protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    protected override void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Threshold) || e.PropertyName == nameof(Deadline))
-            AreGestureSettingTweaked = Threshold > 0 && Deadline > 0;
+        switch (e.PropertyName)
+        {
+            case nameof(SelectedGestureSetupPickIndex) or nameof(RequiredTouchesCount):
+                BindingDisplay.Description = $"{GestureSetupPickItems?[SelectedGestureSetupPickIndex]} {RequiredTouchesCount}-Touch Swipe";
+                break;
+            case nameof(Threshold) or nameof(Deadline):
+                AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
+                break;
+        }
+
+        base.OnPropertyChanged(sender, e);
     }
 
     #endregion
@@ -193,4 +167,4 @@ public partial class SwipeSetupViewModel : GestureSetupViewModel
     #endregion
 }
 
-public class SwipeTileViewModel : GestureTileViewModel<SwipeSetupViewModel> {}
+public class SwipeTileViewModel : GestureTileViewModel<SwipeSetupViewModel> { }

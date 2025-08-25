@@ -2,8 +2,6 @@ using System;
 
 namespace TouchGestures.UX.ViewModels.Dialogs;
 
-#nullable enable
-
 public class TwoChoiceDialogViewModel : ViewModelBase
 {
     #region Events

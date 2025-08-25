@@ -1,33 +1,21 @@
-using OpenTabletDriver.Plugin;
+using TouchGestures.Bindings;
 using TouchGestures.Entities;
+using TouchGestures.Extensions;
 using TouchGestures.Lib.Entities.Tablet;
 
 namespace TouchGestures.Lib.Entities
 {
-    public class BulletproofBindableProfile : BindableProfile
+    public class BulletproofGestureProfile : GestureProfile
     {
-        public override void ConstructBindings(SharedTabletReference? tablet = null)
+        public override void ConstructBindings(SharedTabletReference tablet)
         {
-            if (tablet is not BulletproofSharedTabletReference bTablet)
-                return;
+            if (tablet is not BulletproofSharedTabletReference btablet) return;
 
-            foreach (var gesture in TapGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>(bTablet?.ServiceProvider);
-
-            foreach (var gesture in SwipeGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>(bTablet?.ServiceProvider);
-
-            foreach (var gesture in HoldGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>(bTablet?.ServiceProvider);
-
-            foreach (var gesture in PanGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>(bTablet?.ServiceProvider);
-
-            foreach (var gesture in PinchGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>(bTablet?.ServiceProvider);
-
-            foreach (var gesture in RotateGestures)
-                gesture.Binding = gesture.Store?.Construct<IBinding>(bTablet?.ServiceProvider);
+            foreach (var gesture in this)
+            {
+                gesture.Binding = new BulletproofBinding(gesture.Store, btablet.ToState(), btablet.ServiceProvider);
+                gesture.Binding?.Construct();
+            }
         }
     }
 }

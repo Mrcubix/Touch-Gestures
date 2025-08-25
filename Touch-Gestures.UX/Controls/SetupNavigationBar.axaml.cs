@@ -4,8 +4,6 @@ using Avalonia.Controls.Primitives;
 
 namespace TouchGestures.UX.Controls;
 
-#nullable enable
-
 public partial class SetupNavigationBar : TemplatedControl
 {
     public static readonly StyledProperty<string> BackButtonTextProperty = AvaloniaProperty.Register<SetupNavigationBar, string>(nameof(BackButtonText), "Back");

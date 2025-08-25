@@ -57,7 +57,7 @@ public abstract partial class NodeViewModel : ViewModelBase, INodeViewModel
     {
         Index = node.Index;
         Shape = node.Shape;
-        
+
         IsGestureStart = node.IsGestureStart;
         IsGestureEnd = node.IsGestureEnd;
 
@@ -83,6 +83,6 @@ public abstract partial class NodeViewModel : ViewModelBase, INodeViewModel
         get => _shape;
         init => SetProperty(ref _shape, value);
     }
-    
+
     public abstract bool IsWithinNode(Point position, float timestamp);
 }

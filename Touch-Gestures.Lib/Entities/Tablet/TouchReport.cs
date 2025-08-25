@@ -7,12 +7,12 @@ namespace TouchGestures.Lib.Entities.Tablet
 {
     public class TouchReport : ITouchReport
     {
-        public TouchReport() {}
-        
+        public TouchReport() { }
+
         public TouchReport(byte count = 0)
         {
             Touches = new TouchPoint[count];
-            
+
             for (int i = 0; i < count; i++)
                 Touches[i] = new TouchPoint();
         }

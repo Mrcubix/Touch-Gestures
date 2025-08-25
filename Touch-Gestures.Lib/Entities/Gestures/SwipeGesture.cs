@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Numerics;
 using Newtonsoft.Json;
+using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
@@ -15,15 +18,27 @@ namespace TouchGestures.Lib.Entities.Gestures
     ///   Represent a swipe gesture in any of the 8 directions in <see cref="SwipeDirection"/>.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public class SwipeGesture : MixedBasedGesture
+    public class SwipeGesture : MixedBasedGesture, ITouchesCountDependant
     {
         #region Fields
 
         protected bool _hasStarted = false;
+        protected bool _hasActivated = false;
         protected bool _hasEnded = false;
         protected bool _hasCompleted = false;
 
+        protected int _requiredTouchesCount;
+
+        protected List<TouchPoint> _currentPoints = null!;
+        protected TouchPoint[] _activatingPoints = null!;
+        protected bool[] _releasedPoints = null!;
+        protected int _previousReleasedCount = 0;
+        protected int _releasedCount = 0;
+
+
         protected Vector2 _delta = Vector2.Zero;
+        protected Vector2 _lastPosition = Vector2.Zero;
+        protected bool _isInvalidState = false;
 
         #endregion
 
@@ -34,8 +49,11 @@ namespace TouchGestures.Lib.Entities.Gestures
             IsRestrained = true;
 
             GestureStarted += (_, args) => OnGestureStart(args);
+            GestureActivated += (_, args) => OnGestureActive(args);
             GestureEnded += (_, args) => OnGestureEnd(args);
             GestureCompleted += (_, args) => OnGestureComplete(args);
+
+            RequiredTouchesCount = 1;
         }
 
         public SwipeGesture(Vector2 threshold) : this()
@@ -76,12 +94,25 @@ namespace TouchGestures.Lib.Entities.Gestures
             Bounds = bounds;
         }
 
+        public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, Rectangle bounds, int requiredTouches) : this(threshold, deadline, direction, bounds)
+        {
+            RequiredTouchesCount = requiredTouches;
+        }
+
+        public SwipeGesture(Vector2 threshold, double deadline, SwipeDirection direction, SharedArea? bounds, int requiredTouches) : this(threshold, deadline, direction, bounds)
+        {
+            RequiredTouchesCount = requiredTouches;
+        }
+
         #endregion
 
         #region Events
 
         /// <inheritdoc/>
         public override event EventHandler<GestureStartedEventArgs>? GestureStarted;
+
+        /// <inheritdoc/>
+        public override event EventHandler<GestureEventArgs>? GestureActivated;
 
         /// <inheritdoc/>
         public override event EventHandler<GestureEventArgs>? GestureEnded;
@@ -106,7 +137,22 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasStarted = value;
 
                 if (value && !previous)
-                    GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasEnded, _hasCompleted, StartPosition));
+                    GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasActivated, _hasEnded, _hasCompleted, StartPosition));
+            }
+        }
+
+        /// <inheritdoc/>
+        public override bool HasActivated
+        {
+            get => _hasActivated;
+            protected set
+            {
+                var previous = _hasActivated;
+
+                _hasActivated = value;
+
+                if (value && !previous)
+                    GestureActivated?.Invoke(this, new GestureEventArgs(_hasStarted, value, _hasEnded, _hasCompleted));
             }
         }
 
@@ -121,7 +167,7 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasEnded = value;
 
                 if (value && !previous)
-                    GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, value, _hasCompleted));
+                    GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, _hasActivated, value, _hasCompleted));
             }
         }
 
@@ -136,7 +182,7 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasCompleted = value;
 
                 if (value && !previous)
-                    GestureCompleted?.Invoke(this, new SwipeGestureEventArgs(_hasStarted, _hasEnded, value, Direction));
+                    GestureCompleted?.Invoke(this, new SwipeGestureEventArgs(_hasStarted, _hasActivated, _hasEnded, value, Direction));
             }
         }
 
@@ -147,6 +193,11 @@ namespace TouchGestures.Lib.Entities.Gestures
         /// <inheritdoc/>
         [JsonProperty]
         public override double Deadline { get; set; }
+
+        [JsonProperty]
+        public override GestureType Type => GestureType.Swipe;
+
+        public override string DisplayName => $"{RequiredTouchesCount}-Touch {Direction} Swipe";
 
         #endregion
 
@@ -159,7 +210,34 @@ namespace TouchGestures.Lib.Entities.Gestures
         /// <summary>
         ///   Whether or not the gesture has been invalidated at some point through the process.
         /// </summary>
-        public bool IsInvalidState { get; set; }
+        public bool IsInvalidState
+        {
+            get => _isInvalidState;
+            set => _isInvalidState = value;
+        }
+
+        /// <inheritdoc/>
+        [JsonProperty]
+        public int RequiredTouchesCount
+        {
+            get => _requiredTouchesCount;
+            set
+            {
+                var finalCount = value;
+
+                if (value < 1)
+                {
+                    Log.Write("Touch Gestures", "The number of required touches cannot be less than 1, setting to 1.", LogLevel.Warning);
+                    finalCount = 1;
+                }
+
+                _requiredTouchesCount = finalCount;
+
+                _currentPoints = new List<TouchPoint>(finalCount);
+                _activatingPoints = new TouchPoint[finalCount];
+                _releasedPoints = new bool[finalCount];
+            }
+        }
 
         #endregion
 
@@ -167,8 +245,14 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         protected virtual void CompleteGesture()
         {
+            HasActivated = true;
             HasCompleted = true;
-            HasEnded = true;
+
+            if (Binding != null)
+            {
+                Binding.Press(null!);
+                Binding.Release(null!);
+            }
         }
 
         #endregion
@@ -178,8 +262,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         /// <inheritdoc/>
         protected override void OnGestureStart(GestureStartedEventArgs e)
         {
-            HasEnded = false;
-            HasCompleted = false;
+            base.OnGestureStart(e);
 
             TimeStarted = DateTime.Now;
         }
@@ -188,15 +271,9 @@ namespace TouchGestures.Lib.Entities.Gestures
         protected override void OnGestureEnd(GestureEventArgs e)
         {
             // reset the gesture
-            HasStarted = false;
+            base.OnGestureEnd(e);
             StartPosition = Vector2.Zero;
             _delta = Vector2.Zero;
-        }
-
-        /// <inheritdoc/>
-        protected override void OnGestureComplete(GestureEventArgs e)
-        {
-            HasStarted = false;
         }
 
         /// <inheritdoc/>
@@ -204,53 +281,160 @@ namespace TouchGestures.Lib.Entities.Gestures
         {
             if (points.Length > 0)
             {
-                var point = points[0];
+                // 1. Check the currently active points, gesture may have been invalidated
+                _currentPoints = GestureUtilities.GetActivePoints(points, RequiredTouchesCount, ref _isInvalidState, out int currentIndex);
 
-                if (point != null)
+                if (_isInvalidState)
+                    return;
+
+                // 2. Has the gesture started ? Is the required number of touches active ?
+                if (HasStarted == false)
                 {
-                    // TODO: Swipes are stealing each others turn, an up swipe could mistakenly be started by a down swipe.
-                    if (!HasStarted)
+                    if (currentIndex == _requiredTouchesCount)
                     {
-                        if (IsRestrained && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
-                            return;
+                        StartPosition = Vector2.Zero;
 
-                        StartPosition = point.Position;
+                        // Check if the gesture is relative, in which case, the points must be inside the bounds
+                        if (IsRestrained && _bounds != null && !_bounds.IsZero())
+                            foreach (var point in _currentPoints)
+                            {
+                                if (point.IsInside(_bounds))
+                                    StartPosition += point.Position;
+                                else
+                                    return;
+                            }
+
+                        StartPosition /= RequiredTouchesCount;
+
+                        // Set the activating points
+                        _activatingPoints = _currentPoints.ToArray();
+
                         IsInvalidState = false;
                         HasStarted = true;
-                    }
-                    else
-                    {
-                        if (Deadline != 0 && (DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
-                            IsInvalidState = true;
-
-                        if (IsRestrained && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
-                            IsInvalidState = true;
-
-                        if (IsInvalidState)
-                        {
-                            HasEnded = true;
-                            return;
-                        }
-
-                        _delta = point.Position - StartPosition;
                     }
                 }
                 else
                 {
-                    // finger may have been lifter after reaching the threshold
-                    if (HasStarted)
-                    {
-                        OnDelta();
+                    // 3. Start by iterating over the activating points & check if they are still active
+                    CheckReleasedPoints();
 
-                        // Completed or not, the gesture has ended
-                        HasEnded = true;
+                    // 4. Check if the gesture is valid
+                    IsInvalidState |= Validate() == false;
+
+                    if (IsInvalidState == false && currentIndex == RequiredTouchesCount)
+                    {
+                        // 5. Calculate the average position
+                        var avgPosition = Vector2.Zero;
+
+                        foreach (var point in points)
+                            if (point != null)
+                                avgPosition += point.Position;
+
+                        avgPosition /= RequiredTouchesCount;
+                        _lastPosition = avgPosition;
+
+                        // 6. Calculate the delta
+
+                        _delta = avgPosition - StartPosition;
                     }
+
+                    OnInputCore();
+                }
+            }
+        }
+
+        protected virtual void OnInputCore()
+        {
+            if (_releasedPoints.All(released => released) && _currentPoints.Count == 0)
+            {
+                if (IsInvalidState == false)
+                    OnDelta();
+
+                HasEnded = true;
+            }
+        }
+
+        #region Checks
+
+        /// <summary>
+        ///   Checks the currently active points and sets the released points array.
+        ///   Also removes the points from the current points array if they have been released.
+        /// </summary>
+        protected virtual void CheckReleasedPoints()
+        {
+            if (_currentPoints.Count == 0)
+                Array.Fill(_releasedPoints, true);
+
+            _releasedCount = 0;
+
+            var enumerator = _activatingPoints.AsEnumerable().GetEnumerator();
+            var currentIndex = -1;
+
+            // We enumerate over activating points instead of current points for efficiency
+            while (IsInvalidState == false && enumerator.MoveNext())
+            {
+                currentIndex++;
+
+                TouchPoint ap = enumerator.Current;
+                int indexOf = _currentPoints.FindIndex(p => p.TouchID == ap.TouchID);
+
+                // 3.1. Check if the point is still active
+                if (indexOf != -1)
+                {
+                    var point = _currentPoints[indexOf];
+
+                    // 3.1.1. If Relative mode, check if the point is inside the bounds
+                    if (IsRestrained == false)
+                        if (point != null && _bounds != null && !_bounds.IsZero() && !point.IsInside(_bounds))
+                            IsInvalidState = true;
+
+                    // 3.1.2. The point has not been released, set it in the released points array
+                    _releasedPoints[currentIndex] = false;
+
+                    // 3.1.3. Remove the point from the current points array
+                    _currentPoints.RemoveAt(indexOf);
+                }
+                else
+                {
+                    // 3.2. the point has been released, set it in the released points array
+                    _releasedPoints[currentIndex] = true;
+                    _releasedCount++;
                 }
             }
         }
 
         /// <summary>
-        ///   Called when the delta is calculated.
+        ///   Checks if the gesture is still valid
+        /// </summary>
+        protected virtual bool Validate()
+        {
+            // If there are still points in the current points, 
+            // that means other touch points were pressed after the gesture started, 
+            // the state is invalid.
+            if (_currentPoints.Count > 0)
+                return false;
+
+            // An activating point was released but then it was pressed again
+            if (_previousReleasedCount > _releasedCount)
+                return false;
+
+            // Check if the deadline has been reached after the gesture has started
+            if (Deadline != 0 && (DateTime.Now - TimeStarted).TotalMilliseconds >= Deadline)
+                return false;
+
+            // Check if the points are still inside the bounds
+            if (IsRestrained && _bounds != null && !_bounds.IsZero())
+                foreach (var point in _currentPoints)
+                    if (!point.IsInside(_bounds))
+                        return false;
+
+            return true;
+        }
+
+        #endregion
+
+        /// <summary>
+        ///   Called
         /// </summary>
         protected virtual void OnDelta()
         {

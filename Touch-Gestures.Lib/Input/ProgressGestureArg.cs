@@ -9,7 +9,7 @@ namespace TouchGestures.Lib.Input
             LastCompletedNodeIndex = -1;
         }
 
-        public ProgressGestureArg(bool hasStarted, bool hasEnded, bool hasCompleted, int lastCompletedNodeIndex) : base(hasStarted, hasEnded, hasCompleted)
+        public ProgressGestureArg(bool hasStarted, bool hasActivated, bool hasEnded, bool hasCompleted, int lastCompletedNodeIndex) : base(hasStarted, hasActivated, hasEnded, hasCompleted)
         {
             LastCompletedNodeIndex = lastCompletedNodeIndex;
         }
