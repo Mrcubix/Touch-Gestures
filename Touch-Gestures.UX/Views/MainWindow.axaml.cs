@@ -18,7 +18,7 @@ namespace TouchGestures.UX.Views;
 
 public partial class MainWindow : AppMainWindow
 {
-    private static readonly BindingEditorDialogViewModel _bindingEditorDialogViewModel = new();
+    private static readonly BindingEditorDialogViewModel _bindingEditorDialogViewModel = new(true);
     private static readonly AdvancedBindingEditorDialogViewModel _advancedBindingEditorDialogViewModel = new();
     private static bool _isEditorDialogOpen = false;
 
