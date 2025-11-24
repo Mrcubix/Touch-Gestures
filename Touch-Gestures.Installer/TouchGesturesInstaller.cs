@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Threading;
 using System;
 using System.Diagnostics;
+using System.Security;
 
 namespace TouchGestures.Installer
 {
@@ -24,8 +25,8 @@ namespace TouchGestures.Installer
 
         private static readonly Assembly assembly = Assembly.GetExecutingAssembly();
 
-        private static readonly FileInfo location = new(assembly.Location);
-        private static readonly DirectoryInfo? pluginsDirectory = location.Directory?.Parent;
+        private static readonly FileInfo? location = assembly == null ? null : new(assembly.Location);
+        private static readonly DirectoryInfo? pluginsDirectory = location?.Directory?.Parent;
 
         private readonly DirectoryInfo? OTDEnhancedOutputModeDirectory = null;
 
@@ -33,23 +34,45 @@ namespace TouchGestures.Installer
 
         public TouchGesturesInstaller()
         {
+            Log.Write(PLUGIN_NAME, $"Installer Constructor Running...", LogLevel.Debug);
+            Log.Write(PLUGIN_NAME, $"pluginsDirectory: '{pluginsDirectory}' ({pluginsDirectory?.Exists})", LogLevel.Debug);
+
             if (pluginsDirectory == null || !pluginsDirectory.Exists)
             {
                 Log.Write(PLUGIN_NAME, $"Failed to get plugins directory : '{pluginsDirectory}'.", LogLevel.Error);
                 return;
             }
 
+            Log.Write(PLUGIN_NAME, $"Past Plugins Directory Check, now checking for Dependencies...", LogLevel.Debug);
+
             // Look for OTD.EnhancedOutputMode.dll within the plugins directory
-            foreach (var pluginDirectory in pluginsDirectory.GetDirectories())
+            try
             {
-                foreach (var file in pluginDirectory.GetFiles())
+                foreach (var pluginDirectory in pluginsDirectory.GetDirectories())
                 {
-                    if (file.Name == "OTD.EnhancedOutputMode.dll")
+                    foreach (var file in pluginDirectory.GetFiles())
                     {
-                        OTDEnhancedOutputModeDirectory = pluginDirectory;
-                        return;
+                        Log.Write(PLUGIN_NAME, $"file: '{file?.Name}'", LogLevel.Debug);
+
+                        if (file?.Name == "OTD.EnhancedOutputMode.dll")
+                        {
+                            OTDEnhancedOutputModeDirectory = pluginDirectory;
+                            return;
+                        }
                     }
                 }
+            }
+            catch (DirectoryNotFoundException dnf)
+            {
+                Log.Write(PLUGIN_NAME, $"Failed to get plugins directory : '{dnf.Message}'.", LogLevel.Error);
+            }
+            catch (UnauthorizedAccessException ua)
+            {
+                Log.Write(PLUGIN_NAME, $"Access to plugins directory was denied : '{ua.Message}'.", LogLevel.Error);
+            }
+            catch (SecurityException s)
+            {
+                Log.Write(PLUGIN_NAME, $"Some security exception occurred : '{s.Message}'.", LogLevel.Error);
             }
         }
 
