@@ -35,11 +35,20 @@ namespace TouchGestures.Installer
         public TouchGesturesInstaller()
         {
             Log.Write(PLUGIN_NAME, $"Installer Constructor Running...", LogLevel.Debug);
-            Log.Write(PLUGIN_NAME, $"pluginsDirectory: '{pluginsDirectory}' ({pluginsDirectory?.Exists})", LogLevel.Debug);
 
-            if (pluginsDirectory == null || !pluginsDirectory.Exists)
+            try
             {
-                Log.Write(PLUGIN_NAME, $"Failed to get plugins directory : '{pluginsDirectory}'.", LogLevel.Error);
+                Log.Write(PLUGIN_NAME, $"pluginsDirectory: '{pluginsDirectory}' ({pluginsDirectory?.Exists})", LogLevel.Debug);
+
+                if (pluginsDirectory == null || !pluginsDirectory.Exists)
+                {
+                    Log.Write(PLUGIN_NAME, $"Failed to get plugins directory : '{pluginsDirectory}'.", LogLevel.Error);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Write(PLUGIN_NAME, $"Broken .NET bahvior detected : Failed to even use the plugin directory variable: '{ex.Message}'.", LogLevel.Fatal);
                 return;
             }
 
