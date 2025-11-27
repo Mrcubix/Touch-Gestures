@@ -71,8 +71,6 @@ namespace TouchGestures.Installer
             {
                 foreach (var file in pluginDirectory.GetFiles())
                 {
-                    Log.Write(PLUGIN_NAME, $"file: '{file?.Name}'", LogLevel.Debug);
-
                     if (file?.Name == "OTD.EnhancedOutputMode.dll")
                     {
                         OTDEnhancedOutputModeDirectory = pluginDirectory;
