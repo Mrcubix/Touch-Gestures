@@ -4,9 +4,7 @@ using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
 using System.IO;
 using System.IO.Compression;
-using System.Threading;
 using System;
-using System.Diagnostics;
 
 namespace TouchGestures.Installer
 {
@@ -24,27 +22,56 @@ namespace TouchGestures.Installer
 
         private static readonly Assembly assembly = Assembly.GetExecutingAssembly();
 
-        private static readonly FileInfo location = new(assembly.Location);
-        private static readonly DirectoryInfo? pluginsDirectory = location.Directory?.Parent;
-
-        private readonly DirectoryInfo? OTDEnhancedOutputModeDirectory = null;
+        private readonly static FileInfo? location;
+        private readonly static DirectoryInfo? pluginsDirectory;
+        private readonly DirectoryInfo? OTDEnhancedOutputModeDirectory;
+        private static bool _isPathInitialized = false;
 
         private readonly string dependenciesResourcePath = $"Touch-Gestures.Installer.Touch-Gestures-{OTD_VERSION}.zip";
 
+        static TouchGesturesInstaller()
+        {
+            try
+            {
+                location = assembly == null ? null : new(assembly.Location);
+                pluginsDirectory = location?.Directory?.Parent;
+                _isPathInitialized = true;
+            }
+            catch (Exception ex)
+            {
+                Log.Write(PLUGIN_NAME, $"Broken .NET bahvior detected : Failed to even use the plugin directory variable: '{ex.Message}'.", LogLevel.Fatal);
+            }
+        }
+
         public TouchGesturesInstaller()
         {
+            Log.Write(PLUGIN_NAME, $"Installer Constructor Running...", LogLevel.Debug);
+
+            if (_isPathInitialized == false)
+            {
+                Log.Write(PLUGIN_NAME, "Due to broken .NET bahavior, " +
+                                       $"Your only way forward is to manually install the 'Touch-Gestures-{OTD_VERSION}.zip' package " +
+                                       $"to the 'OTD.EnhancedOutputMode' plugin directory. {Environment.NewLine}" +
+                                       "This mean this installer is no longer necessary and can be uninstalled.", LogLevel.Fatal);
+                return;
+            }
+
+            Log.Write(PLUGIN_NAME, $"Plugin Directory : '{pluginsDirectory}' ({pluginsDirectory?.Exists})", LogLevel.Debug);
+
             if (pluginsDirectory == null || !pluginsDirectory.Exists)
             {
                 Log.Write(PLUGIN_NAME, $"Failed to get plugins directory : '{pluginsDirectory}'.", LogLevel.Error);
                 return;
             }
 
+            Log.Write(PLUGIN_NAME, $"Checking for OTD.EnhancedOutputMode directory...", LogLevel.Debug);
+
             // Look for OTD.EnhancedOutputMode.dll within the plugins directory
             foreach (var pluginDirectory in pluginsDirectory.GetDirectories())
             {
                 foreach (var file in pluginDirectory.GetFiles())
                 {
-                    if (file.Name == "OTD.EnhancedOutputMode.dll")
+                    if (file?.Name == "OTD.EnhancedOutputMode.dll")
                     {
                         OTDEnhancedOutputModeDirectory = pluginDirectory;
                         return;
