@@ -1,9 +1,3 @@
-#region Assembly OpenTabletDriver.Plugin, Version=0.6.4.0, Culture=neutral, PublicKeyToken=null
-// c:\Users\tinta\Documents\Repo\C#\OTD\Plugins\0.5.x\Touch-Gestures\.modules\OpenTabletDriver.External.Bulletproof\.modules\OpenTabletDriver\OpenTabletDriver.Plugin\obj\Debug\net6.0\ref\OpenTabletDriver.Plugin.dll
-#endregion
-
-#nullable enable
-
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 

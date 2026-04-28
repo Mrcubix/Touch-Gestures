@@ -38,6 +38,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         declare -a files
+        # Add the Handlers
+        files+=("build/plugin/0.5.x/Touch-Gestures-0.5.x.zip")
+        files+=("build/plugin/0.6.x/Touch-Gestures-0.6.x.zip")
         # Add Installers
         files+=("build/installer/0.5.x/Touch-Gestures.Installer-0.5.x.zip")
         files+=("build/installer/0.6.x/Touch-Gestures.Installer-0.6.x.zip")

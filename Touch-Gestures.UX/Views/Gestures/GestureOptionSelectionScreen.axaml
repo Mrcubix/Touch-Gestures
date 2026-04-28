@@ -54,7 +54,7 @@
       </StackPanel>
     </Border>
 
-    <controls:SetupNavigationBar BackButtonText="Cancel" BackCommand="{Binding GoBackCommand}" NextCommand="{Binding GoNextCommand}"
+    <controls:SetupNavigationBar BackButtonText="{Binding BackButtonText}" BackCommand="{Binding GoBackCommand}" NextCommand="{Binding GoNextCommand}"
                                  Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" />
   </Grid>
 

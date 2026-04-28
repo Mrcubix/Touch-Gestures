@@ -34,6 +34,10 @@ platforms=("linux-x64" "linux-arm64" "linux-arm" "win-x64" "win-x86" "win-arm64"
 
 for platform in "${platforms[@]}"
 do
+    echo ""
+    echo "Building Touch-Gestures.UX.Desktop for $platform"
+    echo ""
+
     # build the desktop on linux & windows
     dotnet publish Touch-Gestures.UX.Desktop -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -r $platform -o build/ux/$platform -p:OTDVersion=OTD05
 done

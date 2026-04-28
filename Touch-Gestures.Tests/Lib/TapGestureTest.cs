@@ -10,10 +10,11 @@ namespace TouchGestures.Tests.Lib
 {
     using static TouchGestures.Tests.Samples.TapSamples;
 
+    [Collection("Tap Gesture Tests")]
     public class TapGestureTest
     {
         #region Constants & Readonly fields
-        
+
         protected const double DEADLINE = 500;
         protected const int TESTED_TOUCHES = 2;
 

@@ -42,8 +42,8 @@
       <otdextcontrols:BindingDisplay DataContext="{Binding BindingDisplay}" Margin="16" Width="650" />
     </Border>
 
-    <controls:SetupNavigationBar  BackCommand="{Binding GoBackCommand}" NextCommand="{Binding GoNextCommand}"
-                                  Grid.Row="1" HorizontalAlignment="Center" CanGoNext="{Binding IsGestureBindingSet}" />
+    <controls:SetupNavigationBar BackButtonText="{Binding BackButtonText}" BackCommand="{Binding GoBackCommand}" NextCommand="{Binding GoNextCommand}"
+                                 Grid.Row="1" HorizontalAlignment="Center" CanGoNext="{Binding IsGestureBindingSet}" />
   </Grid>
 
 </UserControl>

@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls.Primitives;
@@ -8,8 +7,6 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 
 namespace TouchGestures.UX.Controls;
-
-#nullable enable
 
 public partial class GestureTile : TemplatedControl, IDisposable
 {
@@ -45,7 +42,7 @@ public partial class GestureTile : TemplatedControl, IDisposable
 
     private IImage? _icon = _placeholderIcon;
 
-    public IImage? Icon 
+    public IImage? Icon
     {
         get => _icon;
         set => SetAndRaise(IconProperty, ref _icon, value);

@@ -67,8 +67,8 @@ namespace TouchGestures.Lib.Extensions
             // Area might be rotated so we need to check if the point is inside the rotated rectangle
             var angle = area.Rotation;
 
-            var cos = (float) System.Math.Cos(-angle);
-            var sin = (float) System.Math.Sin(-angle);
+            var cos = (float)System.Math.Cos(-angle);
+            var sin = (float)System.Math.Sin(-angle);
 
             var centeredPoint = point - area.Position;
 

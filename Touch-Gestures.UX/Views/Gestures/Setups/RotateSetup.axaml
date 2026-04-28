@@ -5,6 +5,7 @@
              xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels.Controls.Setups"
              xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
              xmlns:containers="clr-namespace:TouchGestures.UX.Controls.Containers"
+             xmlns:datatemplates="clr-namespace:TouchGestures.UX.DataTemplates"
              xmlns:gestures-views="clr-namespace:TouchGestures.UX.Views.Gestures"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="vm:RotateSetupViewModel"
@@ -13,6 +14,47 @@
   <Design.DataContext>
     <vm:PanSetupViewModel />
   </Design.DataContext>
+
+  <UserControl.DataTemplates>
+    <datatemplates:GestureSetupStepsDataTemplate>
+      <DataTemplate DataType="vm:RotateSetupViewModel">
+        <gestures-views:GestureOptionSelectionScreen />
+      </DataTemplate>
+      <DataTemplate DataType="vm:RotateSetupViewModel">
+        <gestures-views:GestureBindingSelectionScreen />
+      </DataTemplate>
+      <DataTemplate DataType="vm:RotateSetupViewModel">
+        <!-- Tweaks need to either have the same content, or need their own namespace -->
+        <Grid RowDefinitions="Auto, Auto, Auto" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+          <!-- Area Editor -->
+          <Border Name="VIEW_Area" Grid.Row="0" Margin="0, 12">
+            <containers:AreaEditor DataContext="{Binding AreaDisplay}" Margin="10" />
+          </Border>
+
+          <!-- Extra Settings For the Rotate Gesture -->
+          <Border Name="VIEW_Content" Grid.Row="1" Margin="0, 12">
+            <Grid ColumnDefinitions="Auto" RowDefinitions="Auto" Margin="16" HorizontalAlignment="Center">
+
+              <!-- Angle Threshold -->
+              <StackPanel Orientation="Horizontal" Grid.Column="0" ToolTip.Tip="The minimum angle before the gesture is recognized.">
+                <TextBlock Text="Angle Threshold:" />
+                <NumericUpDown Value="{Binding AngleThreshold}" Minimum="0" Maximum="1000" Increment="5" FormatString="{}{0:0}" />
+                <TextBlock Text="degrees" VerticalAlignment="Center" />
+              </StackPanel>
+
+            </Grid>
+          </Border>
+        
+          <!-- Navigation Buttons -->
+          <controls:SetupNavigationBar BackCommand="{Binding GoBackCommand}" NextCommand="{Binding DoCompleteCommand}"
+                                       BackButtonText="{Binding BackButtonText}" NextButtonText="Complete"
+                                       Grid.Row="2" HorizontalAlignment="Center" CanGoNext="{Binding AreGestureSettingTweaked}" />
+                                        
+        </Grid>
+      </DataTemplate>
+    </datatemplates:GestureSetupStepsDataTemplate>
+  </UserControl.DataTemplates>
 
   <UserControl.Styles>
     <Style Selector="Border#VIEW_Area">
@@ -39,35 +81,7 @@
   </UserControl.Styles>
 
   <Grid>
-
-    <gestures-views:GestureOptionSelectionScreen IsVisible="{Binding IsOptionsSelectionStepActive}" />
-    <gestures-views:GestureBindingSelectionScreen IsVisible="{Binding IsBindingSelectionStepActive}" />
-    
-    <!-- Tweaks need to either have the same content, or need their own namespace -->
-    <Grid RowDefinitions="Auto, Auto, Auto" IsVisible="{Binding IsSettingsTweakingStepActive}" 
-          HorizontalAlignment="Center" VerticalAlignment="Center">
-
-      <Border Name="VIEW_Area" Grid.Row="0" Margin="0, 12">
-        <containers:AreaEditor DataContext="{Binding AreaDisplay}" Margin="10" />
-      </Border>
-
-      <Border Name="VIEW_Content" Grid.Row="1" Margin="0, 12">
-        <Grid ColumnDefinitions="Auto" RowDefinitions="Auto" Margin="16" HorizontalAlignment="Center">
-
-          <StackPanel Orientation="Horizontal" Grid.Column="0" ToolTip.Tip="The minimum angle before the gesture is recognized.">
-            <TextBlock Text="Angle Threshold:" />
-            <NumericUpDown Value="{Binding AngleThreshold}" Minimum="0" Maximum="1000" Increment="5" FormatString="{}{0:0}" />
-            <TextBlock Text="degrees" VerticalAlignment="Center" />
-          </StackPanel>
-
-        </Grid>
-      </Border>
-    
-      <controls:SetupNavigationBar  BackCommand="{Binding GoBackCommand}" NextCommand="{Binding DoCompleteCommand}" NextButtonText="Complete"
-                                    Grid.Row="2" HorizontalAlignment="Center" CanGoNext="{Binding AreGestureSettingTweaked}" />
-                                    
-    </Grid>
-
+    <ContentControl Name="PART_Content" Content="{Binding}" />
   </Grid>
 
 </UserControl>

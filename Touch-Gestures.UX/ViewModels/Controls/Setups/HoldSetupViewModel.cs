@@ -6,8 +6,8 @@ using System.Numerics;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using OpenTabletDriver.External.Avalonia.ViewModels;
+using TouchGestures.Lib.Entities.Gestures;
 using TouchGestures.Lib.Entities.Gestures.Bases;
-using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Attributes;
 using TouchGestures.UX.Extentions;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
@@ -17,26 +17,21 @@ namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
 using static AssetLoaderExtensions;
 
-#nullable enable
-
 [Name("Hold"), Icon("Assets/Setups/Hold/hold.png"),
  Description("A gesture completed by holding any specified number of fingers down for a specified amount of time"),
  MultiTouchOnly(false)]
 public partial class HoldSetupViewModel : TapSetupViewModel
 {
-    private readonly SerializableHoldGesture _gesture;
+    private readonly HoldGesture _gesture;
 
     #region Constructors
 
     /// Design-time constructor
-    public HoldSetupViewModel() : this(false)
-    {
-        IsOptionsSelectionStepActive = true;
-    }
+    public HoldSetupViewModel() : this(false) { }
 
     public HoldSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
-        if (gesture is not SerializableHoldGesture serializedHoldGesture)
+        if (gesture is not HoldGesture serializedHoldGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
 
         _gesture = serializedHoldGesture;
@@ -49,10 +44,11 @@ public partial class HoldSetupViewModel : TapSetupViewModel
 
         SelectedGestureSetupPickIndex = serializedHoldGesture.RequiredTouchesCount - 1;
 
-        BindingDisplay.PluginProperty = serializedHoldGesture.PluginProperty;
-        BindingDisplay.Description = $"{serializedHoldGesture.RequiredTouchesCount}-Touch Hold";
+        BindingDisplay.Store = serializedHoldGesture.Store;
+        BindingDisplay.Content = serializedHoldGesture.Store?.GetHumanReadableString();
+        BindingDisplay.Description = gesture.DisplayName;
 
-        SetupArea(fullArea, serializedHoldGesture.Bounds);
+        AreaDisplay = SetupArea(fullArea, serializedHoldGesture.Bounds);
     }
 
     public HoldSetupViewModel(bool isEditing = false)
@@ -61,6 +57,8 @@ public partial class HoldSetupViewModel : TapSetupViewModel
 
         CanGoBack = true;
         CanGoNext = true;
+
+        SubscribeToSettingsChanges();
 
         GestureSetupPickText = "Number of holds:";
         GestureSetupPickItems = new ObservableCollection<object>(Enumerable.Range(1, 10).Cast<object>());
@@ -81,12 +79,11 @@ public partial class HoldSetupViewModel : TapSetupViewModel
         GestureSetupPickPreviews = new ObservableCollection<Bitmap?>(images);
 
         SelectedGestureSetupPickIndex = 0;
+        MultitouchSteps = [0];
 
-        BindingDisplay = new BindingDisplayViewModel("1-Touch Hold", string.Empty, null);
+        BindingDisplay = new BindingDisplayViewModel("1-Touch Hold", string.Empty, null!);
         AreaDisplay = new AreaDisplayViewModel();
-        _gesture = new SerializableHoldGesture();
-
-        SubscribeToSettingsChanges();
+        _gesture = new HoldGesture();
 
         // A 1s time threshold to trigger the hold
         Deadline = 1000;
@@ -99,24 +96,6 @@ public partial class HoldSetupViewModel : TapSetupViewModel
 
     #region Methods
 
-    protected override void GoNext()
-    {
-        if (IsOptionsSelectionStepActive)
-        {
-            IsOptionsSelectionStepActive = false;
-            IsBindingSelectionStepActive = true;
-
-            var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
-
-            BindingDisplay.Description = $"{value}-Touch Hold";
-        }
-        else if (IsBindingSelectionStepActive)
-        {
-            IsBindingSelectionStepActive = false;
-            IsSettingsTweakingStepActive = true;
-        }
-    }
-
     /// <inheritdoc/>
     public override Gesture? BuildGesture()
     {
@@ -128,7 +107,7 @@ public partial class HoldSetupViewModel : TapSetupViewModel
 
         _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
         _gesture.RequiredTouchesCount = option;
-        _gesture.PluginProperty = BindingDisplay.PluginProperty;
+        _gesture.Store = BindingDisplay.Store;
 
         return _gesture;
     }
@@ -138,10 +117,19 @@ public partial class HoldSetupViewModel : TapSetupViewModel
     #region Events Handlers
 
     /// <inheritdoc/>
-    protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    protected override void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Deadline) || e.PropertyName == nameof(Threshold))
-            AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
+        switch (e.PropertyName)
+        {
+            case nameof(SelectedGestureSetupPickIndex):
+                BindingDisplay.Description = $"{GestureSetupPickItems?[SelectedGestureSetupPickIndex]}-Touch Hold";
+                break;
+            case nameof(Deadline) or nameof(Threshold):
+                AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
+                break;
+        }
+
+        base.OnPropertyChanged(sender, e);
     }
 
     #endregion

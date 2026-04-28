@@ -4,8 +4,6 @@ using TouchGestures.UX.ViewModels.Controls.Nodes;
 
 namespace TouchGestures.UX.Interfaces.Nodes;
 
-#nullable enable
-
 public interface INodeBuilder : IDisposable
 {
     /// <summary>

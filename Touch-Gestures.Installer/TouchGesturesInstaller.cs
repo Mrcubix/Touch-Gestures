@@ -4,9 +4,9 @@ using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
 using System.IO;
 using System.IO.Compression;
-using System.Threading;
 using System;
-using System.Diagnostics;
+using OpenTabletDriver.Desktop.Reflection;
+using System.Runtime.Loader;
 
 namespace TouchGestures.Installer
 {
@@ -23,28 +23,58 @@ namespace TouchGestures.Installer
 #endif
 
         private static readonly Assembly assembly = Assembly.GetExecutingAssembly();
+        private static readonly DesktopPluginContext? context = AssemblyLoadContext.GetLoadContext(assembly) as DesktopPluginContext;
 
-        private static readonly FileInfo location = new(assembly.Location);
-        private static readonly DirectoryInfo? pluginsDirectory = location.Directory?.Parent;
-
-        private readonly DirectoryInfo OTDEnhancedOutputModeDirectory = null!;
+        private readonly static DirectoryInfo? directory;
+        private readonly static DirectoryInfo? pluginsDirectory;
+        private readonly DirectoryInfo? OTDEnhancedOutputModeDirectory;
+        private static bool _isPathInitialized = false;
 
         private readonly string dependenciesResourcePath = $"Touch-Gestures.Installer.Touch-Gestures-{OTD_VERSION}.zip";
 
+        static TouchGesturesInstaller()
+        {
+            try
+            {
+                directory = context?.Directory;
+                pluginsDirectory = directory?.Parent;
+                _isPathInitialized = true;
+            }
+            catch (Exception ex)
+            {
+                Log.Write(PLUGIN_NAME, $"Broken .NET bahavior detected : Failed to even use the plugin directory variable: '{ex.Message}'.", LogLevel.Fatal);
+            }
+        }
+
         public TouchGesturesInstaller()
         {
-            if (pluginsDirectory == null || !pluginsDirectory.Exists)
+            Log.Write(PLUGIN_NAME, $"Installer Constructor Running...", LogLevel.Debug);
+
+            if (_isPathInitialized == false)
             {
-                Log.Write(PLUGIN_NAME, "Failed to get plugins directory.", LogLevel.Error);
+                Log.Write(PLUGIN_NAME, "Due to broken .NET bahavior, " +
+                                       $"Your only way forward is to manually install the 'Touch-Gestures-{OTD_VERSION}.zip' package " +
+                                       $"to the 'OTD.EnhancedOutputMode' plugin directory. {Environment.NewLine}" +
+                                       "This mean this installer is no longer necessary and can be uninstalled.", LogLevel.Fatal);
                 return;
             }
+
+            Log.Write(PLUGIN_NAME, $"Plugin Directory : '{pluginsDirectory}' ({pluginsDirectory?.Exists})", LogLevel.Debug);
+
+            if (pluginsDirectory == null || !pluginsDirectory.Exists)
+            {
+                Log.Write(PLUGIN_NAME, $"Failed to get plugins directory : '{pluginsDirectory}'.", LogLevel.Error);
+                return;
+            }
+
+            Log.Write(PLUGIN_NAME, $"Checking for OTD.EnhancedOutputMode directory...", LogLevel.Debug);
 
             // Look for OTD.EnhancedOutputMode.dll within the plugins directory
             foreach (var pluginDirectory in pluginsDirectory.GetDirectories())
             {
                 foreach (var file in pluginDirectory.GetFiles())
                 {
-                    if (file.Name == "OTD.EnhancedOutputMode.dll")
+                    if (file?.Name == "OTD.EnhancedOutputMode.dll")
                     {
                         OTDEnhancedOutputModeDirectory = pluginDirectory;
                         return;
@@ -59,15 +89,18 @@ namespace TouchGestures.Installer
             return true;
         }
 
-        public bool Install(Assembly assembly, string group, string resourcePath, DirectoryInfo destinationDirectory, bool forceInstall = false)
+        public static bool Install(Assembly assembly, string group, string resourcePath, DirectoryInfo? destinationDirectory, bool forceInstall = false)
         {
+            if (_isPathInitialized == false)
+                return false;
+
             if (pluginsDirectory == null || !pluginsDirectory.Exists)
             {
                 Log.Write(group, "Failed to get plugins directory.", LogLevel.Error);
                 return false;
             }
 
-            if (!OTDEnhancedOutputModeDirectory.Exists)
+            if (destinationDirectory == null || !destinationDirectory.Exists)
             {
                 Log.Write(group, "OTD.EnhancedOutputMode is not installed.", LogLevel.Error);
                 return false;
@@ -77,7 +110,7 @@ namespace TouchGestures.Installer
 
             if (dependencies == null)
             {
-                Log.Write(group, "Failed to open embedded dependencies.", LogLevel.Error);
+                Log.Write(group, $"Failed to open embedded dependencies using path: '{resourcePath}'.", LogLevel.Error);
                 return false;
             }
 
@@ -120,7 +153,7 @@ namespace TouchGestures.Installer
             {
                 string successMessage = $"Successfully installed {installed} of {entriesCount} dependencies.";
                 string spacer = new('-', successMessage.Length);
-                
+
                 Log.Write(group, spacer, LogLevel.Info);
                 Log.Write(group, $"Installed {installed} of {entriesCount} dependencies.", LogLevel.Info);
                 Log.Write(group, $"You may need to restart OpenTabletDriver before the plugin can be enabled.", LogLevel.Info);
@@ -130,7 +163,7 @@ namespace TouchGestures.Installer
             return true;
         }
 
-        public void Dispose() {}
+        public void Dispose() { }
 
         [BooleanProperty("Force Install", ""),
          DefaultPropertyValue(false),
