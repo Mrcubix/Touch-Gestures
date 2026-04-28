@@ -5,6 +5,8 @@ using OpenTabletDriver.Plugin.Attributes;
 using System.IO;
 using System.IO.Compression;
 using System;
+using OpenTabletDriver.Desktop.Reflection;
+using System.Runtime.Loader;
 
 namespace TouchGestures.Installer
 {
@@ -21,8 +23,9 @@ namespace TouchGestures.Installer
 #endif
 
         private static readonly Assembly assembly = Assembly.GetExecutingAssembly();
+        private static readonly DesktopPluginContext? context = AssemblyLoadContext.GetLoadContext(assembly) as DesktopPluginContext;
 
-        private readonly static FileInfo? location;
+        private readonly static DirectoryInfo? directory;
         private readonly static DirectoryInfo? pluginsDirectory;
         private readonly DirectoryInfo? OTDEnhancedOutputModeDirectory;
         private static bool _isPathInitialized = false;
@@ -33,13 +36,13 @@ namespace TouchGestures.Installer
         {
             try
             {
-                location = assembly == null ? null : new(assembly.Location);
-                pluginsDirectory = location?.Directory?.Parent;
+                directory = context?.Directory;
+                pluginsDirectory = directory?.Parent;
                 _isPathInitialized = true;
             }
             catch (Exception ex)
             {
-                Log.Write(PLUGIN_NAME, $"Broken .NET bahvior detected : Failed to even use the plugin directory variable: '{ex.Message}'.", LogLevel.Fatal);
+                Log.Write(PLUGIN_NAME, $"Broken .NET bahavior detected : Failed to even use the plugin directory variable: '{ex.Message}'.", LogLevel.Fatal);
             }
         }
 
@@ -88,6 +91,9 @@ namespace TouchGestures.Installer
 
         public static bool Install(Assembly assembly, string group, string resourcePath, DirectoryInfo? destinationDirectory, bool forceInstall = false)
         {
+            if (_isPathInitialized == false)
+                return false;
+
             if (pluginsDirectory == null || !pluginsDirectory.Exists)
             {
                 Log.Write(group, "Failed to get plugins directory.", LogLevel.Error);

@@ -131,11 +131,16 @@ build_installer () {
     echo ""
 
     # Build the installer
-    if ! dotnet publish Touch-Gestures.Installer -c Release -f $targetFramework -p:noWarn='"NETSDK1138;VSTHRD200"' -o build/installer/$version;
+    if ! dotnet publish Touch-Gestures.Installer -c Release -f $targetFramework -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/installer/$version;
     then
         echo "Failed to build Touch-Gestures.Installer for $version"
         exit 1
     fi
+
+    mkdir -p build/installer/$version
+
+    # Copy the installer to the output directory
+    cp temp/installer/$version/Touch-Gestures.Installer.* build/installer/$version
 
     (
         cd build/installer/$version
@@ -170,7 +175,7 @@ do
     echo "Building Touch-Gestures $version"
     echo ""
 
-    #Build the plugin, exit on failure
+    # Build the plugin, exit on failure
     if ! dotnet publish "Touch-Gestures$suffix" -c Release -p:noWarn='"NETSDK1138;VSTHRD200"' -o temp/plugin/$version ;
     then
         echo "Failed to build Touch-Gestures for $version"
