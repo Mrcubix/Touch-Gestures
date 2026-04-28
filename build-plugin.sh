@@ -22,6 +22,7 @@ main=("Touch-Gestures.dll"
       "OpenTabletDriver.External.Common.dll" 
       "Newtonsoft.Json.dll"
       "StreamJsonRpc.dll"
+      "Microsoft.Bcl.AsyncInterfaces.dll"
       "Touch-Gestures.pdb" 
       "Touch-Gestures.Lib.pdb"
       "OpenTabletDriver.External.Common.pdb")
