@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# from https://stackoverflow.com/a/77441678/14919482
+
+DIR=$(dirname "$0")
+ARM64=$(sysctl -ni hw.optional.arm64)
+
+if [[ "$ARM64" == 1 ]]; then
+    exec "$DIR/osx-arm64/Touch-Gestures.UX.Desktop"
+else
+    exec "$DIR/osx-x64/Touch-Gestures.UX.Desktop"
+fi

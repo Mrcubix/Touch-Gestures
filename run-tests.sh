@@ -1,1 +1,1 @@
-dotnet test -p:nowarn=NETSDK1138 -p:OTDVersion=OTD05 --logger "console;verbosity=detailed"
+dotnet test -p:nowarn=NETSDK1138 --logger "console;verbosity=detailed"

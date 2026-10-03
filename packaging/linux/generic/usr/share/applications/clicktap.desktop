@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=VERSION_PLACEHOLDER
+Name=Click & Tap Configuration
+Name[en_GB]=Click & Tap Configuration
+Comment=Configure Click & Tap Bindings using this interface
+Icon=/usr/share/pixmaps/clicktap.png
+Exec=/usr/bin/clicktap
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=Settings;
