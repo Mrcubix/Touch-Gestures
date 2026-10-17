@@ -6,6 +6,11 @@ on:
       tag:
         description: 'The tag to create for the release'
         required: true
+      debug:
+        description: 'Debug mode'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   release:
@@ -79,6 +84,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
+
+      - name: Debug print drafted release
+        if: ${{ github.event.inputs.debug }}
+        run: gh release view "$TAG"
 
       - name: Download MacOS Universal Build
         env:
