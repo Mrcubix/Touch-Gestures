@@ -14,7 +14,7 @@ declare -g OUTPUT="build/packages"
 
 PACKAGE_NAME="Touch-Gestures"
 PACKAGE_LNAME="Touch-Gestures.UX"
-PACKAGE_VERSION="0.9.3"
+PACKAGE_VERSION="1.2.0"
 
 ### Automatically handle errors and exit
 
@@ -93,7 +93,7 @@ copy_pixmap_assets() {
     rm -rf "${output_folder:?}"/*
   fi
 
-  cp "${REPO_ROOT}/Touch-Gestures.UX/Assets"/* "${output_folder}"
+  cp "${REPO_ROOT}/Touch-Gestures.UX/Assets"/*.png "${output_folder}"
 }
 
 create_source_tarball() {
