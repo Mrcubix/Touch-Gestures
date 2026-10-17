@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using OpenTabletDriver.Desktop.Reflection;
+using OpenTabletDriver.External.Common.Enums;
 using OpenTabletDriver.External.Common.RPC;
 using OpenTabletDriver.External.Common.Serializables;
+using OpenTabletDriver.External.Common.Serializables.Properties;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
-using TouchGestures.Lib.Converters;
+using TouchGestures.Converters;
+using TouchGestures.Extensions.Reflection;
+using TouchGestures.Lib;
+using TouchGestures.Lib.Converters.Json;
 using TouchGestures.Lib.Entities;
-using TouchGestures.Lib.Extensions;
 
 namespace TouchGestures
 {
@@ -24,39 +25,29 @@ namespace TouchGestures
     {
         #region Constructors
 
-        public GesturesDaemon()
+        public GesturesDaemon() : base()
         {
-#if DEBUG
-            WaitForDebugger();
-#endif
+            var _profileConverter = new GestureProfileConverter();
+
             if (_rpcServer == null)
             {
                 _rpcServer = new RpcServer<GesturesDaemonBase>("GesturesDaemon", this);
                 _rpcServer.Converters.Add(new SharedAreaConverter());
+                _rpcServer.Converters.Add(_profileConverter);
             }
+
+            Settings.Converters.Add(_profileConverter);
 
             Instance ??= this;
-        }
-        
-        private void WaitForDebugger()
-        {
-            Console.WriteLine("Waiting for debugger to attach...");
-
-            while (!Debugger.IsAttached)
-            {
-                Thread.Sleep(100);
-            }
         }
 
         #endregion
 
-        #region RPC Methods
+        #region Methods
 
-        public override Task<List<SerializablePlugin>> GetPlugins()
+        protected override void SerializePlugins()
         {
-            Log.Write("Gestures Daemon", "Getting plugins...");
-
-            List<SerializablePlugin> plugins = new();
+            Plugins.Clear();
 
             foreach (var IdentifierPluginPair in IdentifierToPluginConversion)
             {
@@ -64,40 +55,50 @@ namespace TouchGestures
 
                 var store = new PluginSettingStore(plugin);
 
-                // ALL that extra reflection bs just to get valid keys
-                var property = store.GetTypeInfo()?.FindPropertyWithAttribute<PropertyValidatedAttribute>();
+                var type = store.GetTypeInfo();
 
-                if (property == null)
+                if (type == null)
+                    continue; // type doesn't exist
+
+                // There are situation where the name isn't specified, in which case we use the type's FullName
+                var pluginName = plugin.GetCustomAttribute<PluginNameAttribute>()?.Name
+                                 ?? plugin.FullName ?? $"Plugin {IdentifierPluginPair.Key}";
+
+                // We only support properties decorated with the [Property] attribute
+                var properties = from property in type.GetProperties()
+                                 let attrs = property.GetCustomAttributes(true)
+                                 where attrs.Any(attr => attr is PropertyAttribute)
+                                 select property;
+
+                // We now need to serialized all properties
+                var serializedProperties = new List<SerializableProperty>();
+
+                try
+                {
+                    foreach (var property in properties)
+                    {
+                        var serialized = property.ToSerializable();
+                        serializedProperties.Add(serialized);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Write(PLUGIN_NAME, $"An Error occured while serializing a property from '{pluginName}': {ex.Message}", LogLevel.Error);
                     continue;
+                }
 
-                var attribute = property.GetCustomAttribute<PropertyValidatedAttribute>();
-
-                if (attribute == null)
-                    continue;
-
-                var validKeys = attribute.GetValue<IEnumerable<string>>(property);
-
-                var serializablePlugin = new SerializablePlugin(plugin.GetCustomAttribute<PluginNameAttribute>()?.Name,
-                                                                plugin.FullName,
-                                                                IdentifierPluginPair.Key,
-                                                                validKeys.ToArray());
-
-                plugins.Add(serializablePlugin);
+                Plugins.Add(
+                    new SerializablePlugin(pluginName,
+                                           plugin.FullName,
+                                           IdentifierPluginPair.Key,
+                                           serializedProperties)
+                    {
+                        Type = PluginType.Binding
+                    }
+                );
             }
 
-            Log.Write("Gestures Daemon", $"Found {plugins.Count} Usable Bindings Plugins.");
-
-            return Task.FromResult(plugins);
-        }
-
-        public override Task<bool> StartRecording()
-        {
-            return Task.FromResult(true);
-        }
-
-        public override Task<bool> StopRecording()
-        {
-            return Task.FromResult(true);
+            Log.Write(PLUGIN_NAME, $"Found {Plugins.Count} Usable Bindings Plugins.");
         }
 
         #endregion

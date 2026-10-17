@@ -9,13 +9,13 @@
   <!-- NET 5 Only -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
     <!-- OpenTabletDriver.Plugin -->
-    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" Private="False" />
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" Private="False" />
   </ItemGroup>
 
   <!-- NET 6 Only -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <!-- OpenTabletDriver.Plugin -->
-    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Plugin/OpenTabletDriver.Plugin.csproj" Private="False" />
+    <ProjectReference Include="../.modules/OTD.EnhancedOutputMode-0.6.x/.modules/OpenTabletDriver/OpenTabletDriver.Desktop/OpenTabletDriver.Desktop.csproj" Private="False" />
   </ItemGroup>
 
   <!-- embed ressource /build/plugin/Wheel-Addon.zip -->

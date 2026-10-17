@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using OpenTabletDriver.External.Common.Contracts;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Input;
 
 namespace TouchGestures.Lib.Contracts
 {
     public interface IGesturesDaemon : IPluginDaemon
     {
         event EventHandler<IEnumerable<SharedTabletReference>> TabletsChanged;
+        event EventHandler<DeviceReportEventArgs> DeviceReport;
 
         /// <summary>
         ///   Returns whether a tablet is connected.
@@ -22,7 +24,7 @@ namespace TouchGestures.Lib.Contracts
         ///   Returns the connected tablets.
         /// </summary>
         public Task<IEnumerable<SharedTabletReference>> GetTablets();
-        
+
         /// <summary>
         ///   Returns the tablet size.
         /// </summary>
@@ -44,7 +46,7 @@ namespace TouchGestures.Lib.Contracts
         /// <summary>
         ///   Request settings in serializable form.
         /// </summary>
-        public Task<SerializableSettings> GetSettings();
+        public Task<Settings> GetSettings();
 
         /// <summary>
         ///   Save settings.
@@ -55,23 +57,23 @@ namespace TouchGestures.Lib.Contracts
         /// <summary>
         ///   Update All settings.
         /// </summary>
-        public Task<bool> UpdateSettings(SerializableSettings settings);
+        public Task<bool> UpdateSettings(Settings settings);
 
         /// <summary>
         ///   Update a specific profile.
         /// </summary>
         /// <param name="profile">The profile to update.</param>
         /// <returns>True if the profile was updated successfully, false otherwise.</returns>
-        public Task<bool> UpdateProfile(SerializableProfile profile);
+        public Task<bool> UpdateProfile(GestureProfile profile);
 
         /// <summary>
         ///   Start recording (Used for future node-based gesture creation).
         /// </summary>
-        public Task<bool> StartRecording();
+        public Task<bool> StartRecording(SharedTabletReference tablet);
 
         /// <summary>
         ///   Stop recording (Used for future node-based gesture creation).
         /// </summary>
-        public Task<bool> StopRecording();
+        public Task<bool> StopRecording(SharedTabletReference tablet);
     }
 }

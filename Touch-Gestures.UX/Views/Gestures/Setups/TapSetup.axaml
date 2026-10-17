@@ -5,6 +5,7 @@
              xmlns:vm="clr-namespace:TouchGestures.UX.ViewModels.Controls.Setups"
              xmlns:controls="clr-namespace:TouchGestures.UX.Controls"
              xmlns:containers="clr-namespace:TouchGestures.UX.Controls.Containers"
+             xmlns:datatemplates="clr-namespace:TouchGestures.UX.DataTemplates"
              xmlns:gestures-views="clr-namespace:TouchGestures.UX.Views.Gestures"
              mc:Ignorable="d" d:DesignWidth="768" d:DesignHeight="628"
              x:DataType="vm:TapSetupViewModel"
@@ -13,6 +14,57 @@
   <Design.DataContext>
     <vm:TapSetupViewModel />
   </Design.DataContext>
+
+  <UserControl.DataTemplates>
+    <datatemplates:GestureSetupStepsDataTemplate>
+      <DataTemplate DataType="vm:TapSetupViewModel">
+        <gestures-views:GestureOptionSelectionScreen />
+      </DataTemplate>
+      <DataTemplate DataType="vm:TapSetupViewModel">
+        <gestures-views:GestureBindingSelectionScreen />
+      </DataTemplate>
+      <DataTemplate DataType="vm:TapSetupViewModel">
+        <Grid RowDefinitions="Auto, Auto, Auto" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+          <!-- Area Editor -->
+          <Border Name="VIEW_Area" Grid.Row="0" Margin="0, 12">
+            <containers:AreaEditor DataContext="{Binding AreaDisplay}" Margin="10" />
+          </Border>
+
+          <!-- Extra Settings For the Tap Gesture -->
+          <Border Name="VIEW_Content" Grid.Row="1" Margin="0, 12">
+
+            <Grid ColumnDefinitions="Auto" RowDefinitions="Auto" Margin="16" HorizontalAlignment="Center">
+
+              <!-- Deadline -->
+              <StackPanel Orientation="Horizontal" Grid.Column="0" ToolTip.Tip="The time in milliseconds that the gesture must be completed once a touch is released.">
+                <TextBlock Text="Deadline:" />
+                <NumericUpDown Value="{Binding Deadline}" Minimum="0" Maximum="1000" Increment="5" FormatString="{}{0:0}" />
+                <TextBlock Text="ms" VerticalAlignment="Center" />
+              </StackPanel>
+
+              <!--
+              <TextBlock Grid.Column="1" Padding="16, 0, 24, 0" />
+
+              <StackPanel Orientation="Horizontal" Grid.Column="2" ToolTip.Tip="The maximum distance in lines that the gesture can be moved from the starting point.">
+                <TextBlock Text="Threshold:" />
+                <NumericUpDown Value="{Binding Threshold}" Minimum="0" Maximum="1000" Increment="5" FormatString="{}{0:0}" />
+                <TextBlock Text="lines" VerticalAlignment="Center" />
+              </StackPanel>
+              -->
+
+            </Grid>
+
+          </Border>
+        
+          <!-- Navigation Buttons -->
+          <controls:SetupNavigationBar BackCommand="{Binding GoBackCommand}" NextCommand="{Binding DoCompleteCommand}" 
+                                       BackButtonText="{Binding BackButtonText}" NextButtonText="Complete"
+                                       Grid.Row="2" HorizontalAlignment="Center" CanGoNext="{Binding AreGestureSettingTweaked}" />
+        </Grid>
+      </DataTemplate>
+    </datatemplates:GestureSetupStepsDataTemplate>
+  </UserControl.DataTemplates>
 
   <UserControl.Styles>
     <Style Selector="Border#VIEW_Area">
@@ -39,44 +91,7 @@
   </UserControl.Styles>
 
   <Grid>
-    <gestures-views:GestureOptionSelectionScreen IsVisible="{Binding IsOptionsSelectionStepActive}" />
-    <gestures-views:GestureBindingSelectionScreen IsVisible="{Binding IsBindingSelectionStepActive}" />
-    <Grid RowDefinitions="Auto, Auto, Auto" IsVisible="{Binding IsSettingsTweakingStepActive}" 
-          HorizontalAlignment="Center" VerticalAlignment="Center">
-
-      <Border Name="VIEW_Area" Grid.Row="0" Margin="0, 12">
-        <containers:AreaEditor DataContext="{Binding AreaDisplay}" Margin="10" />
-      </Border>
-
-      <!-- Some numerical Inputs -->
-      <Border Name="VIEW_Content" Grid.Row="1" Margin="0, 12">
-
-        <Grid ColumnDefinitions="Auto" RowDefinitions="Auto" Margin="16" HorizontalAlignment="Center">
-
-          <StackPanel Orientation="Horizontal" Grid.Column="0" ToolTip.Tip="The time in milliseconds that the gesture must be completed once a touch is released.">
-            <TextBlock Text="Deadline:" />
-            <NumericUpDown Value="{Binding Deadline}" Minimum="0" Maximum="1000" Increment="5" FormatString="{}{0:0}" />
-            <TextBlock Text="ms" VerticalAlignment="Center" />
-          </StackPanel>
-
-          <!--
-          <TextBlock Grid.Column="1" Padding="16, 0, 24, 0" />
-
-          <StackPanel Orientation="Horizontal" Grid.Column="2" ToolTip.Tip="The maximum distance in lines that the gesture can be moved from the starting point.">
-            <TextBlock Text="Threshold:" />
-            <NumericUpDown Value="{Binding Threshold}" Minimum="0" Maximum="1000" Increment="5" FormatString="{}{0:0}" />
-            <TextBlock Text="lines" VerticalAlignment="Center" />
-          </StackPanel>
-          -->
-
-        </Grid>
-
-      </Border>
-    
-      <!-- Navigation Buttons -->
-      <controls:SetupNavigationBar  BackCommand="{Binding GoBackCommand}" NextCommand="{Binding DoCompleteCommand}" NextButtonText="Complete"
-                                    Grid.Row="2" HorizontalAlignment="Center" CanGoNext="{Binding AreGestureSettingTweaked}" />
-    </Grid>
+    <ContentControl Name="PART_Content" Content="{Binding}" />
   </Grid>
 
 </UserControl>

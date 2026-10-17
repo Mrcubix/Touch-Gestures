@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=VERSION_PLACEHOLDER
+Name=Touch Gestures
+Name[en_GB]=Touch Gestures
+Comment=Configure Touch Gestures using this interface
+Icon=/usr/share/pixmaps/avalonia-logo.png
+Exec=/usr/bin/touch-gestures
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=Settings;

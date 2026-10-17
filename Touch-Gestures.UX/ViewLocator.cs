@@ -5,7 +5,6 @@ using TouchGestures.UX.ViewModels;
 
 namespace TouchGestures.UX;
 
-#nullable enable
 #pragma warning disable IL2057
 
 public class ViewLocator : IDataTemplate
@@ -22,7 +21,7 @@ public class ViewLocator : IDataTemplate
         {
             return (Control)Activator.CreateInstance(type)!;
         }
-        
+
         return new TextBlock { Text = name };
     }
 

@@ -10,7 +10,7 @@ namespace TouchGestures.Lib.Input
         {
         }
 
-        public GestureStartedEventArgs(bool hasStarted, bool hasEnded, bool hasCompleted, Vector2 startPosition) : base(hasStarted, hasEnded, hasCompleted)
+        public GestureStartedEventArgs(bool hasStarted, bool hasActivated, bool hasEnded, bool hasCompleted, Vector2 startPosition) : base(hasStarted, hasActivated, hasEnded, hasCompleted)
         {
             StartPosition = startPosition;
         }

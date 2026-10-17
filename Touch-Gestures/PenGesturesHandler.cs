@@ -4,22 +4,29 @@ using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Attributes;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Touch;
+using OTD.EnhancedOutputMode.Lib.Interface;
+using OTD.EnhancedOutputMode.Lib.Tools;
 using TouchGestures.Extensions;
+using TouchGestures.Lib;
 using TouchGestures.Lib.Entities;
 using TouchGestures.Lib.Entities.Tablet;
 
 namespace TouchGestures
 {
+    // TODO : Figure out what's broken with inheriting from GesturesHandler
+    // OnProfileChanged gets called twice when both the base & Pen filters are enabled in the UX
     [PluginName(PLUGIN_NAME)]
-    public class PenGesturesHandler : GesturesHandler
+    public class PenGesturesHandler : GesturesHandlerBase, IFilter, IGateFilter, IInitialize, IDisposable
     {
         #region Constants
 
-        private const string PLUGIN_NAME = "Pen Gestures";
+        private new const string PLUGIN_NAME = "Pen Gestures";
 
         #endregion
 
         #region Fields
+
+        protected TouchSettings _touchSettings => TouchSettings.Instance ?? TouchSettings.Default;
 
         private readonly TouchReport _stubReport = new(1);
         private readonly TouchPoint _stubPoint = new();
@@ -35,10 +42,10 @@ namespace TouchGestures
             if (Info.Driver.Tablet != null && _daemon != null)
             {
                 _tablet = Info.Driver.Tablet.ToShared(_touchSettings);
-                _tablet.Name = $"{_tablet.Name} (Pen Only)"; 
+                _tablet.Name = $"{_tablet.Name} (Pen Only)";
 
                 _daemon.AddTablet(_tablet);
-                _profile = _daemon.GetSettingsForTablet(_tablet.Name);
+                _profile = _daemon.GetSettingsForTablet<StableGestureProfile>(_tablet.Name);
 
                 if (_profile != null)
                 {
@@ -59,9 +66,17 @@ namespace TouchGestures
 
         #endregion
 
+        #region Properties
+
+        public FilterStage FilterStage => FilterStage.PreTranspose;
+
+        #endregion
+
         #region Methods
 
-        public override bool Pass(IDeviceReport report, ref ITabletReport tabletreport)
+        public Vector2 Filter(Vector2 input) => input;
+
+        public bool Pass(IDeviceReport report, ref ITabletReport tabletreport)
         {
             if (report is ITabletReport tabletReport)
             {
@@ -108,19 +123,7 @@ namespace TouchGestures
                     Log.Write(PLUGIN_NAME, "LPMM is zero, this is very unusual as the tablet's specifications should be defined in the internal tablet configuration.", LogLevel.Error);
             }
 
-            TapGestures.Clear();
-            HoldGestures.Clear();
-            NonConflictingGestures.Clear();
-
-            SortGestures();
-
-            TapGestures.AddRange(_profile.TapGestures);
-            HoldGestures.AddRange(_profile.HoldGestures);
-
-            NonConflictingGestures.AddRange(_profile.SwipeGestures);
-            NonConflictingGestures.AddRange(_profile.PanGestures);
-            NonConflictingGestures.AddRange(_profile.PinchGestures);
-            NonConflictingGestures.AddRange(_profile.RotateGestures);
+            ReplaceGesturesUsingProfile();
 
             Log.Debug(PLUGIN_NAME, "Settings updated");
         }

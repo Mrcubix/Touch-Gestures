@@ -4,12 +4,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using TouchGestures.Lib.Entities.Gestures.Bases;
-using TouchGestures.Lib.Interfaces;
 using TouchGestures.UX.Events;
 
 namespace TouchGestures.UX.ViewModels;
-
-#nullable enable
 
 public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel, IDisposable
 {
@@ -25,33 +22,12 @@ public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel, I
 
     #region Constructors
 
-    public GestureBindingDisplayViewModel(Gesture gesture)
+    public GestureBindingDisplayViewModel(Gesture gesture) : base(gesture.Store!)
     {
-        if (gesture is not ISerializable serialized)
-            throw new ArgumentException("Gesture must be serializable");
-
         AssociatedGesture = gesture;
 
-        PluginProperty = serialized.PluginProperty;
-
-        if (gesture is INamed named)
-            Description = named.Name;
-
-        Initialize();
-    }
-
-    public GestureBindingDisplayViewModel(GestureAddedEventArgs e)
-    {
-        ArgumentNullException.ThrowIfNull(e.Gesture);
-
-        if (e.Gesture is not ISerializable)
-            throw new ArgumentException("Gesture must implement ISerializable");
-
-        Description = e.BindingDisplay.Description;
-        Content = e.BindingDisplay.Content;
-        PluginProperty = e.BindingDisplay.PluginProperty;
-
-        AssociatedGesture = e.Gesture;
+        Store = gesture.Store;
+        Content = gesture.Store?.GetHumanReadableString();
 
         Initialize();
     }
@@ -87,26 +63,27 @@ public partial class GestureBindingDisplayViewModel : BindingDisplayViewModel, I
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(PluginProperty))
+        if (e.PropertyName == nameof(Store))
         {
-            if (AssociatedGesture is not ISerializable serialized)
-                return;
-
-            var args = new GestureBindingsChangedArgs(serialized.PluginProperty, PluginProperty);
-
-            serialized.PluginProperty = PluginProperty;
-
+            var args = new GestureBindingsChangedArgs(AssociatedGesture.Store, Store);
+            AssociatedGesture.Store = Store;
             BindingChanged?.Invoke(this, args);
         }
     }
 
-    public void Dispose()
+    #endregion
+
+    #region IDisposable
+
+    public new void Dispose()
     {
         PropertyChanged -= OnPropertyChanged;
 
         EditRequested = null;
         DeletionRequested = null;
         BindingChanged = null;
+
+        base.Dispose();
 
         GC.SuppressFinalize(this);
     }

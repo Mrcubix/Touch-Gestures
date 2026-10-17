@@ -4,8 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace TouchGestures.UX.ViewModels;
 
-#nullable enable
-
 public abstract partial class NavigableViewModel : ViewModelBase
 {
     public event EventHandler? BackRequested;

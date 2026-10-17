@@ -6,13 +6,13 @@ using Avalonia.Media.Imaging;
 using OpenTabletDriver.External.Avalonia.ViewModels;
 using TouchGestures.Lib.Entities.Gestures.Bases;
 using TouchGestures.Lib.Enums;
-using TouchGestures.Lib.Serializables.Gestures;
 using TouchGestures.UX.Attributes;
 using TouchGestures.UX.Extentions;
 using Rect = Avalonia.Rect;
 using DescriptionAttribute = TouchGestures.UX.Attributes.DescriptionAttribute;
 using System.Numerics;
 using TouchGestures.UX.ViewModels.Controls.Tiles;
+using TouchGestures.Lib.Entities.Gestures;
 
 namespace TouchGestures.UX.ViewModels.Controls.Setups;
 
@@ -23,13 +23,13 @@ using static AssetLoaderExtensions;
  MultiTouchOnly(false)]
 public partial class PanSetupViewModel : SwipeSetupViewModel
 {
-    private readonly SerializablePanGesture _gesture;
+    private readonly PanGesture _gesture;
 
     #region Constructors
 
     /// Design-time constructor
-    public PanSetupViewModel() : this(false) 
-    { 
+    public PanSetupViewModel() : this(false)
+    {
     }
 
     public PanSetupViewModel(bool isEditing = false)
@@ -38,6 +38,8 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
 
         CanGoBack = true;
         CanGoNext = true;
+
+        SubscribeToSettingsChanges();
 
         GestureSetupPickText = "Direction of the Pan:";
 
@@ -56,12 +58,12 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
 
         GestureSetupPickPreviews = new ObservableCollection<Bitmap?>(images);
 
+        RequiredTouchesCount = 1;
         SelectedGestureSetupPickIndex = 0;
+        MultitouchSteps = [1];
 
-        BindingDisplay = new BindingDisplayViewModel();
-        _gesture = new SerializablePanGesture();
-
-        SubscribeToSettingsChanges();
+        BindingDisplay = new BindingDisplayViewModel("Up 1-Touch Pan", string.Empty, null!);
+        _gesture = new PanGesture();
 
         Deadline = 150;
         Threshold = 20;
@@ -69,7 +71,7 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
 
     public PanSetupViewModel(Gesture gesture, Rect fullArea) : this(true)
     {
-        if (gesture is not SerializablePanGesture serializedPanGesture)
+        if (gesture is not PanGesture serializedPanGesture)
             throw new ArgumentException("Gesture is not a SerializableTapGesture", nameof(gesture));
 
         _gesture = serializedPanGesture;
@@ -78,33 +80,18 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
         Deadline = serializedPanGesture.Deadline;
 
         SelectedGestureSetupPickIndex = (int)serializedPanGesture.Direction;
+        RequiredTouchesCount = serializedPanGesture.RequiredTouchesCount;
 
-        BindingDisplay.PluginProperty = serializedPanGesture.PluginProperty;
+        BindingDisplay.Store = serializedPanGesture.Store;
+        BindingDisplay.Content = serializedPanGesture.Store?.GetHumanReadableString();
+        BindingDisplay.Description = gesture.DisplayName;
 
-        SetupArea(fullArea, serializedPanGesture.Bounds);
+        AreaDisplay = SetupArea(fullArea, serializedPanGesture.Bounds);
     }
 
     #endregion
 
     #region Methods
-
-    protected override void GoNext()
-    {
-        if (IsOptionsSelectionStepActive)
-        {
-            IsOptionsSelectionStepActive = false;
-            IsBindingSelectionStepActive = true;
-
-            var value = GestureSetupPickItems?[SelectedGestureSetupPickIndex];
-
-            BindingDisplay.Description = $"{value} Pan";
-        }
-        else if (IsBindingSelectionStepActive)
-        {
-            IsBindingSelectionStepActive = false;
-            IsSettingsTweakingStepActive = true;
-        }
-    }
 
     /// <inheritdoc/>
     public override Gesture? BuildGesture()
@@ -116,23 +103,33 @@ public partial class PanSetupViewModel : SwipeSetupViewModel
         _gesture.Bounds = AreaDisplay?.MappedArea.ToSharedArea();
         _gesture.Deadline = Deadline;
         _gesture.Direction = option;
-        _gesture.PluginProperty = BindingDisplay.PluginProperty;
+        _gesture.Store = BindingDisplay.Store;
+        _gesture.RequiredTouchesCount = RequiredTouchesCount;
 
         return _gesture;
     }
 
+    #endregion
+
     #region Events Handlers
 
     /// <inheritdoc/>
-    protected override void OnSettingsTweaksChanged(object? sender, PropertyChangedEventArgs e)
+    protected override void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Deadline) || e.PropertyName == nameof(Threshold))
-            AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
-    }
+        switch (e.PropertyName)
+        {
+            case nameof(SelectedGestureSetupPickIndex) or nameof(RequiredTouchesCount):
+                BindingDisplay.Description = $"{GestureSetupPickItems?[SelectedGestureSetupPickIndex]} {RequiredTouchesCount}-Touch Pan";
+                break;
+            case nameof(Deadline) or nameof(Threshold):
+                AreGestureSettingTweaked = Deadline > 0 && Threshold > 0;
+                break;
+        }
 
-    #endregion
+        base.OnPropertyChanged(sender, e);
+    }
 
     #endregion
 }
 
-public class PanTileViewModel : GestureTileViewModel<PanSetupViewModel> {}
+public class PanTileViewModel : GestureTileViewModel<PanSetupViewModel> { }

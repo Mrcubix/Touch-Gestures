@@ -6,6 +6,11 @@ on:
       tag:
         description: 'The tag to create for the release'
         required: true
+      debug:
+        description: 'Debug mode'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   release:
@@ -18,12 +23,12 @@ jobs:
       TAG: ${{ github.event.inputs.tag }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: |
           5.0.x
@@ -31,18 +36,80 @@ jobs:
           8.0.x
 
     - name: Build
-      run: bash ./build.sh
+      run: bash ./build.sh --skip-hashing
+
+    - name: Package MacOS Build
+      run: ./packaging/macos/package.sh
+
+    - name: Compute Hashes
+      run: bash ./hash.sh --hash-universal-macos
 
     - name: Create Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         declare -a files
+        # Add the Handlers
+        files+=("build/plugin/0.5.x/Touch-Gestures-0.5.x.zip")
+        files+=("build/plugin/0.6.x/Touch-Gestures-0.6.x.zip")
         # Add Installers
         files+=("build/installer/0.5.x/Touch-Gestures.Installer-0.5.x.zip")
         files+=("build/installer/0.6.x/Touch-Gestures.Installer-0.6.x.zip")
         # Add all ux zip files
-        for file in build/ux/*.zip; do
+        for file in build/ux/Touch-Gestures.UX-win-*.zip; do
+          files+=("$file")
+        done
+        for file in build/ux/Touch-Gestures.UX-linux-*.zip; do
+          files+=("$file")
+        done
+        for file in build/packages/*.tar.gz; do
           files+=("$file")
         done
         gh release create -d -t "Touch Gestures $TAG" "$TAG" "${files[@]}" -F build/hashes.txt
+
+  release-macOS:
+    permissions:
+      contents: write
+
+    runs-on: macos-latest
+    name: Sign & Upload back MacOS Universal Build
+    needs: release
+    env:
+      TAG: ${{ github.event.inputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Debug print drafted release
+        if: ${{ github.event.inputs.debug }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release view "$TAG"
+
+      - name: Download MacOS Universal Build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download "$TAG" -p "Touch-Gestures.UX-osx-universal.tar.gz"
+
+      - name: Extract binaries
+        run: tar -xzf Touch-Gestures.UX-osx-universal.tar.gz
+
+      - name: Sign binaries
+        run: |
+          export pkg_root="./Touch-Gestures.app"
+          bash ./packaging/macos/sign.sh
+
+      - name: Re-compress binaries
+        run: tar -czf Touch-Gestures.UX-osx-universal.tar.gz Touch-Gestures.app 
+
+      - name: Remove unsigned build from release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release delete-asset "$TAG" Touch-Gestures.UX-osx-universal.tar.gz
+
+      - name: Upload signed binaries
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$TAG" Touch-Gestures.UX-osx-universal.tar.gz

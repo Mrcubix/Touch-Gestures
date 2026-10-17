@@ -7,8 +7,6 @@ using TouchGestures.UX.ViewModels.Controls.Nodes;
 
 namespace TouchGestures.UX.Entities.Builders.Nodes;
 
-#nullable enable
-
 public class RectangleNodeBuilder : INodeBuilder
 {
     #region Constructors

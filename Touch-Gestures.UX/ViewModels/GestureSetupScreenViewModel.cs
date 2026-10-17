@@ -1,10 +1,9 @@
 using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using TouchGestures.UX.ViewModels.Controls.Setups;
 
 namespace TouchGestures.UX.ViewModels;
-
-#nullable enable
 
 public partial class GestureSetupScreenViewModel : NavigableViewModel
 {
@@ -20,29 +19,34 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
     ///   Start the gesture setup process.
     /// </summary>
     /// <param name="gestureSetupViewModel">The view model to start the setup with.</param>
-    public void StartSetup(GestureSetupViewModel gestureSetupViewModel, bool isMultiTouch = false)
+    public Task StartSetup(GestureSetupViewModel gestureSetupViewModel, bool isMultiTouch = false)
     {
         NextViewModel = gestureSetupViewModel;
         NextViewModel.BackRequested += OnBackRequestedAhead;
+        // TODO : Remove this once a better way to update the current step Template is found
+        NextViewModel.PropertyChanged += OnPropertyChanged;
 
         // There shouldn't be a situation where an unsupported gesture should make its way here normally, 
         // as these are hidden during the selection process.
 
-        gestureSetupViewModel.IsOptionsSelectionStepActive = false;
-
-        // Check if single touch even matters for the setup.
-        if (isMultiTouch || gestureSetupViewModel.SingleTouchOptionSelectionEnabled)
-            gestureSetupViewModel.IsOptionsSelectionStepActive = true;
-        else
-            gestureSetupViewModel.IsBindingSelectionStepActive = true;
-        
         gestureSetupViewModel.IsMultiTouchSetup = isMultiTouch;
+
+        gestureSetupViewModel.CurrentStep = -1;
+        gestureSetupViewModel.GoNextCommand.Execute(null);
+
+        return Task.WhenAny(gestureSetupViewModel.Complete, gestureSetupViewModel.Cancel);
     }
 
     protected override void GoBack()
     {
         if (NextViewModel != null)
+        {
             NextViewModel.BackRequested -= OnBackRequestedAhead;
+            // TODO : Remove this once a better way to update the current step Template is found
+            NextViewModel.PropertyChanged -= OnPropertyChanged;
+        }
+
+        NextViewModel = null;
 
         base.GoBack();
     }
@@ -50,6 +54,8 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
     #endregion
 
     #region Event Handlers
+
+    private void OnBackRequestedAhead(object? sender, EventArgs e) => GoBack();
 
     private void OnCurrentGestureSetupChanging(object? sender, PropertyChangingEventArgs e)
     {
@@ -63,7 +69,16 @@ public partial class GestureSetupScreenViewModel : NavigableViewModel
             NextViewModel.BackRequested += OnBackRequestedAhead;
     }
 
-    private void OnBackRequestedAhead(object? sender, EventArgs e) => GoBack();
+    // TODO : Remove this once a better way to update the current step Template is found
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(GestureSetupViewModel.CurrentStep) && NextViewModel is GestureSetupViewModel)
+        {
+            var previous = NextViewModel;
+            NextViewModel = null;
+            NextViewModel = previous;
+        }
+    }
 
     #endregion
 }

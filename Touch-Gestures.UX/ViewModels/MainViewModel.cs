@@ -9,17 +9,15 @@ using TouchGestures.Lib.Contracts;
 using StreamJsonRpc;
 using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 using TouchGestures.Lib.Entities;
 using System.Threading;
 using Avalonia.Threading;
 using Newtonsoft.Json;
-using TouchGestures.Lib.Converters;
 using TouchGestures.Lib.Entities.Tablet;
+using TouchGestures.Lib.Input;
+using TouchGestures.Lib.Converters.Json;
 
 namespace TouchGestures.UX.ViewModels;
-
-#nullable enable
 
 public partial class MainViewModel : NavigableViewModel
 {
@@ -29,7 +27,7 @@ public partial class MainViewModel : NavigableViewModel
 
     private CancellationTokenSource _reconnectionTokenSource = new();
     private RpcClient<IGesturesDaemon> _client;
-    private SerializableSettings _settings;
+    private Settings _settings;
 
     #endregion
 
@@ -93,6 +91,7 @@ public partial class MainViewModel : NavigableViewModel
         NextViewModel!.BackRequested += OnBackRequestedAhead;
 
         _client = new("GesturesDaemon");
+        _client.Converters.Add(new SerializablePropertyConverter());
 
         InitializeClient();
     }
@@ -115,7 +114,7 @@ public partial class MainViewModel : NavigableViewModel
 
     public event EventHandler<ObservableCollection<SerializablePlugin>>? PluginChanged;
 
-    public event EventHandler<SerializableSettings>? SettingsChanged;
+    public event EventHandler<Settings>? SettingsChanged;
 
     public event EventHandler? Ready;
 
@@ -185,7 +184,7 @@ public partial class MainViewModel : NavigableViewModel
         return null;
     }
 
-    private async Task<SerializableSettings?> FetchSettingsAsync()
+    private async Task<Settings?> FetchSettingsAsync()
     {
         if (!_client.IsConnected)
             return null;
@@ -217,7 +216,7 @@ public partial class MainViewModel : NavigableViewModel
         }
     }
 
-    private async Task UpdateProfileAsync(SerializableProfile profile)
+    private async Task UpdateProfileAsync(GestureProfile profile)
     {
         if (!_client.IsConnected)
             return;
@@ -230,26 +229,6 @@ public partial class MainViewModel : NavigableViewModel
         {
             HandleException(e);
         }
-    }
-
-    // Get Settings
-
-    public string GetFriendlyContentFromProperty(SerializablePluginSettings? property)
-    {
-        if (property == null || property.Identifier == 0)
-            return "";
-
-        var pluginName = GetPluginNameFromIdentifier(property.Identifier);
-
-        return $"{pluginName} : {property.Value}";
-    }
-
-    private string? GetPluginNameFromIdentifier(int identifier)
-    {
-        if (Plugins == null)
-            return null;
-
-        return Plugins.FirstOrDefault(x => x.Identifier == identifier)?.PluginName ?? "Unknown";
     }
 
     #endregion
@@ -275,15 +254,16 @@ public partial class MainViewModel : NavigableViewModel
         ConnectionStateText = "Disconnected";
         IsReady = false;
         Disconnected?.Invoke(this, EventArgs.Empty);
-        _client.Instance.TabletsChanged -= OnTabletsChanged;
 
-        _ = Task.Run(() => AttemptReconnectionIndefinitelyAsync());
+        _ = Task.Run(AttemptReconnectionIndefinitelyAsync);
         NextViewModel = this;
     }
 
     private async Task OnClientAttached(object? sender, EventArgs e)
     {
         ConnectionStateText = "Connected, Fetching Plugins & Settings ...";
+
+        // TODO : Check if Supported Setting Version is actually compatible with UX
 
         _client.Instance.TabletsChanged += OnTabletsChanged;
 
@@ -292,6 +272,7 @@ public partial class MainViewModel : NavigableViewModel
         if (tempPlugins != null)
         {
             Plugins = new ObservableCollection<SerializablePlugin>(tempPlugins);
+            BindingsOverviewViewModel.Plugins = Plugins;
             PluginChanged?.Invoke(this, Plugins);
         }
 
@@ -315,7 +296,7 @@ public partial class MainViewModel : NavigableViewModel
         if (tablets == null)
             return;
 
-        SerializableSettings? tempSettings = await FetchSettingsAsync();
+        Settings? tempSettings = await FetchSettingsAsync();
 
         if (tempSettings != null)
         {
@@ -323,7 +304,12 @@ public partial class MainViewModel : NavigableViewModel
             Dispatcher.UIThread.Post(() => OnSettingsChanged(_settings));
             Dispatcher.UIThread.Post(() => BindingsOverviewViewModel.SetTablets(tablets));
         }
+
+        _client.Instance.DeviceReport += OnDeviceReport;
     }
+
+    private void OnDeviceReport(object? sender, DeviceReportEventArgs e)
+        => BindingsOverviewViewModel.DebuggerViewModel.OnDeviceReport(sender, e);
 
     //
     // UX Event Handlers
@@ -357,7 +343,7 @@ public partial class MainViewModel : NavigableViewModel
         _ = SaveSettingsAsync();
     }
 
-    private void OnSettingsChanged(SerializableSettings e)
+    private void OnSettingsChanged(Settings e)
     {
         bool isOverviewNextViewModel = NextViewModel is BindingsOverviewViewModel;
 
@@ -373,7 +359,7 @@ public partial class MainViewModel : NavigableViewModel
     // Handling whenever gestures are added / changed / deleted
     //
 
-    private void OnProfileChanged(object? sender, SerializableProfile e)
+    private void OnProfileChanged(object? sender, GestureProfile e)
     {
         _ = UpdateProfileAsync(e);
     }

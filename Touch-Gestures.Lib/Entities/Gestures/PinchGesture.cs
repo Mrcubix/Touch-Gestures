@@ -6,6 +6,7 @@ using System.Numerics;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using TouchGestures.Lib.Entities.Gestures.Bases;
+using TouchGestures.Lib.Enums;
 using TouchGestures.Lib.Extensions;
 using TouchGestures.Lib.Input;
 
@@ -25,6 +26,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         #region Fields
 
         protected bool _hasStarted = false;
+        protected bool _hasActivated = false;
         protected bool _hasEnded = false;
         protected bool _hasCompleted = false;
 
@@ -46,6 +48,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         public PinchGesture()
         {
             GestureStarted += (_, args) => OnGestureStart(args);
+            GestureActivated += (_, args) => OnGestureActive(args);
             GestureEnded += (_, args) => OnGestureEnd(args);
             GestureCompleted += (_, args) => OnGestureComplete(args);
 
@@ -84,7 +87,7 @@ namespace TouchGestures.Lib.Entities.Gestures
             AngleThreshold = angleThreshold;
         }
 
-        public PinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise, SharedArea? bounds) 
+        public PinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise, SharedArea? bounds)
             : this(bounds)
         {
             IsInner = isInner;
@@ -92,9 +95,9 @@ namespace TouchGestures.Lib.Entities.Gestures
 
             DistanceThreshold = distanceThreshold;
             AngleThreshold = angleThreshold;
-        } 
+        }
 
-        public PinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise, Rectangle bounds) 
+        public PinchGesture(double distanceThreshold, double angleThreshold, bool isInner, bool isClockwise, Rectangle bounds)
             : this(bounds)
         {
             IsInner = isInner;
@@ -110,6 +113,9 @@ namespace TouchGestures.Lib.Entities.Gestures
 
         /// <inheritdoc/>
         public override event EventHandler<GestureStartedEventArgs>? GestureStarted;
+
+        /// <inheritdoc/>
+        public override event EventHandler<GestureEventArgs>? GestureActivated;
 
         /// <inheritdoc/>
         public override event EventHandler<GestureEventArgs>? GestureEnded;
@@ -135,7 +141,22 @@ namespace TouchGestures.Lib.Entities.Gestures
 
                 if (value && previous == false)
                     if (_currentPoints.Count == REQUIRED_TOUCHES_COUNT)
-                        GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasEnded, _hasCompleted, _currentPoints[0].Position));
+                        GestureStarted?.Invoke(this, new GestureStartedEventArgs(value, _hasActivated, _hasEnded, _hasCompleted, _currentPoints[0].Position));
+            }
+        }
+
+        /// <inheritdoc/>
+        public override bool HasActivated
+        {
+            get => _hasActivated;
+            protected set
+            {
+                var previous = _hasActivated;
+
+                _hasActivated = value;
+
+                if (value && previous == false)
+                    GestureActivated?.Invoke(this, new GestureEventArgs(_hasStarted, value, _hasEnded, _hasCompleted));
             }
         }
 
@@ -150,7 +171,7 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasEnded = value;
 
                 if (value && previous == false)
-                    GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, value, _hasCompleted));
+                    GestureEnded?.Invoke(this, new GestureEventArgs(_hasStarted, _hasActivated, value, _hasCompleted));
             }
         }
 
@@ -165,7 +186,27 @@ namespace TouchGestures.Lib.Entities.Gestures
                 _hasCompleted = value;
 
                 if (value && previous == false)
-                    GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasEnded, value));
+                    GestureCompleted?.Invoke(this, new GestureEventArgs(_hasStarted, _hasActivated, _hasEnded, value));
+            }
+        }
+
+        [JsonProperty]
+        public override GestureType Type => DistanceThreshold > 0 ? GestureType.Pinch : GestureType.Rotate;
+
+        public override string DisplayName
+        {
+            get
+            {
+                if (AngleThreshold == 0)
+                {
+                    var direction = IsInner ? "Inner" : "Outer";
+                    return $"{direction} Pinch";
+                }
+                else
+                {
+                    var direction = IsClockwise ? "Clockwise" : "Counter-Clockwise";
+                    return $"{direction} Rotation";
+                }
             }
         }
 
@@ -221,6 +262,12 @@ namespace TouchGestures.Lib.Entities.Gestures
         protected virtual void CompleteGesture()
         {
             HasCompleted = true;
+
+            if (Binding != null)
+            {
+                Binding.Press(null!);
+                Binding.Release(null!);
+            }
         }
 
         #region Gesture Specific Methods
@@ -270,7 +317,7 @@ namespace TouchGestures.Lib.Entities.Gestures
         {
             if (_currentPoints.Count != REQUIRED_TOUCHES_COUNT)
                 return;
-                //return (0, 0, 0, 0);
+            //return (0, 0, 0, 0);
 
             var first = _currentPoints[0];
             var second = _currentPoints[1];
@@ -360,19 +407,6 @@ namespace TouchGestures.Lib.Entities.Gestures
         #endregion
 
         #region Event Handlers
-
-        /// <inheritdoc/>
-        protected override void OnGestureStart(GestureStartedEventArgs e)
-        {
-            HasEnded = false;
-            HasCompleted = false;
-        }
-
-        /// <inheritdoc/>
-        protected override void OnGestureEnd(GestureEventArgs e)
-        {
-            HasStarted = false;
-        }
 
         /// <inheritdoc/>
         protected override void OnGestureComplete(GestureEventArgs e)

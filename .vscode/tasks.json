@@ -10,8 +10,7 @@
                 "Touch-Gestures.UX.Desktop/Touch-Gestures.UX.Desktop.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
-                "/property:noWarn=\"NETSDK1138;VSTHRD200;CS0414\"",
-                "/property:OTDVersion=OTD05"
+                "/property:noWarn=\"NETSDK1138;VSTHRD200;CS0414\""
             ],
             "problemMatcher": "$msCompile"
         },
@@ -22,7 +21,6 @@
             "args": [
                 "publish",
                 "Touch-Gestures.UX.Desktop/Touch-Gestures.UX.Desktop.csproj",
-                "-p:OTDVersion=OTD05",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
                 "/property:noWarn=\"NETSDK1138;VSTHRD200;CS0414\""
@@ -49,7 +47,6 @@
             "args": [
                 "test",
                 "Touch-Gestures.Tests",
-                "-p:OTDVersion=OTD05",
                 "-p:nowarn=\"NETSDK1138;VSTHRD200;CS0414\"",
                 "--logger",
                 "console;verbosity=detailed"

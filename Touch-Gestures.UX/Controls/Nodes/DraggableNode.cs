@@ -9,8 +9,6 @@ using TouchGestures.UX.ViewModels.Controls.Nodes;
 
 namespace TouchGestures.UX.Controls.Nodes;
 
-#nullable enable
-
 /// <summary>
 ///   A Control that can be dragged around by the user.
 /// </summary>
@@ -95,7 +93,7 @@ public abstract class DraggableNode : Shape
 
         if (_transform != null)
         {
-            _dragStartPoint = new Point(_dragStartPoint.X - _transform.X, 
+            _dragStartPoint = new Point(_dragStartPoint.X - _transform.X,
                                         _dragStartPoint.Y - _transform.Y);
         }
 
