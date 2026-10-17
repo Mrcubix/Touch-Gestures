@@ -37,7 +37,7 @@ jobs:
       run: bash ./build.sh --skip-hashing
 
     - name: Package MacOS Build
-      run: ./packaging/macos/package.sh --signed=true
+      run: ./packaging/macos/package.sh
 
     - name: Compute Hashes
       run: bash ./hash.sh --hash-universal-macos
@@ -64,3 +64,36 @@ jobs:
           files+=("$file")
         done
         gh release create -d -t "Touch Gestures $TAG" "$TAG" "${files[@]}" -F build/hashes.txt
+
+  release-macOS:
+    permissions:
+      contents: write
+
+    runs-on: macos-latest
+    name: Sign & Upload back MacOS Universal Build
+    env:
+      TAG: ${{ github.event.inputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Download MacOS Universal Build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download "$TAG" -p "Touch-Gestures.UX-osx-universal.tar.gz"
+
+      - name: Extract binaries
+        run: tar -xzf Touch-Gestures.UX-osx-universal.tar.gz
+
+      - name: Sign binaries
+        run: |
+          export pkg_root="./Touch-Gestures.app"
+          bash ./packaging/macos/sign.sh
+
+      - name: Remove unsigned build from release
+        run: gh release delete-asset "$TAG" Touch-Gestures.UX-osx-universal.tar.gz
+
+      - name: Upload signed binaries
+        run: gh release upload "$TAG" -R Touch-Gestures.app

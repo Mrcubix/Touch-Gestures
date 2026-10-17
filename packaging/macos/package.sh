@@ -75,7 +75,7 @@ cleanup_macos_build
 echo -e "\nPreparing package..."
 
 pkg_file="${PACKAGE_LNAME}-osx-universal.tar.gz"
-pkg_root="${OUTPUT}/${PACKAGE_NAME}.app"
+export pkg_root="${OUTPUT}/${PACKAGE_NAME}.app"
 
 echo "Copying binaries..."
 mkdir -p "${pkg_root}/Contents/MacOS"
@@ -116,14 +116,7 @@ cp "${PKG_SCRIPT_ROOT}/Icon.icns" "${pkg_root}/Contents/Resources/"
 cp "${PKG_SCRIPT_ROOT}/Info.plist" "${pkg_root}/Contents/"
 
 if [ "${SIGNED}" == "true" ]; then
-  echo "Signing app bundle..."
-  if hash rcodesign 2>/dev/null; then
-    rcodesign sign -vv "${pkg_root}"
-  elif hash codesign 2>/dev/null; then
-    codesign --deep --force --sign - "${pkg_root}"
-  else
-    echo "Warning: neither rcodesign nor codesign found, skipping signing"
-  fi
+  "${PKG_SCRIPT_ROOT}/sign.sh"
 fi
 
 echo "Creating tarball..."
