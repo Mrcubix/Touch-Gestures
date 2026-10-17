@@ -35,9 +35,6 @@ jobs:
           6.0.x
           8.0.x
 
-    - name: Setup rcodesign
-      uses: ./.github/.actions/setup-rcodesign
-
     - name: Build
       run: bash ./build.sh --skip-hashing
 

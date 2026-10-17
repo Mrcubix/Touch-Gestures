@@ -69,6 +69,11 @@ fi
     )
 
     (
+        if [ ! -d "./packages" ]; then
+            echo "packages directory does not exist, skipping..."
+            exit 0
+        fi
+
         cd ./packages
 
         # Compute all Package Hashes
