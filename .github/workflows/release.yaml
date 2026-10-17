@@ -93,6 +93,9 @@ jobs:
           export pkg_root="./Touch-Gestures.app"
           bash ./packaging/macos/sign.sh
 
+      - name: Re-compress binaries
+        run: tar -czf Touch-Gestures.UX-osx-universal.tar.gz Touch-Gestures.app 
+
       - name: Remove unsigned build from release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -101,4 +104,4 @@ jobs:
       - name: Upload signed binaries
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "$TAG" -R Touch-Gestures.app
+        run: gh release upload "$TAG" Touch-Gestures.UX-osx-universal.tar.gz
