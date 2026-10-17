@@ -87,6 +87,8 @@ jobs:
 
       - name: Debug print drafted release
         if: ${{ github.event.inputs.debug }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release view "$TAG"
 
       - name: Download MacOS Universal Build
