@@ -118,7 +118,7 @@ cp "${PKG_SCRIPT_ROOT}/Info.plist" "${pkg_root}/Contents/"
 if [ "${SIGNED}" == "true" ]; then
   echo "Signing app bundle..."
   if hash rcodesign 2>/dev/null; then
-    rcodesign sign "${pkg_root}"
+    rcodesign sign -vv "${pkg_root}"
   elif hash codesign 2>/dev/null; then
     codesign --deep --force --sign - "${pkg_root}"
   else
