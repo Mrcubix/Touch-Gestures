@@ -71,6 +71,7 @@ jobs:
 
     runs-on: macos-latest
     name: Sign & Upload back MacOS Universal Build
+    needs: release
     env:
       TAG: ${{ github.event.inputs.tag }}
 
