@@ -94,7 +94,11 @@ jobs:
           bash ./packaging/macos/sign.sh
 
       - name: Remove unsigned build from release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release delete-asset "$TAG" Touch-Gestures.UX-osx-universal.tar.gz
 
       - name: Upload signed binaries
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload "$TAG" -R Touch-Gestures.app
