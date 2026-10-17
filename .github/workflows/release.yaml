@@ -48,13 +48,13 @@ jobs:
         files+=("build/installer/0.5.x/Touch-Gestures.Installer-0.5.x.zip")
         files+=("build/installer/0.6.x/Touch-Gestures.Installer-0.6.x.zip")
         # Add all ux zip files
-        for file in build/ux/Touch-Gestures.UX-linux*.zip; do
+        for file in build/ux/Touch-Gestures.UX-win-*.zip; do
+          files+=("$file")
+        done
+        for file in build/ux/Touch-Gestures.UX-linux-*.zip; do
           files+=("$file")
         done
         for file in build/packages/*.tar.gz
-          files+=("$file")
-        done
-        for file in build/ux/Touch-Gestures.UX-linux*.zip; do
           files+=("$file")
         done
         gh release create -d -t "Touch Gestures $TAG" "$TAG" "${files[@]}" -F build/hashes.txt
